@@ -1,0 +1,9 @@
+<launch>
+	<!-- <include file="$(find launch)/imu.launch" /> -->
+	<node name="serial_node" pkg="rosserial_python" type="serial_node.py" >
+		<param name="port" value="/dev/ttyUSB2" />
+	</node>
+	<!-- <node name="svs" pkg="svs" type="svs" ></node> -->
+	<!-- <node name="sonar_interface" pkg="sonar" type="sonar_interface" ></node> -->
+	<!--<node name="ros_image_capture" pkg="machine_vision" type="circle_detection" ></node>-->
+</launch>

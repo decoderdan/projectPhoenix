@@ -899,7 +899,7 @@ int main( int argc, char **argv )
 		//Create a new sonar interface
 		uwe_sub::sonar::sonarInterface sonar;
 		/* Open and Configure the Serial Port. */
-		if (sonar.initialize("/dev/ttyS0")) {
+		if (sonar.initialize("/dev/ttyUSB0")) {
 			offline_count = 0;
 			std::cout << "Port open" << std::endl;
 			//uwe_sub::sonar::MicronConfig conf;

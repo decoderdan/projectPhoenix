@@ -33,7 +33,7 @@ int read_port(void) {
 
 int open_port(void){	
 	//fd = open("/dev/serial/by-id/usb-FTDI_US232R_FTB3UJNB-if00-port0", O_RDWR | O_NDELAY | O_NOCTTY);
-	fd = open("/dev/ttyS0", O_RDWR | O_NDELAY | O_NOCTTY);
+	fd = open("/dev/ttyUSB1", O_RDWR | O_NDELAY | O_NOCTTY);
 	if (fd == -1){
 		ROS_ERROR("Could not open port");
 		return 0;
@@ -55,8 +55,8 @@ void config_port(void){
 
 	tcgetattr(fd, &options);
 
-	cfsetispeed(&options, B19200);
-	cfsetospeed(&options, B19200);
+	cfsetispeed(&options, B57600);
+	cfsetospeed(&options, B57600);
 
 	options.c_cflag |= (CLOCAL | CREAD | CS8);
 
@@ -133,14 +133,14 @@ int main(int argc, char **argv){ //we need argc and argv for the rosInit functio
 			}
 			else{
 				ROS_ERROR("SVP DEPTH READING FAILURE");
-				failCount++;
+				/*failCount++;
 				depth = lastDepth;
 				if(failCount > 5){
 					failCount = 0;
 					close(fd);
 					open_port();
 					config_port();
-				}
+				}*/
 			}
 
 			svpDepthMsg.publish(svpDepth);
