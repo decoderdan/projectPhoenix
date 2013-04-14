@@ -1,0 +1,20 @@
+<package>
+  <description brief="sonar">
+
+     sonar
+
+  </description>
+	<export>
+	  <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib"/>
+	</export>
+  <author>Dan</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/sonar</url>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="serial_port"/>
+
+</package>
+
+
