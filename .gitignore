@@ -1,0 +1,12 @@
+# Directories
+build
+bin
+
+# Files
+.cproject
+.project
+.pydevproject
+*.so
+*.*~
+
+cmake_install.cmake
