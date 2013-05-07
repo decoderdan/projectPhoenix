@@ -4,6 +4,8 @@ bin
 msg_gen
 
 # Files
+.py
+.pyc
 .cproject
 .project
 .pydevproject

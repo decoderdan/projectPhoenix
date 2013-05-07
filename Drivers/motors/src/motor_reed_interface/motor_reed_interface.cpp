@@ -71,18 +71,18 @@ namespace uwe_sub {
 	 			void move() {
 	 			
 	 				//TODO: Remove the printout
-	 				std::cout << "Sending data: " << std::endl << 
-	 											"\tBow:\t\t " << (int)cfg.bow << std::endl <<
-	 											"\tStern:\t\t " << (int)cfg.stern << std::endl <<
-	 											"\tStarboard Bow:\t " << (int)cfg.starboard_bow << std::endl <<
-	 											"\tStarboard Stern: " << (int)cfg.starboard_stern << std::endl <<
-	 											"\tPort Bow:\t " << (int)cfg.port_bow << std::endl <<
-	 											"\tPort Stern:\t " << (int)cfg.port_stern << std::endl;
+	 				std::cout << "Sending data:" << std::endl << 
+	 											"\tFront:\t\t" << (int)cfg.front << std::endl <<
+	 											"\tBack:\t\t" << (int)cfg.back << std::endl <<
+	 											"\tFront Right:\t" << (int)cfg.front_right << std::endl <<
+	 											"\tBack Right:\t" << (int)cfg.back_right << std::endl <<
+	 											"\tFront Left:\t" << (int)cfg.front_left << std::endl <<
+	 											"\tBack Left:\t" << (int)cfg.back_left << std::endl;
 	 				
 	 				/* Create a vector with the data packet */
 	 				char value_buffer[100];
 	 				char tmp_buffer[100];
-	 				sprintf(value_buffer,"%d,%d,%d,%d,%d,%d", cfg.bow, cfg.stern, cfg.starboard_bow, cfg.starboard_stern, cfg.port_bow, cfg.port_stern);
+	 				sprintf(value_buffer,"%d,%d,%d,%d,%d,%d", cfg.front, cfg.back, cfg.front_right, cfg.back_right, cfg.front_left, cfg.back_left);
 	 				sprintf(tmp_buffer, "@%s*%02X\n", value_buffer, checksum(value_buffer));
 	 				std::vector<uint8_t> data_out(tmp_buffer, tmp_buffer + strlen(tmp_buffer)/sizeof(*tmp_buffer));
 	 				
@@ -125,12 +125,8 @@ int main( int argc, char **argv )
 	ros::Publisher reedStatusMsg = n.advertise<std_msgs::Bool>("reed", 100);
 	std_msgs::Bool reedStatus;
 
-	/* Test publish the motor configuration */
-	ros::Publisher testMsg = n.advertise<custom_msg::MotorConfig>("motor_config", 100);
-	custom_msg::MotorConfig testCfg;
-
 	//Subscribe to
-	ros::Subscriber sub1 = n.subscribe("motor_config", 100, motorConfigCallBack);
+	ros::Subscriber motorSub = n.subscribe("motor_config", 100, motorConfigCallBack);
 
 	ros::Rate r(50); //50Hz message
 	
@@ -139,16 +135,7 @@ int main( int argc, char **argv )
 	if (motors.initialize("/dev/serial/by-id/usb-FTDI_US232R_FTB3UJNB-if00-port0")) {
 
 		while(ros::ok())
-		{	
-			testCfg.bow++;
-			testCfg.stern+=3;
-			testCfg.starboard_bow-=2;
-			testCfg.starboard_stern-=3;
-			testCfg.port_bow+=2;
-			testCfg.port_stern+=4;
-			
-			testMsg.publish(testCfg);
-			
+		{				
 			motors.move();
 			reedStatus.data = motors.reedStatus();
 			reedStatusMsg.publish(reedStatus);

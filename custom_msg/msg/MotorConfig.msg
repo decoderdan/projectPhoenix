@@ -1,6 +1,6 @@
-int8 bow
-int8 stern
-int8 starboard_bow
-int8 starboard_stern
-int8 port_bow
-int8 port_stern
+int8 front
+int8 back
+int8 front_right
+int8 back_right
+int8 front_left
+int8 back_left
