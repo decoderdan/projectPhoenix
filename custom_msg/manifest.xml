@@ -1,0 +1,15 @@
+<package>
+  <description brief="custom_msg">
+
+     custom_msg
+
+  </description>
+  <author>dan ubu 32</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/custom_msg</url>
+  <depend package="roscpp"/>
+
+</package>
+
+

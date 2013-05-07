@@ -5,7 +5,6 @@
 #include "std_msgs/Float32.h"
 #include "std_msgs/Int32MultiArray.h"
 #include <serial_port/serial_port.hpp>
-//#include <sonar/sea_net_packet.hpp>
 
 namespace uwe_sub {
 
@@ -14,7 +13,7 @@ namespace uwe_sub {
 		static const char PACKET_START = '@';
 		static const char PACKET_END = 0x0A;
 
-		class SonarDriver;
+		class sonarInterface;
 
 		struct VersionData
 		{
@@ -498,7 +497,7 @@ namespace uwe_sub {
 		
 		};
 
-		class SonarDriver : protected uwe_sub::io::SerialPort, protected SeaNetPacket {
+		class sonarInterface : protected uwe_sub::io::SerialPort, protected SeaNetPacket {
 			protected:
 				HeadCommand head_config;
 				double speed_of_sound;
@@ -807,9 +806,9 @@ namespace uwe_sub {
 int main( int argc, char **argv )
 {
 
-	uwe_sub::sonar::SonarDriver sonar;
+	uwe_sub::sonar::sonarInterface sonar;
 
-	ros::init(argc, argv, "sonar");
+	ros::init(argc, argv, "sonar_interface");
 
 	ros::NodeHandle n;
 

@@ -26,15 +26,10 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #target_link_libraries(${PROJECT_NAME} another_library)
 #rosbuild_add_boost_directories()
 #rosbuild_link_boost(${PROJECT_NAME} thread)
-rosbuild_add_executable(sonarScanner src/sonarScanner.cpp)
+#rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-#-lglfw -lGL -lGLU -lX11 -lpthread -lm
+rosbuild_add_executable(motor_reed_interface src/motor_reed_interface/motor_reed_interface.cpp)
 
-target_link_libraries(sonarScanner glfw)
-target_link_libraries(sonarScanner GL)
-target_link_libraries(sonarScanner GLU)
-target_link_libraries(sonarScanner X11)
-target_link_libraries(sonarScanner pthread)
-target_link_libraries(sonarScanner m)
-
+#Sonar depends on serial_port library
+target_link_libraries(motor_reed_interface serial_port)

@@ -1,0 +1,16 @@
+<package>
+  <description brief="motors">
+
+     motors
+
+  </description>
+  <author>dan ubu 32</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/motors</url>
+  <depend package="roscpp"/>
+  <depend package="serial_port"/>
+  <depend package="custom_msg"/>
+</package>
+
+

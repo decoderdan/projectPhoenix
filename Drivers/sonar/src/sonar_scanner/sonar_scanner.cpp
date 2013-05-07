@@ -15,7 +15,7 @@
 #include "std_msgs/MultiArrayDimension.h"
 #include "std_msgs/Int32MultiArray.h"
 
-#include "sonarScanner.h"
+#include "sonar_scanner.h"
 
 #define WIDTH	600
 #define HEIGHT 	600
@@ -37,7 +37,7 @@ int imgx = 0, imgy = 0;
 int main(int argc, char **argv)
 {
 
-	ros::init(argc, argv, "sonarScanner");
+	ros::init(argc, argv, "sonar_scanner");
 
 	//Seed with the time.
 	srand ( (unsigned)time ( NULL ) );

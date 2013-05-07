@@ -1,6 +1,7 @@
 # Directories
 build
 bin
+msg_gen
 
 # Files
 .cproject
