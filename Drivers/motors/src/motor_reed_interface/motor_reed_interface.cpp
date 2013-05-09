@@ -43,7 +43,7 @@ namespace uwe_sub {
 					while (1) {
 						readPort();
 						//TODO: Check for reed packet here. Don't worry until later
-						if (getTimeMs64() >= (startTime + 10000)) break;
+						if (getTimeMs64() >= (startTime + timeout_ms)) break;
 					}
 					return false;
 				}
@@ -55,12 +55,13 @@ namespace uwe_sub {
 	 		
 	 			bool initialize(std::string const& port, int baudrate=115200) {
  					if (openPort(port,baudrate,true)) {
-						if (waitForPacket(100)) {
+						//if (waitForPacket(100)) {
+							flushPort();
 							return true;
-						}
+						//}
 					}
 					//TODO: Return false when the reed stuff is implemented.
-					return true;
+					return false;
 	 			}
 	 			
 	 			void update(custom_msg::MotorConfig data) {
@@ -79,20 +80,13 @@ namespace uwe_sub {
 	 											"\tFront Left:\t" << (int)cfg.front_left << std::endl <<
 	 											"\tBack Left:\t" << (int)cfg.back_left << std::endl;
 	 				
+	 				
 	 				/* Create a vector with the data packet */
 	 				char value_buffer[100];
 	 				char tmp_buffer[100];
 	 				sprintf(value_buffer,"%d,%d,%d,%d,%d,%d", cfg.front, cfg.back, cfg.front_right, cfg.back_right, cfg.front_left, cfg.back_left);
 	 				sprintf(tmp_buffer, "@%s*%02X\n", value_buffer, checksum(value_buffer));
 	 				std::vector<uint8_t> data_out(tmp_buffer, tmp_buffer + strlen(tmp_buffer)/sizeof(*tmp_buffer));
-	 				
-	 				//TODO: Remove this printing too
-	 				for (int i = 0; i < data_out.size(); i++) {
-						if ((i != 0) && (i%10==0)) printf("\n");
-						printf("[%02X] ", data_out[i]);
-					}
-					data_out.push_back(NULL); //TODO: This is purely for the text output. remove it :)
-	 				std::cout << std::endl << &data_out[0] << std::endl;
 	 				
 	 				writePort(data_out);
 	 			}
@@ -132,7 +126,7 @@ int main( int argc, char **argv )
 	
 	/* Open and Configure the Serial Port. */
 	//TODO: Correct serial port
-	if (motors.initialize("/dev/serial/by-id/usb-FTDI_US232R_FTB3UJNB-if00-port0")) {
+	if (motors.initialize("/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A8008FpQ-if00-port0")) {
 
 		while(ros::ok())
 		{				

@@ -18,7 +18,7 @@ namespace uwe_sub {
 			protected:
 				struct termios orig_terimos; //!< Termios configuration options
 				int fd; //!< File descriptor for the port
-				const static int WRITEDEL = 250000; //!< Delay period in microseconds after a write operation
+				const static int WRITEDEL = 10000; //!< Delay period in microseconds after a write operation
 				size_t MAX_BUFFER_SIZE; //!< Maximum buffer storage
 			public:
 				std::vector<uint8_t> buffer; //!< FIFO buffer of MAX_BUFFER_SIZE containing data read from the serial port

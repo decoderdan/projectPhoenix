@@ -72,7 +72,7 @@ namespace uwe_sub {
 
 			/* Initialize the timeout structure */
 			timeout.tv_sec  = 1;
-			timeout.tv_usec = 5000;
+			timeout.tv_usec = 50;
 			n = select(max_fd, &input, NULL, NULL, &timeout);
 
 			int p = 0;
