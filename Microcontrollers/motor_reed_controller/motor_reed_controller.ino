@@ -1,18 +1,34 @@
+#include <Servo.h> 
+
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
-int led = 13;
-boolean ledon = false;
+
+Servo front_right_servo, back_right_servo,back_left_servo,front_left_servo;
 
 void setup() {
-  pinMode(led, OUTPUT);    
+  front_right_servo.attach(12);
+  back_right_servo.attach(9);
+  back_left_servo.attach(10);
+  front_left_servo.attach(5);
   // initialize serial:
   Serial.begin(115200);
   // reserve 200 bytes for the inputString:
   inputString.reserve(200);
-  digitalWrite(led, LOW);
 }
 
-void loop() {
+void loop() {  
+  while (Serial.available()) {
+    // get the new byte:
+    char inChar = (char)Serial.read(); 
+    // add it to the inputString:
+    inputString += inChar;
+    // if the incoming character is a newline, set a flag
+    // so the main loop can do something about it:
+    if (inChar == '\n') {
+      stringComplete = true;
+    } 
+  }
+  
   // print the string when a newline arrives:
   if (stringComplete) {
     int atPos = inputString.indexOf('@');
@@ -45,13 +61,12 @@ void loop() {
         int back_right = (int)strtol(pEnd, &pEnd, 10);
         int front_left = (int)strtol(pEnd, &pEnd, 10);
         int back_left = (int)strtol(pEnd, NULL, 10);
-        ledon = !ledon;
-        if (ledon) {
-            digitalWrite(led, HIGH);
-        }
-        else {
-          digitalWrite(led, LOW);
-        }
+        
+        front_right_servo.write(map(front_right, -100, 100, 0, 180));
+        back_right_servo.write(map(back_right, -100, 100, 0, 180));
+        back_left_servo.write(map(back_left, -100, 100, 0, 180));
+        front_left_servo.write(map(front_left, -100, 100, 0, 180));
+        
         //Serial.print("Front: ");
         //Serial.println(front);
         //Serial.print("Back: ");
@@ -70,26 +85,6 @@ void loop() {
     // clear the string:
     inputString = "";
     stringComplete = false;
-  }
-}
-
-/*
-  SerialEvent occurs whenever a new data comes in the
- hardware serial RX.  This routine is run between each
- time loop() runs, so using delay inside loop can delay
- response.  Multiple bytes of data may be available.
- */
-void serialEvent() {
-  while (Serial.available()) {
-    // get the new byte:
-    char inChar = (char)Serial.read(); 
-    // add it to the inputString:
-    inputString += inChar;
-    // if the incoming character is a newline, set a flag
-    // so the main loop can do something about it:
-    if (inChar == '\n') {
-      stringComplete = true;
-    } 
   }
 }
 

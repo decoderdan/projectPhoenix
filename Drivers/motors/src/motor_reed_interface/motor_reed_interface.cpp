@@ -70,7 +70,7 @@ namespace uwe_sub {
 	 			
 	 			//Sends out the new data
 	 			void move() {
-	 			
+	 				flushPort();
 	 				//TODO: Remove the printout
 	 				std::cout << "Sending data:" << std::endl << 
 	 											"\tFront:\t\t" << (int)cfg.front << std::endl <<
@@ -126,7 +126,7 @@ int main( int argc, char **argv )
 	
 	/* Open and Configure the Serial Port. */
 	//TODO: Correct serial port
-	if (motors.initialize("/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A8008FpQ-if00-port0")) {
+	if (motors.initialize("/dev/ttyACM0")) {
 
 		while(ros::ok())
 		{				
