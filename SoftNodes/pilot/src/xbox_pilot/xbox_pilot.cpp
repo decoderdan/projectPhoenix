@@ -53,10 +53,10 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
 	distance = (distance < 0.12 ? 0 : distance); //Bit of a dead zone
 	distance = constrain(map(distance, 0.12, 1, 0, 1), 0, 1); //Re-map so it's smooth from deadzone outwards
 	
-	motorCfg.front_right = (int8_t)(constrain(140 * cos(rads+M_PI/4), -100, 100) * distance);
-	motorCfg.front_left = (int8_t)(constrain(-140 * cos(M_PI/4-rads), -100, 100) * distance);
-	motorCfg.back_left = (int8_t)(constrain(-140 * cos(rads+M_PI/4), -100, 100) * distance);
-	motorCfg.back_right = (int8_t)(constrain(140 * cos(M_PI/4-rads), -100, 100) * distance);
+	motorCfg.front_right = -(int8_t)(constrain(140 * cos(rads+M_PI/4), -100, 100) * distance);
+	motorCfg.front_left = -(int8_t)(constrain(-140 * cos(M_PI/4-rads), -100, 100) * distance);
+	motorCfg.back_left = -(int8_t)(constrain(-140 * cos(rads+M_PI/4), -100, 100) * distance);
+	motorCfg.back_right = -(int8_t)(constrain(140 * cos(M_PI/4-rads), -100, 100) * distance);
 
 	//Leave out depth for now
 	motorCfg.front = 0;
