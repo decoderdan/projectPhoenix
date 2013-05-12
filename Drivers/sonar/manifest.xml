@@ -14,7 +14,7 @@
   <depend package="roscpp"/>
   <depend package="std_msgs"/>
   <depend package="serial_port"/>
-
+  <depend package="custom_msg"/>
 </package>
 
 

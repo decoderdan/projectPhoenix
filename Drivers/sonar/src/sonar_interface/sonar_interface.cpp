@@ -5,6 +5,8 @@
 #include "std_msgs/Float32.h"
 #include "std_msgs/Int32MultiArray.h"
 #include <serial_port/serial_port.hpp>
+#include <custom_msg/SonarData.h>
+#include <custom_msg/SonarConfig.h> //For custom sonar configuration.
 
 namespace uwe_sub {
 
@@ -798,6 +800,14 @@ namespace uwe_sub {
 	}
 }
 
+
+/* Sonar Config Callback */
+void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
+	//This is where we receive new configuration settings.
+	ROS_INFO("Sonar Configuration settings have changed.");
+	std::cout << "Got a new sonar configuration!" << std::endl;
+}
+
 /******************************************************
  * 
  *  Main; the master of functions, the definer of variables.
@@ -812,29 +822,17 @@ int main( int argc, char **argv )
 
 	ros::NodeHandle n;
 
-	ros::Publisher sonarBearingMsg = n.advertise<std_msgs::Float32>("sonarBearing", 100);
-	ros::Publisher sonarThresholdMsg = n.advertise<std_msgs::Float32>("sonarThreshold", 100);
-	ros::Publisher sonarContrastMsg = n.advertise<std_msgs::Float32>("sonarContrast", 100);
-	ros::Publisher sonarMaxDistanceMsg = n.advertise<std_msgs::Float32>("sonarMaxDistance", 100);
-	ros::Publisher sonarMinDistanceMsg = n.advertise<std_msgs::Float32>("sonarMinDistance", 100);
-	ros::Publisher sonarResolutionMsg = n.advertise<std_msgs::Float32>("sonarResolution", 100);
+	ros::Publisher sonarMsg = n.advertise<custom_msg::SonarData>("sonar", 100);
 
-	ros::Publisher sonarBinsArrMsg = n.advertise<std_msgs::Int32MultiArray>("sonarBinsArr", 100);
-
-	std_msgs::Float32 sonarBearing;
-
-	std_msgs::Float32 threshold;
-	std_msgs::Float32 contrast;
-	std_msgs::Float32 max_distance;
-	std_msgs::Float32 min_distance;
-	std_msgs::Float32 resolution;
-
-//	std_msgs::Float32 sonarBins;	
-	std_msgs::Int32MultiArray sonarBinsArr;
+	//Subscribe to sonar config changes
+	ros::Subscriber sonarSub = n.subscribe("sonar_config", 100, sonarConfigCallBack);
+	
+	custom_msg::SonarData sonarDataOut;
 
 	ros::Rate loop_rate(100);
 	/* Open and Configure the Serial Port. */
-	if (sonar.initialize("/dev/serial/by-id/usb-FTDI_US232R_FTB3UJNB-if00-port0")) {
+	//TODO: The device needs to be pointed to the RS232 on the fitpc. What id does this have?
+	if (sonar.initialize("/dev/ttyS0")) {
 
 		uwe_sub::sonar::MicronConfig conf;
 
@@ -855,45 +853,40 @@ int main( int argc, char **argv )
 		conf.threshold = 0;  //0dB
 		conf.contrast = 12; //12dB
 		conf.gain = 0.4; //40% Initial Gain
-		conf.resolution = 0.5; //50cm sampling
-		conf.max_distance = 50.0; //10 meters
-		conf.min_distance = 0.0;
-		//conf.left_limit = Angle::fromDeg(-45.0);
-			//conf.right_limit = Angle::fromDeg(45.0);
-		//conf.continuous = true;
-		conf.angular_resolution = uwe_sub::sonar::MEDIUM; //LOW, MEDIUM, HIGH
+		conf.resolution = 0.10; //10cm sampling
+		conf.max_distance = 10.0; //10 meter range
+		conf.min_distance = 0.75; //Ignore the first 0.75 meters
+		conf.left_limit = uwe_sub::sonar::Angle::fromDeg(-45.0);
+		conf.right_limit = uwe_sub::sonar::Angle::fromDeg(45.0);
+		conf.continuous = true;
+		conf.stare = false;
+		conf.angular_resolution = uwe_sub::sonar::HIGH; //LOW, MEDIUM, HIGH
 		sonar.configure(conf,10000);
 		while(ros::ok())
 		{	
 			uwe_sub::sonar::SonarData data;
 			if (sonar.scan(data)) {
-				sonarBearing.data = data.bearing;
-				threshold.data = conf.threshold;
-				contrast.data = conf.contrast;
-				max_distance.data = conf.max_distance;
-				min_distance.data = conf.min_distance;
-				resolution.data = conf.resolution;
-
-				sonarBinsArr.data.clear();
+				//Store all the data in the new sonar message
+				sonarDataOut.bearing = data.bearing;
+				sonarDataOut.threshold = conf.threshold;
+				sonarDataOut.contrast = conf.contrast;
+				sonarDataOut.min_distance = conf.min_distance;
+				sonarDataOut.max_distance = conf.max_distance;
+				sonarDataOut.resolution = conf.resolution;
+				sonarDataOut.bins.data.clear();
 				for (int k = 0; k < data.bins.size(); k++)
 				{
-					sonarBinsArr.data.push_back(data.bins[k]);
+					sonarDataOut.bins.data.push_back(data.bins[k]);
 				}
+				//publish the data
+				sonarMsg.publish(sonarDataOut);
 
-				//publish
-				sonarBearingMsg.publish(sonarBearing);
-				sonarThresholdMsg.publish(threshold);
-				sonarContrastMsg.publish(contrast);
-				sonarMaxDistanceMsg.publish(max_distance);
-				sonarMinDistanceMsg.publish(min_distance);
-				sonarResolutionMsg.publish(resolution);
-				sonarBinsArrMsg.publish(sonarBinsArr);
-
-				for (int i = 0; i < data.bins.size(); i++) {
+				//Print to the screen
+				/*for (int i = 0; i < data.bins.size(); i++) {
 					if ((i != 0) && (i%10==0)) printf("\n");
 					printf("[%02X] ", data.bins[i]);
 				}
-				printf("\n");
+				printf("\n");*/
 			}
 	
 			ros::spinOnce();	

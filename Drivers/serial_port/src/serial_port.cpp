@@ -108,7 +108,7 @@ namespace uwe_sub {
 				return -1; //Nope
 			}
 			else {
-				usleep(WRITEDEL);
+				//usleep(WRITEDEL);
 			}
 
 			return (n);

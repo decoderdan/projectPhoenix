@@ -14,6 +14,7 @@
 #include "std_msgs/MultiArrayLayout.h"
 #include "std_msgs/MultiArrayDimension.h"
 #include "std_msgs/Int32MultiArray.h"
+#include <custom_msg/SonarData.h>
 
 #include "sonar_scanner.h"
 
@@ -24,8 +25,13 @@
 #define PI 3.14159265
 
 
+				float thresholdTmp = 0.0; //12dB Threshold = 0
+				float contrastTmp = 12.0; //12dB Range = 38.25
+
 int imageArray[HEIGHT][WIDTH];
 int imgx = 0, imgy = 0;
+
+void sonarCallback(const custom_msg::SonarData& sonarData);
 
 /************************************************
  * 
@@ -47,6 +53,8 @@ int main(int argc, char **argv)
 	ros::NodeHandle scannerN;	
 
 	int i;
+
+	ros::Subscriber newmsgsub = scannerN.subscribe("sonar", 100, sonarCallback);
 
 	ros::Subscriber sub1 = scannerN.subscribe("sonarBearing", 100, bearingCallback);
 	ros::Subscriber sub2 = scannerN.subscribe("sonarBins", 100, binsCallback);
@@ -306,8 +314,6 @@ void drawScene(unsigned int x, unsigned int y, unsigned int depth)
 			{
 				float r, g, b;
 				//Threshold + mappedvaltocontrast
-				float thresholdTmp = 0.0; //12dB Threshold = 0
-				float contrastTmp = 12.0; //12dB Range = 38.25
 
 //ok, eg. we have some vals. 0, 20, 38, and 50.
 //treshold = 0dB
@@ -371,30 +377,15 @@ void drawScene(unsigned int x, unsigned int y, unsigned int depth)
 	glfwSwapBuffers(); // Swap the buffers to display the scene (so we don't have to watch it being drawn!)
 }
 
-
-/*************************************************
-** Returns the sonar bearing **
-*************************************************/
-
-
-
 void bearingCallback(const std_msgs::Float32::ConstPtr& sonarBearing){
 bearing = sonarBearing->data;
 return;
 }
 
-/*************************************************
-** Returns the sonar bearing **
-*************************************************/
-
 void binsCallback(const std_msgs::Float32::ConstPtr& sonarBins){
 bins = sonarBins->data;
 return;
 }
-
-/*************************************************
-** Returns the sonar bearing **
-*************************************************/
 
 void binsArrCallback(const std_msgs::Int32MultiArray::ConstPtr& sonarBinsArr)
 {
@@ -425,3 +416,19 @@ int i = 0;
 return;
 }
 
+void sonarCallback(const custom_msg::SonarData& sonarData) {
+	bearing = sonarData.bearing;
+	thresholdTmp = sonarData.threshold;
+	contrastTmp = sonarData.contrast;
+	//Get the bins	
+	int i = 0;
+  // print all the remaining numbers
+  for(std::vector<int>::const_iterator it = sonarData.bins.data.begin(); it != sonarData.bins.data.end(); ++it)
+  {
+    binsArr[i] = *it;
+    if (binsArr[i] == 0) binsArr[i] = 1;
+    i++;
+  }
+  binsCount = i;
+
+}
