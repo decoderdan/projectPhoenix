@@ -853,9 +853,9 @@ int main( int argc, char **argv )
 		conf.threshold = 0;  //0dB
 		conf.contrast = 12; //12dB
 		conf.gain = 0.4; //40% Initial Gain
-		conf.resolution = 0.10; //10cm sampling
-		conf.max_distance = 10.0; //10 meter range
-		conf.min_distance = 0.75; //Ignore the first 0.75 meters
+		conf.resolution = 0.50; //10cm sampling
+		conf.max_distance = 75.0; //10 meter range
+		conf.min_distance = 0; //Ignore the first 0.75 meters
 		conf.left_limit = uwe_sub::sonar::Angle::fromDeg(-45.0);
 		conf.right_limit = uwe_sub::sonar::Angle::fromDeg(45.0);
 		conf.continuous = true;
