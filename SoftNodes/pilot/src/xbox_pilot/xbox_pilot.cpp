@@ -61,7 +61,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
 
 	//Yaw control...
 	motorCfg.front_right += (100 * joy->axes[3]);
-	motorCfg.front_left += -100 * joy->axes[3]);
+	motorCfg.front_left += (-100 * joy->axes[3]);
 	motorCfg.back_left += (100 * joy->axes[3]);
 	motorCfg.back_right += (-100 * joy->axes[3]);
 
