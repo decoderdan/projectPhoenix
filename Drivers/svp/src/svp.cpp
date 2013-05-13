@@ -35,7 +35,7 @@ int read_port(void){
 
 int open_port(void){	
 
-	fd = open("/dev/ttyS0", O_RDWR | O_NDELAY | O_NOCTTY);
+	fd = open("/dev/serial/by-id/usb-FTDI_US232R_FTB3UJNB-if00-port0", O_RDWR | O_NDELAY | O_NOCTTY);
 	if (fd == -1){
 		ROS_ERROR("Could not open port");
 		return 0;
@@ -89,8 +89,8 @@ int main(int argc, char **argv){ //we need argc and argv for the rosInit functio
 
 	/*Advertises our various messages*/
 
-	ros::Publisher svpDepthMsg = svpN.advertise<std_msgs::Float32>("svpDepth", 100); 
-	ros::Publisher svpVeloMsg = svpN.advertise<std_msgs::Float32>("svpVelocity", 100);
+	ros::Publisher svpDepthMsg = svpN.advertise<std_msgs::Float32>("depth", 100); 
+	ros::Publisher svpVeloMsg = svpN.advertise<std_msgs::Float32>("speed_of_sound", 100);
 
 	/*Sets up the message structures*/
 
