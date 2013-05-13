@@ -60,10 +60,15 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
 	motorCfg.back_right = -(int8_t)(constrain(140 * cos(M_PI/4-rads), -100, 100) * distance);
 
 	//Yaw control...
-	motorCfg.front_right = 100 * joy->axes[3];
-	motorCfg.front_left = -100 * joy->axes[3];
-	motorCfg.back_left = 100 * joy->axes[3];
-	motorCfg.back_right = -100 * joy->axes[3];
+	motorCfg.front_right += (100 * joy->axes[3]);
+	motorCfg.front_left += -100 * joy->axes[3]);
+	motorCfg.back_left += (100 * joy->axes[3]);
+	motorCfg.back_right += (-100 * joy->axes[3]);
+
+	motorCfg.front_right = constrain(motorCfg.front_right, -100, 100);
+	motorCfg.front_left = constrain(motorCfg.front_left, -100, 100);
+	motorCfg.back_right = constrain(motorCfg.back_right, -100, 100);
+	motorCfg.back_left = constrain(motorCfg.back_left, -100, 100);
 
 	//Leave out depth for now
 	motorCfg.front = 0;
