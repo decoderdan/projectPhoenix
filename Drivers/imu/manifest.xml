@@ -1,0 +1,16 @@
+<package>
+  <description brief="imu">
+
+     imu
+
+  </description>
+  <author>Gareth</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/vNavIMU</url>
+  <depend package="std_msgs"/>
+  <depend package="roscpp"/>
+  <depend package="custom_msg"/>
+</package>
+
+

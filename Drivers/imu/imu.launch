@@ -1,0 +1,6 @@
+<launch>
+	<!--	DISPLAY NAME	NODE NAME	RUN NAME	ARGUMENTS	-->
+
+	<node name="IMU"	pkg="vNavIMU"	type="vNavIMU"	respawn="true"/>
+ 	<node name="Odom"        pkg="odomTest"   type="odomTest" />
+</launch>
