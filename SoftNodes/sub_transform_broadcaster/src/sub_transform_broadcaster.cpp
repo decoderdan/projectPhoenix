@@ -5,7 +5,7 @@
 #include <custom_msg/MotorConfig.h>
 
 static std_msgs::Float32 z;
-static float fr_rot = 0;
+static float fr_rot, fl_rot, br_rot, bl_rot = 0;
 
 void depthCallBack(const std_msgs::Float32& depth) {
 	z.data = -(depth.data-10.0);
@@ -14,6 +14,9 @@ void depthCallBack(const std_msgs::Float32& depth) {
 void motorConfigCallBack(const custom_msg::MotorConfig& config)
 {
 	fr_rot = config.front_right;
+	fl_rot = config.front_left;
+	br_rot = config.back_right;
+	bl_rot = config.back_left;
 	return;
 }
 
@@ -22,7 +25,7 @@ void imuCallBack(const custom_msg::IMUData& data) {
   
   static tf::TransformBroadcaster br;
   static float imu_x, imu_y;
-	static float fr_roll;
+	static float fr_roll, fl_roll, br_roll, bl_roll;
 	
   tf::Transform imu_tr;
   tf::Transform front_right_tr; //Front Right Motor
@@ -37,21 +40,26 @@ void imuCallBack(const custom_msg::IMUData& data) {
 	//imu_tr.setRotation( tf::createQuaternionFromRPY(0,0,0) );
 	
 	imu_tr.setOrigin( tf::Vector3(imu_x, imu_y, z.data) );
-	imu_tr.setRotation( tf::createQuaternionFromRPY(data.roll*(M_PI/180), data.pitch*(M_PI/180), data.yaw*(M_PI/180)) );
+	imu_tr.setRotation( tf::createQuaternionFromRPY(data.pitch*(M_PI/180), data.roll*(M_PI/180), -data.yaw*(M_PI/180)) );
+	
+	/* Configure motor rotations */
+	fl_roll+=(fl_rot/100);
+	fr_roll+=(fr_rot/100);
+	br_roll+=(br_rot/100);
+	bl_roll+=(bl_rot/100);
 	
 	/* Configure the front right motor transform */
-	front_right_tr.setOrigin( tf::Vector3(0.20, 0.10, -0.20) );
-	fr_roll+=(fr_rot/100);
+	front_right_tr.setOrigin( tf::Vector3(0.20, 0.15, -0.08) );
 	front_right_tr.setRotation(  tf::createQuaternionFromRPY(fr_roll, 0, 0) );
 	/* Configure the back right motor transform */
-	back_right_tr.setOrigin( tf::Vector3(0.20, -0.40, -0.20) );
-	back_right_tr.setRotation(  tf::createQuaternionFromRPY(0, 0, 0) );
+	back_right_tr.setOrigin( tf::Vector3(0.20, -0.40, -0.08) );
+	back_right_tr.setRotation(  tf::createQuaternionFromRPY(br_roll, 0, 0) );
 	/* Configure the front left motor transform */
-	front_left_tr.setOrigin( tf::Vector3(-0.20, 0.10, -0.20) );
-	front_left_tr.setRotation(  tf::createQuaternionFromRPY(0, 0, 0) );
+	front_left_tr.setOrigin( tf::Vector3(-0.20, 0.15, -0.08) );
+	front_left_tr.setRotation(  tf::createQuaternionFromRPY(fl_roll, 0, 0) );
 	/* Configure the back left motor transform */
-	back_left_tr.setOrigin( tf::Vector3(-0.20, -0.40, -0.20) );
-	back_left_tr.setRotation(  tf::createQuaternionFromRPY(0, 0, 0) );
+	back_left_tr.setOrigin( tf::Vector3(-0.20, -0.40, -0.08) );
+	back_left_tr.setRotation(  tf::createQuaternionFromRPY(bl_roll, 0, 0) );
 	
 	//IMU relative to the world.
 	br.sendTransform(tf::StampedTransform(imu_tr, ros::Time::now(), "/world", "/imu"));
