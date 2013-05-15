@@ -1,0 +1,18 @@
+<package>
+  <description brief="sonar_to_laser">
+
+     sonar_to_laser
+
+  </description>
+  <author>dan ubu 32</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/sonar_to_laser</url>
+  <depend package="roscpp"/>
+  <depend package="custom_msg"/>
+  <depend package="sensor_msgs"/>
+  <depend package="tf"/>
+
+</package>
+
+
