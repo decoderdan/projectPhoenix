@@ -4,6 +4,48 @@
 #include <custom_msg/IMUData.h>
 #include <custom_msg/MotorConfig.h>
 
+
+/* RK4 integration */
+struct State
+{
+     double x;          // position
+     double v;          // velocity
+     double a;					// acceleration
+};
+
+struct Derivative
+{
+     double dx;          // derivative of position: velocity
+     double dv;          // derivative of velocity: acceleration
+};
+
+Derivative evaluate(const State &initial, double dt, const Derivative &d)
+{
+     State state;
+     state.x = initial.x + d.dx*dt;
+     state.v = initial.v + d.dv*dt;
+
+     Derivative output;
+     output.dx = state.v;
+     output.dv = state.a;
+     return output;
+}
+
+void integrate(State &state, double dt)
+{
+     Derivative a = evaluate(state, 0.0f, Derivative());
+     Derivative b = evaluate(state, dt*0.5f, a);
+     Derivative c = evaluate(state, dt*0.5f, b);
+     Derivative d = evaluate(state, dt, c);
+
+     const double dxdt = 1.0f/6.0f * (a.dx + 2.0f*(b.dx + c.dx) + d.dx);
+     const double dvdt = 1.0f/6.0f * (a.dv + 2.0f*(b.dv + c.dv) + d.dv);
+
+     state.x = state.x + dxdt * dt;
+     state.v = state.v + dvdt * dt;
+}
+/* End of RK4 */
+
 static std_msgs::Float32 z;
 static float fr_rot, fl_rot, br_rot, bl_rot = 0;
 
@@ -21,7 +63,13 @@ void motorConfigCallBack(const custom_msg::MotorConfig& config)
 }
 
 void imuCallBack(const custom_msg::IMUData& data) {
-  ROS_INFO("Got IMU Message");
+	static ros::Time last_time =  ros::Time::now();
+	ros::Time current_time =  ros::Time::now();
+	double dt = (current_time - last_time).toSec();
+	last_time =  ros::Time::now();
+	
+	static State cur_state_x;
+	static State cur_state_y;
   
   static tf::TransformBroadcaster br;
 	static float imu_x, imu_y = 0;
@@ -36,7 +84,7 @@ void imuCallBack(const custom_msg::IMUData& data) {
   tf::Transform back_left_tr; //Back Left Motor
   
   /* Configure motor rotations */
-	fl_roll+=(fl_rot/200);
+	fl_roll+=(fl_rot/200); //The 200 here is just for animation
 	fr_roll+=(fr_rot/200);
 	br_roll+=(br_rot/200);
 	bl_roll+=(bl_rot/200);
@@ -51,12 +99,20 @@ void imuCallBack(const custom_msg::IMUData& data) {
   svp_tr.setRotation( tf::createQuaternionFromRPY(0,0,0) );
 
   /* IMU transformation */
-	imu_x += data.vel_x * 1/50;//0.5 * data.acc_x * pow((1/50), 2);
-	imu_y += data.vel_y * 1/50;//0.5 * data.acc_y * pow((1/50), 2);
+	cur_state_x.v = data.vel_y;
+	cur_state_y.v = data.vel_x;
+	cur_state_x.a = data.acc_y;
+	cur_state_y.a = data.acc_x;
+	
+	integrate(cur_state_x, dt);
+	integrate(cur_state_y, dt);
+	
+	imu_x = cur_state_x.x;
+	imu_y = cur_state_y.x;
+	
 	imu_tr.setOrigin( tf::Vector3(imu_x, imu_y, z.data-svp_distance_from_imu) );
 	imu_tr.setRotation( tf::createQuaternionFromRPY(data.pitch*(M_PI/180), data.roll*(M_PI/180), -data.yaw*(M_PI/180)) );
-	//imu_tr.setRotation( tf::createQuaternionFromRPY(0,0,0) );
-
+	
 	/* Motors */
 	front_right_tr.setOrigin( tf::Vector3(0.20, 0.15, -0.10) );
 	front_right_tr.setRotation(  tf::createQuaternionFromRPY(0, fr_roll, M_PI/6) );

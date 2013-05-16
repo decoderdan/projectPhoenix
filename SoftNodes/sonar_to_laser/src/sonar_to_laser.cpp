@@ -48,7 +48,7 @@ float map(float x, float in_min, float in_max, float out_min, float out_max)
 }
 
 void sonarCallback(const custom_msg::SonarData& sonarData) {
-	
+	ROS_INFO("Spitting");
 	float bearing = -(sonarData.bearing/6399.0*2.0*M_PI)+M_PI * (180.0/M_PI);
   float min_dB = sonarData.threshold*3.1875; 
 	float max_dB = (sonarData.threshold + sonarData.contrast)*3.1875;
@@ -81,13 +81,11 @@ void sonarCallback(const custom_msg::SonarData& sonarData) {
 		if (val_in_dB < 0) val_in_dB = 0.0;
 		if (val_in_dB > 1) val_in_dB = 1.0;
 		
-		if ((i * sonarData.resolution) > 1.0) {
-			if (val_in_dB < 0.5) { //Threshold
-				//std::cout << "Matched : " << (i * sonarData.resolution) << " Resolution: " << sonarData.resolution << std::endl;
-				output->ranges[1] = (i * sonarData.resolution);//i * sonarData.resolution;
-				output->header.seq = id++;
-				laserpub.publish(output);
-			}
+		if ((val_in_dB < 0.2) && ((i * sonarData.resolution) > 1.0)) { //Threshold
+			//std::cout << "Matched : " << (i * sonarData.resolution) << " Resolution: " << sonarData.resolution << std::endl;
+			output->ranges[1] = (i * sonarData.resolution);//i * sonarData.resolution;
+			output->header.seq = id++;
+			laserpub.publish(output);
 		}
     i++;
   }
