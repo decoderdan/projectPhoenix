@@ -129,29 +129,56 @@
           <widget class="QDoubleSpinBox" name="spinBox_rightLimit"/>
          </item>
          <item row="9" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QRadioButton" name="radioButton_angularResLow">
-             <property name="text">
-              <string>LOW</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="radioButton_angularResMedium">
-             <property name="text">
-              <string>MEDIUM</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="radioButton_angularResHigh">
-             <property name="text">
-              <string>HIGH</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="minimumSize">
+            <size>
+             <width>230</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="title">
+            <string/>
+           </property>
+           <widget class="QWidget" name="">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>230</width>
+              <height>28</height>
+             </rect>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QRadioButton" name="radioButton_angularResLow">
+               <property name="text">
+                <string>LOW</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButton_angularResMedium">
+               <property name="text">
+                <string>MEDIUM</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButton_angularResHigh">
+               <property name="text">
+                <string>HIGH</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <zorder></zorder>
+           <zorder></zorder>
+           <zorder></zorder>
+          </widget>
          </item>
         </layout>
        </item>
@@ -186,19 +213,6 @@
       </layout>
      </item>
     </layout>
-   </widget>
-   <widget class="QGroupBox" name="groupBox">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>410</y>
-      <width>241</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string/>
-    </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

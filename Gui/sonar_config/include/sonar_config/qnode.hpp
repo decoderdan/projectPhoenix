@@ -40,6 +40,7 @@ public:
 	bool init();
 	bool init(const std::string &master_url, const std::string &host_url);
 	void run();
+	void pubConfig(double threshold_val, double contrast_val, double gain_val, double resolution_val, double minDist_val, double maxDist_val, double leftLimit_val, double rightLimit_val, int angularRes_val);
 
 	/*********************
 	** Logging
@@ -62,7 +63,7 @@ signals:
 private:
 	int init_argc;
 	char** init_argv;
-	ros::Publisher chatter_publisher;
+	ros::Publisher sonar_config_publisher;
     QStringListModel logging_model;
 };
 
