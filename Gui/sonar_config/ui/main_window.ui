@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>740</width>
-    <height>370</height>
+    <height>400</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,7 +26,7 @@
       <x>10</x>
       <y>10</y>
       <width>721</width>
-      <height>331</height>
+      <height>361</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -76,7 +76,7 @@
            </property>
           </widget>
          </item>
-         <item row="9" column="0">
+         <item row="10" column="0">
           <widget class="QLabel" name="labelAngularRes">
            <property name="text">
             <string>Angular Resolution</string>
@@ -103,10 +103,10 @@
             <string> %</string>
            </property>
            <property name="maximum">
-            <double>1.000000000000000</double>
+            <double>100.000000000000000</double>
            </property>
            <property name="singleStep">
-            <double>0.010000000000000</double>
+            <double>1.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -115,12 +115,21 @@
            <property name="suffix">
             <string> m</string>
            </property>
+           <property name="maximum">
+            <double>75.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>1.000000000000000</double>
+           </property>
           </widget>
          </item>
          <item row="0" column="1">
           <widget class="QDoubleSpinBox" name="spinBox_threshold">
            <property name="suffix">
             <string extracomment="dB"> dB</string>
+           </property>
+           <property name="maximum">
+            <double>80.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -129,12 +138,18 @@
            <property name="suffix">
             <string> dB</string>
            </property>
+           <property name="maximum">
+            <double>80.000000000000000</double>
+           </property>
           </widget>
          </item>
          <item row="5" column="1">
           <widget class="QDoubleSpinBox" name="spinBox_minDist">
            <property name="suffix">
             <string> m</string>
+           </property>
+           <property name="maximum">
+            <double>75.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -143,23 +158,35 @@
            <property name="suffix">
             <string> m</string>
            </property>
+           <property name="maximum">
+            <double>75.000000000000000</double>
+           </property>
           </widget>
          </item>
          <item row="7" column="1">
           <widget class="QDoubleSpinBox" name="spinBox_leftLimit">
            <property name="suffix">
-            <string> rad</string>
+            <string> deg</string>
+           </property>
+           <property name="minimum">
+            <double>-180.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>0.000000000000000</double>
            </property>
           </widget>
          </item>
          <item row="8" column="1">
           <widget class="QDoubleSpinBox" name="spinBox_rightLimit">
            <property name="suffix">
-            <string> rad</string>
+            <string> deg</string>
+           </property>
+           <property name="maximum">
+            <double>180.000000000000000</double>
            </property>
           </widget>
          </item>
-         <item row="9" column="1">
+         <item row="10" column="1">
           <widget class="QGroupBox" name="groupBox">
            <property name="minimumSize">
             <size>
@@ -170,7 +197,7 @@
            <property name="title">
             <string/>
            </property>
-           <widget class="QWidget" name="">
+           <widget class="QWidget" name="layoutWidget">
             <property name="geometry">
              <rect>
               <x>0</x>
@@ -206,10 +233,35 @@
              </item>
             </layout>
            </widget>
-           <zorder></zorder>
-           <zorder></zorder>
-           <zorder></zorder>
           </widget>
+         </item>
+         <item row="9" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QCheckBox" name="checkBox_stare">
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="text">
+              <string>Stare</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="9" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QCheckBox" name="checkBox_continuous">
+             <property name="text">
+              <string>Continuous</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>

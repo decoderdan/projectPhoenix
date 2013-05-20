@@ -53,11 +53,12 @@ public slots:
 	void on_spinBox_minDist_valueChanged(double arg1);
 	void on_spinBox_maxDist_valueChanged(double arg1);
 
-	void on_spinBox_leftLimit_valueChanged(double arg1);
-	void on_spinBox_rightLimit_valueChanged(double arg1);
+//	void on_spinBox_leftLimit_valueChanged(double arg1);
+//	void on_spinBox_rightLimit_valueChanged(double arg1);
 
 	void on_spinBox_threshold_valueChanged(double arg1);
 	void on_spinBox_contrast_valueChanged(double arg1);
+
 private:
 	Ui::MainWindowDesign ui;
 	QNode qnode;

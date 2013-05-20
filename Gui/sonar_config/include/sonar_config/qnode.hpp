@@ -39,7 +39,7 @@ public:
 	virtual ~QNode();
 	bool init();
 	void run();
-	void pubConfig(double threshold_val, double contrast_val, double gain_val, double resolution_val, double minDist_val, double maxDist_val, double leftLimit_val, double rightLimit_val, int angularRes_val);
+	void pubConfig(double threshold_val, double contrast_val, double gain_val, double resolution_val, double minDist_val, double maxDist_val, double leftLimit_val, double rightLimit_val, bool continuous_val, bool stare_val, int angularRes_val);
 
 signals:
 	void rosShutdown();

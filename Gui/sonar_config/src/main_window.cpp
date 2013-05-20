@@ -66,6 +66,8 @@ void MainWindow::on_pushButton_applyConfig_clicked() {
 	double maxDist_val;
 	double leftLimit_val;
 	double rightLimit_val;
+	bool continuous_val;
+	bool stare_val;
 	int angularRes_val;
 
 	threshold_val = ui.spinBox_threshold->value();
@@ -76,6 +78,16 @@ void MainWindow::on_pushButton_applyConfig_clicked() {
 	maxDist_val = ui.spinBox_maxDist->value();
 	leftLimit_val = ui.spinBox_leftLimit->value();
 	rightLimit_val = ui.spinBox_rightLimit->value();
+	if(ui.checkBox_continuous->isChecked()) {
+		continuous_val = true;
+	} else {
+		continuous_val = false;
+	}
+	if(ui.checkBox_stare->isChecked()) {
+		stare_val = true;
+	} else {
+		stare_val = false;
+	} 
 	if(ui.radioButton_angularResHigh->isChecked()) {
 		angularRes_val = 8;
 	} else if(ui.radioButton_angularResMedium->isChecked()) {
@@ -84,7 +96,7 @@ void MainWindow::on_pushButton_applyConfig_clicked() {
 		angularRes_val = 32;
 	}
 
-	qnode.pubConfig(threshold_val, contrast_val, gain_val, resolution_val, minDist_val, maxDist_val, leftLimit_val, rightLimit_val, angularRes_val);
+	qnode.pubConfig(threshold_val, contrast_val, gain_val, resolution_val, minDist_val, maxDist_val, leftLimit_val, rightLimit_val, continuous_val, stare_val, angularRes_val);
 
 }
 
@@ -108,6 +120,7 @@ void MainWindow::on_spinBox_maxDist_valueChanged(double arg1)
     }
 }
 
+/*
 void MainWindow::on_spinBox_leftLimit_valueChanged(double arg1)
 {
     // must be LESS than rightLimit value
@@ -122,22 +135,24 @@ void MainWindow::on_spinBox_rightLimit_valueChanged(double arg1)
     if(arg1 <= ui.spinBox_leftLimit->value()) {
         ui.spinBox_leftLimit->setValue(arg1 - 1);
     }
-}
+} 
+*/
 
+// ?!? thresh + cont MAX 80dB
 
-void MainWindow::on_spinBox_contrast_valueChanged(double arg1)
+void MainWindow::on_spinBox_contrast_valueChanged(double arg1) 
 {
-    // must be LESS ??? than threshold ??? value
-    if(arg1 >= ui.spinBox_threshold->value()) {
-        ui.spinBox_threshold->setValue(arg1 + 1);
+    // if contrast + thresh > 80 ... thresh -= 1;
+    if((arg1 + ui.spinBox_threshold->value()) > 80) {
+        ui.spinBox_threshold->setValue(ui.spinBox_threshold->value() - 1);
     }
 }
 
 void MainWindow::on_spinBox_threshold_valueChanged(double arg1)
 {
-    // must be MORE ??? than contrast ??? value
-    if(arg1 <= ui.spinBox_contrast->value()) {
-        ui.spinBox_contrast->setValue(arg1 - 1);
+    // if thresh + contrast > 80 ... contrast -= 1;
+    if((arg1 + ui.spinBox_contrast->value()) > 80) {
+        ui.spinBox_contrast->setValue(ui.spinBox_contrast->value() - 1);
     }
 }
 
