@@ -92,6 +92,55 @@ void MainWindow::on_pushButton_applyConfig_clicked() {
 ** Implemenation [Slots][manually connected]
 *****************************************************************************/
 
+void MainWindow::on_spinBox_minDist_valueChanged(double arg1)
+{
+    // must be LESS than maxDist value
+    if(arg1 >= ui.spinBox_maxDist->value()) {
+        ui.spinBox_maxDist->setValue(arg1 + 1);
+    }
+}
+
+void MainWindow::on_spinBox_maxDist_valueChanged(double arg1)
+{
+    // must be MORE than minDist value
+    if(arg1 <= ui.spinBox_minDist->value()) {
+        ui.spinBox_minDist->setValue(arg1 - 1);
+    }
+}
+
+void MainWindow::on_spinBox_leftLimit_valueChanged(double arg1)
+{
+    // must be LESS than rightLimit value
+    if(arg1 >= ui.spinBox_rightLimit->value()) {
+        ui.spinBox_rightLimit->setValue(arg1 + 1);
+    }
+}
+
+void MainWindow::on_spinBox_rightLimit_valueChanged(double arg1)
+{
+    // must be MORE than leftLimit value
+    if(arg1 <= ui.spinBox_leftLimit->value()) {
+        ui.spinBox_leftLimit->setValue(arg1 - 1);
+    }
+}
+
+
+void MainWindow::on_spinBox_contrast_valueChanged(double arg1)
+{
+    // must be LESS ??? than threshold ??? value
+    if(arg1 >= ui.spinBox_threshold->value()) {
+        ui.spinBox_threshold->setValue(arg1 + 1);
+    }
+}
+
+void MainWindow::on_spinBox_threshold_valueChanged(double arg1)
+{
+    // must be MORE ??? than contrast ??? value
+    if(arg1 <= ui.spinBox_contrast->value()) {
+        ui.spinBox_contrast->setValue(arg1 - 1);
+    }
+}
+
 /*****************************************************************************
 ** Implementation [Menu]
 *****************************************************************************/

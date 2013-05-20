@@ -42,7 +42,7 @@ public:
 	void pubConfig(double threshold_val, double contrast_val, double gain_val, double resolution_val, double minDist_val, double maxDist_val, double leftLimit_val, double rightLimit_val, int angularRes_val);
 
 signals:
-    void rosShutdown();
+	void rosShutdown();
 
 private:
 	int init_argc;
