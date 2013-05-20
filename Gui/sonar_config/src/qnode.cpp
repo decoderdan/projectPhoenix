@@ -53,25 +53,8 @@ bool QNode::init() {
 	return true;
 }
 
-bool QNode::init(const std::string &master_url, const std::string &host_url) {
-	std::map<std::string,std::string> remappings;
-	remappings["__master"] = master_url; // ?!?
-	remappings["__hostname"] = host_url; // ?!?
-	ros::init(remappings,"sonar_config");
-	if ( ! ros::master::check() ) {
-		return false;
-	}
-	ros::start(); // explicitly needed since our nodehandle is going out of scope.
-	ros::NodeHandle n;
-	// Add your ros communications here.
-	sonar_config_publisher = n.advertise<std_msgs::String>("chatter", 1000);
-	start();
-	return true;
-}
-
 void QNode::run() {
 	ros::Rate loop_rate(1);
-	int count = 0;
 	while ( ros::ok() ) {
 //		ros::spinOnce();
 //		loop_rate.sleep();
