@@ -156,6 +156,65 @@ void MainWindow::on_spinBox_threshold_valueChanged(double arg1)
     }
 }
 
+void MainWindow::on_pushButton_saveConfig_clicked() {
+	double threshold_val;
+	double contrast_val;
+	double gain_val;
+	double resolution_val;
+	double minDist_val;
+	double maxDist_val;
+	double leftLimit_val;
+	double rightLimit_val;
+	bool continuous_val;
+	bool stare_val;
+	int angularRes_val;
+
+	threshold_val = ui.spinBox_threshold->value();
+	contrast_val = ui.spinBox_contrast->value();
+	gain_val = ui.spinBox_gain->value();
+	resolution_val = ui.spinBox_resolution->value();
+	minDist_val = ui.spinBox_minDist->value();
+	maxDist_val = ui.spinBox_maxDist->value();
+	leftLimit_val = ui.spinBox_leftLimit->value();
+	rightLimit_val = ui.spinBox_rightLimit->value();
+	if(ui.checkBox_continuous->isChecked()) {
+		continuous_val = true;
+	} else {
+		continuous_val = false;
+	}
+	if(ui.checkBox_stare->isChecked()) {
+		stare_val = true;
+	} else {
+		stare_val = false;
+	} 
+	if(ui.radioButton_angularResHigh->isChecked()) {
+		angularRes_val = 8;
+	} else if(ui.radioButton_angularResMedium->isChecked()) {
+		angularRes_val = 16;
+	} else if(ui.radioButton_angularResLow->isChecked()) {
+		angularRes_val = 32;
+	}
+
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save File"),
+                                                    QApplication::applicationDirPath(),
+                                                    tr("(*.ini)"));
+    m_sSettingsFile = filename;
+    QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
+    settings.setValue("threshold", threshold_val);
+    settings.setValue("contrast", contrast_val);
+    settings.setValue("gain", gain_val);
+    settings.setValue("resolution", resolution_val);
+    settings.setValue("minDist", minDist_val);
+    settings.setValue("maxDist", maxDist_val);
+    settings.setValue("leftLimit", leftLimit_val);
+    settings.setValue("rightLimit", rightLimit_val);
+    settings.setValue("continuous", continuous_val);
+    settings.setValue("stare", stare_val);
+    settings.setValue("angularRes", angularRes_val);
+
+
+}
+
 /*****************************************************************************
 ** Implementation [Menu]
 *****************************************************************************/

@@ -59,9 +59,12 @@ public slots:
 	void on_spinBox_threshold_valueChanged(double arg1);
 	void on_spinBox_contrast_valueChanged(double arg1);
 
+	void on_pushButton_saveConfig_clicked();
+
 private:
 	Ui::MainWindowDesign ui;
 	QNode qnode;
+	QString m_sSettingsFile;
 
 };
 
