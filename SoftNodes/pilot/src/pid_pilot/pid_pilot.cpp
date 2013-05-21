@@ -8,6 +8,7 @@
 #include <sensor_msgs/Joy.h>
 
 void joyCallback(const sensor_msgs::Joy::ConstPtr&);
+float constrain(float x, float min, float max);
 float map(float, float, float, float, float);
 
 ros::Publisher motorMsg;
@@ -17,8 +18,8 @@ static std_msgs::Float32 z;
 
 
 float yaw_Kp = 1;
-float yaw_Ki = 1;
-float yaw_Kd = 1;
+float yaw_Ki = 0;
+float yaw_Kd = 0;
 float yaw_input = 0;
 float yaw_target = 0;
 /******************************************************
@@ -35,13 +36,13 @@ void imuCallBack(const custom_msg::IMUData& data) {
 	yaw_input = data.yaw;
 }
 
-void pidguiCallBack(const custom_msg::IMUData& data) {
+void pidGuiCallBack(const custom_msg::PIDValues& data) {
 	yaw_Kp = data.yaw_Kp;
 	yaw_Ki = data.yaw_Ki;
 	yaw_Kd = data.yaw_Kd;
 }
 
-void vectorCallBack(const custom_msg::IMUData& data) {
+void vectorCallBack(const custom_msg::TargetVector& data) {
 	yaw_target = data.vector_yaw;
 }
 /******************************************************
@@ -58,7 +59,7 @@ int main( int argc, char **argv )
 	motorMsg = n.advertise<custom_msg::MotorConfig>("motor_config", 100);
 	ros::Subscriber imuSub = n.subscribe("imu", 100, imuCallBack);
 	ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);
-	ros::Subscriber pidguiSub = n.subscribe("pidgui", 100, pidguiallBack);
+	ros::Subscriber pidguiSub = n.subscribe("pidgui", 100, pidGuiCallBack);
 	ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack);	
 	
 	ros::Rate r(50);
@@ -67,6 +68,8 @@ int main( int argc, char **argv )
 	float yaw_previous_error = 0;
 	float yaw_integral = 0;
 	float yaw_derivative = 0;
+	float yaw_output = 0;
+	float dt = (1/50);
 
 	while(ros::ok())
 		{	
@@ -76,9 +79,7 @@ int main( int argc, char **argv )
   			yaw_integral = yaw_integral + yaw_error*dt;
   			yaw_derivative = (yaw_error - yaw_previous_error)/dt;
   			yaw_previous_error = yaw_error;
-			//feedback modes, uncoment as nessacary//
-			yaw_output = yaw_Kp*yaw_error; //just p
-  			//yaw_output = yaw_Kp*yaw_error + yaw_Ki*yaw_integral + yaw_Kd*yaw_derivative; //fullpid
+  			yaw_output = yaw_Kp*yaw_error + yaw_Ki*yaw_integral + yaw_Kd*yaw_derivative; //fullpid
 
 			
 			motorCfg.front_right = constrain(yaw_output, -100, 100);
