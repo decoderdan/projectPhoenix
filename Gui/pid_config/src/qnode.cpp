@@ -16,6 +16,8 @@
 #include <std_msgs/String.h>
 #include <sstream>
 #include "../include/pid_config/qnode.hpp"
+#include <custom_msg/PIDValues.h>
+#include <custom_msg/TargetVector.h>
 
 /*****************************************************************************
 ** Namespaces
@@ -48,80 +50,46 @@ bool QNode::init() {
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
 	// Add your ros communications here.
-	chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
-	start();
-	return true;
-}
+	pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);
+	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
 
-bool QNode::init(const std::string &master_url, const std::string &host_url) {
-	std::map<std::string,std::string> remappings;
-	remappings["__master"] = master_url;
-	remappings["__hostname"] = host_url;
-	ros::init(remappings,"pid_config");
-	if ( ! ros::master::check() ) {
-		return false;
-	}
-	ros::start(); // explicitly needed since our nodehandle is going out of scope.
-	ros::NodeHandle n;
-	// Add your ros communications here.
-	chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
 	start();
 	return true;
 }
 
 void QNode::run() {
-	ros::Rate loop_rate(1);
-	int count = 0;
+//	ros::Rate loop_rate(1);
 	while ( ros::ok() ) {
-
-		std_msgs::String msg;
-		std::stringstream ss;
-		ss << "hello world " << count;
-		msg.data = ss.str();
-		chatter_publisher.publish(msg);
-		log(Info,std::string("I sent: ")+msg.data);
-		ros::spinOnce();
-		loop_rate.sleep();
-		++count;
+//		ros::spinOnce();
+//		loop_rate.sleep();
 	}
 	std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
 	emit rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
 }
 
+void QNode::pubConfig(double yawKp_val, double yawKi_val, double yawKd_val, double yawTarget_val, double pitchKp_val, double pitchKi_val, double pitchKd_val, double pitchTarget_val, double depthKp_val, double depthKi_val, double depthKd_val, double depthTarget_val) {
 
-void QNode::log( const LogLevel &level, const std::string &msg) {
-	logging_model.insertRows(logging_model.rowCount(),1);
-	std::stringstream logging_model_msg;
-	switch ( level ) {
-		case(Debug) : {
-				ROS_DEBUG_STREAM(msg);
-				logging_model_msg << "[DEBUG] [" << ros::Time::now() << "]: " << msg;
-				break;
-		}
-		case(Info) : {
-				ROS_INFO_STREAM(msg);
-				logging_model_msg << "[INFO] [" << ros::Time::now() << "]: " << msg;
-				break;
-		}
-		case(Warn) : {
-				ROS_WARN_STREAM(msg);
-				logging_model_msg << "[INFO] [" << ros::Time::now() << "]: " << msg;
-				break;
-		}
-		case(Error) : {
-				ROS_ERROR_STREAM(msg);
-				logging_model_msg << "[ERROR] [" << ros::Time::now() << "]: " << msg;
-				break;
-		}
-		case(Fatal) : {
-				ROS_FATAL_STREAM(msg);
-				logging_model_msg << "[FATAL] [" << ros::Time::now() << "]: " << msg;
-				break;
-		}
-	}
-	QVariant new_row(QString(logging_model_msg.str().c_str()));
-	logging_model.setData(logging_model.index(logging_model.rowCount()-1),new_row);
-	emit loggingUpdated(); // used to readjust the scrollbar
+	custom_msg::PIDValues curConfig;
+	custom_msg::TargetVector curTargets;	
+
+	curConfig.yaw_Kp = yawKp_val;
+	curConfig.yaw_Ki = yawKi_val;
+	curConfig.yaw_Kd = yawKd_val;
+	curConfig.pitch_Kp = pitchKp_val;
+	curConfig.pitch_Ki = pitchKi_val;
+	curConfig.pitch_Kd = pitchKd_val;
+	curConfig.depth_Kp = depthKp_val;
+	curConfig.depth_Ki = depthKi_val;
+	curConfig.depth_Kd = depthKd_val;
+
+	curTargets.vector_yaw = yawTarget_val;
+	curTargets.vector_pitch = pitchTarget_val;
+	curTargets.vector_z = depthTarget_val;
+
+	pid_config_publisher.publish(curConfig);
+	target_publisher.publish(curTargets);
+
+
 }
 
 }  // namespace pid_config

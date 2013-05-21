@@ -15,10 +15,12 @@
   <!-- rosbuild1 -->
   <depend package="qt_build"/>
   <depend package="roscpp"/>
+  <depend package="custom_msg"/>
   
   <rosbuild2>
     <depend package="qt_build"/>
     <depend package="roscpp"/>
+    <depend package="custom_msg"/>
   </rosbuild2>
   
 </package>

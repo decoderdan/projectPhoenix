@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>526</width>
-    <height>279</height>
+    <width>523</width>
+    <height>274</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="label_yaw">
            <property name="font">
             <font>
              <pointsize>12</pointsize>
@@ -46,13 +46,13 @@
          <item>
           <layout class="QGridLayout" name="gridLayout">
            <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+            <widget class="QDoubleSpinBox" name="spinBox_yawKp"/>
            </item>
            <item row="1" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
+            <widget class="QDoubleSpinBox" name="spinBox_yawKi"/>
            </item>
            <item row="2" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
+            <widget class="QDoubleSpinBox" name="spinBox_yawKd"/>
            </item>
            <item row="0" column="0">
             <widget class="QLabel" name="label_4">
@@ -75,9 +75,6 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="QSpinBox" name="spinBox"/>
-           </item>
            <item row="4" column="0">
             <widget class="QLabel" name="label_13">
              <property name="text">
@@ -93,7 +90,7 @@
             </widget>
            </item>
            <item row="5" column="1">
-            <widget class="QLCDNumber" name="lcdNumber">
+            <widget class="QLCDNumber" name="lcdNumber_yawActual">
              <property name="font">
               <font>
                <pointsize>12</pointsize>
@@ -119,6 +116,9 @@
              </property>
             </widget>
            </item>
+           <item row="4" column="1">
+            <widget class="QDoubleSpinBox" name="spinBox_yawTarget"/>
+           </item>
           </layout>
          </item>
         </layout>
@@ -133,7 +133,7 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="label_pitch">
            <property name="font">
             <font>
              <pointsize>12</pointsize>
@@ -150,13 +150,13 @@
          <item>
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_4"/>
+            <widget class="QDoubleSpinBox" name="spinBox_pitchKp"/>
            </item>
            <item row="1" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_5"/>
+            <widget class="QDoubleSpinBox" name="spinBox_pitchKi"/>
            </item>
            <item row="2" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_6"/>
+            <widget class="QDoubleSpinBox" name="spinBox_pitchKd"/>
            </item>
            <item row="0" column="0">
             <widget class="QLabel" name="label_7">
@@ -179,9 +179,6 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="QSpinBox" name="spinBox_2"/>
-           </item>
            <item row="4" column="0">
             <widget class="QLabel" name="label_14">
              <property name="text">
@@ -197,7 +194,7 @@
             </widget>
            </item>
            <item row="5" column="1">
-            <widget class="QLCDNumber" name="lcdNumber_2">
+            <widget class="QLCDNumber" name="lcdNumber_pitchActual">
              <property name="font">
               <font>
                <pointsize>12</pointsize>
@@ -223,6 +220,9 @@
              </property>
             </widget>
            </item>
+           <item row="4" column="1">
+            <widget class="QDoubleSpinBox" name="spinBox_pitchTarget"/>
+           </item>
           </layout>
          </item>
         </layout>
@@ -237,7 +237,7 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="label_depth">
            <property name="font">
             <font>
              <pointsize>12</pointsize>
@@ -254,13 +254,13 @@
          <item>
           <layout class="QGridLayout" name="gridLayout_3">
            <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_7"/>
+            <widget class="QDoubleSpinBox" name="spinBox_depthKp"/>
            </item>
            <item row="1" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_8"/>
+            <widget class="QDoubleSpinBox" name="spinBox_depthKi"/>
            </item>
            <item row="2" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_9"/>
+            <widget class="QDoubleSpinBox" name="spinBox_depthKd"/>
            </item>
            <item row="0" column="0">
             <widget class="QLabel" name="label_10">
@@ -283,9 +283,6 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="QSpinBox" name="spinBox_3"/>
-           </item>
            <item row="4" column="0">
             <widget class="QLabel" name="label_15">
              <property name="text">
@@ -301,7 +298,7 @@
             </widget>
            </item>
            <item row="5" column="1">
-            <widget class="QLCDNumber" name="lcdNumber_3">
+            <widget class="QLCDNumber" name="lcdNumber_depthActual">
              <property name="font">
               <font>
                <pointsize>12</pointsize>
@@ -336,6 +333,16 @@
              </property>
             </widget>
            </item>
+           <item row="4" column="1">
+            <widget class="QDoubleSpinBox" name="spinBox_depthTarget">
+             <property name="maximum">
+              <double>5.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
         </layout>
@@ -345,7 +352,7 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="pushButton_applyConfig">
          <property name="text">
           <string>Apply Config</string>
          </property>

@@ -44,11 +44,14 @@ public slots:
 	/******************************************
 	** Auto-connections (connectSlotsByName())
 	*******************************************/
-	void on_pushButton_applyConfig_clicked();
+	
+	/******************************************
+	** Manual connections
+	*******************************************/
 
-    /******************************************
-    ** Manual connections
-    *******************************************/
+	void on_pushButton_applyConfig_clicked();
+	void on_pushButton_saveConfig_clicked();
+	void on_pushButton_loadConfig_clicked();
 
 	void on_spinBox_minDist_valueChanged(double arg1);
 	void on_spinBox_maxDist_valueChanged(double arg1);
@@ -58,9 +61,6 @@ public slots:
 
 	void on_spinBox_threshold_valueChanged(double arg1);
 	void on_spinBox_contrast_valueChanged(double arg1);
-
-	void on_pushButton_saveConfig_clicked();
-	void on_pushButton_loadConfig_clicked();
 
 private:
 	Ui::MainWindowDesign ui;
