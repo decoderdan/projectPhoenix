@@ -6,9 +6,7 @@
 #include <custom_msg/MotorConfig.h>
 #include <custom_msg/TargetVector.h>
 #include <custom_msg/PIDValues.h>
-#include <sensor_msgs/Joy.h>
 
-void joyCallback(const sensor_msgs::Joy::ConstPtr&);
 float constrain(float x, float min, float max);
 float map(float, float, float, float, float);
 
@@ -27,6 +25,26 @@ float yaw_error = 0;
 float yaw_previous_error = 0;
 float yaw_integral = 0;
 float yaw_derivative = 0;
+
+float pitch_Kp = 1;
+float pitch_Ki = 0;
+float pitch_Kd = 0;
+float pitch_input = 0;
+float pitch_target = 0;
+float pitch_error = 0;
+float pitch_previous_error = 0;
+float pitch_integral = 0;
+float pitch_derivative = 0;
+
+float depth_Kp = 1;
+float depth_Ki = 0;
+float depth_Kd = 0;
+float depth_input = 0;
+float depth_target = 0;
+float depth_error = 0;
+float depth_previous_error = 0;
+float depth_integral = 0;
+float depth_derivative = 0;
 /******************************************************
  * 
  *  callbacks; 
@@ -35,30 +53,50 @@ float yaw_derivative = 0;
 
 void depthCallBack(const std_msgs::Float32& depth) {
 	z.data = -(depth.data-10.0);
+	depth_input = z.data;
 }
 
 void imuCallBack(const custom_msg::IMUData& data) {
 	yaw_input = data.yaw;
+	pitch_input = data.pitch;
 }
 
 void pidGuiCallBack(const custom_msg::PIDValues& data) {
 	yaw_Kp = data.yaw_Kp;
 	yaw_Ki = data.yaw_Ki;
 	yaw_Kd = data.yaw_Kd;
+	pitch_Kp = data.pitch_Kp;
+	pitch_Ki = data.pitch_Ki;
+	pitch_Kd = data.pitch_Kd;
+	depth_Kp = data.depth_Kp;
+	depth_Ki = data.depth_Ki;
+	depth_Kd = data.depth_Kd;
 
-	std::cout << "yaw Kp set to = " << yaw_Kp  << std::endl;
-	std::cout << "yaw Ki set to = " << yaw_Ki  << std::endl;
-	std::cout << "yaw Kd set to = " << yaw_Kd  << std::endl;
+	std::cout << "PID values updated "  << std::endl;
+	//std::cout << "yaw Kp set to = " << yaw_Kp  << std::endl;
+	//std::cout << "yaw Ki set to = " << yaw_Ki  << std::endl;
+	//std::cout << "yaw Kd set to = " << yaw_Kd  << std::endl;
 	
 	yaw_error = 0;
 	yaw_previous_error = 0;
 	yaw_integral = 0;
 	yaw_derivative = 0;
+	pitch_error = 0;
+	pitch_previous_error = 0;
+	pitch_integral = 0;
+	pitch_derivative = 0;
+	depth_error = 0;
+	depth_previous_error = 0;
+	depth_integral = 0;
+	depth_derivative = 0;
 }
 
 void vectorCallBack(const custom_msg::TargetVector& data) {
 	yaw_target = data.vector_yaw;
-	std::cout << "yaw target set to = " << yaw_target  << std::endl;
+	pitch_target = data.vector_pitch;
+	depth_target = data.vector_z;
+	std::cout << "Target values updated "  << std::endl;
+	//std::cout << "yaw target set to = " << yaw_target  << std::endl;
 }
 /******************************************************
  * 
@@ -81,6 +119,8 @@ int main( int argc, char **argv )
 
 	
 	float yaw_output = 0;
+	float pitch_output = 0;
+	float depth_output = 0;
 	float dt = 0.02;
 
 	while(ros::ok())
@@ -94,21 +134,43 @@ int main( int argc, char **argv )
   			yaw_derivative = (yaw_error - yaw_previous_error)/dt;
   			yaw_previous_error = yaw_error;
   			yaw_output = (yaw_Kp*yaw_error) + (yaw_Ki*yaw_integral) + (yaw_Kd*yaw_derivative);
+			/***********/
+			/* pitch pid */
+			/***********/
+			pitch_error = pitch_target - pitch_input;
+  			pitch_integral = pitch_integral + (pitch_error*dt);
+  			pitch_derivative = (pitch_error - pitch_previous_error)/dt;
+  			pitch_previous_error = pitch_error;
+  			pitch_output = (pitch_Kp*pitch_error) + (pitch_Ki*pitch_integral) + (pitch_Kd*pitch_derivative);
+			/***********/
+			/* depth pid */
+			/***********/
+			depth_error = depth_target - depth_input;
+  			depth_integral = depth_integral + (depth_error*dt);
+  			depth_derivative = (depth_error - depth_previous_error)/dt;
+  			depth_previous_error = depth_error;
+  			depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
 			
-			
+			//output to motors
 			motorCfg.front_right = int(constrain(yaw_output, -100, 100));
 			motorCfg.front_left = int(constrain(-yaw_output, -100, 100));
 			motorCfg.back_right = int(constrain(-yaw_output, -100, 100));
 			motorCfg.back_left = int(constrain(yaw_output, -100, 100));
-			motorCfg.front = 0;
-			motorCfg.back = 0;	
+			motorCfg.front = int(constrain((depth_output+pitch_output), -100, 100));
+			motorCfg.back = int(constrain((depth_output-pitch_output), -100, 100));	
 			motorMsg.publish(motorCfg);
-
-//code goes here
 			
 			r.sleep(); //Sleep for a little while
 		}
-	
+
+	//when ros no longer ok stop all motors
+	motorCfg.front_right = 0;
+	motorCfg.front_left = 0;
+	motorCfg.back_right = 0;
+	motorCfg.back_left = 0;
+	motorCfg.front = 0;
+	motorCfg.back = 0;	
+	motorMsg.publish(motorCfg);
 
 	return 0;
 }
