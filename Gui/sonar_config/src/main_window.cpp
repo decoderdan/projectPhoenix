@@ -138,7 +138,7 @@ void MainWindow::on_spinBox_rightLimit_valueChanged(double arg1)
 } 
 */
 
-// ?!? thresh + cont MAX 80dB
+// ?!? thresh + contrast MAX 80dB
 
 void MainWindow::on_spinBox_contrast_valueChanged(double arg1) 
 {
@@ -211,7 +211,6 @@ void MainWindow::on_pushButton_saveConfig_clicked() {
     settings.setValue("continuous", continuous_val);
     settings.setValue("stare", stare_val);
     settings.setValue("angularRes", angularRes_val);
-
 
 }
 
