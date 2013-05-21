@@ -86,12 +86,14 @@ int main( int argc, char **argv )
 	while(ros::ok())
 		{	
 			ros::spinOnce(); //Call all waiting callbacks at this point
-			//yaw pid
+			/***********/
+			/* yaw pid */
+			/***********/
 			yaw_error = yaw_target - yaw_input;
   			yaw_integral = yaw_integral + (yaw_error*dt);
   			yaw_derivative = (yaw_error - yaw_previous_error)/dt;
   			yaw_previous_error = yaw_error;
-  			yaw_output = (yaw_Kp*yaw_error); + (yaw_Ki*yaw_integral) + (yaw_Kd*yaw_derivative); //fullpid
+  			yaw_output = (yaw_Kp*yaw_error) + (yaw_Ki*yaw_integral) + (yaw_Kd*yaw_derivative);
 			
 			
 			motorCfg.front_right = int(constrain(yaw_output, -100, 100));
