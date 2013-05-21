@@ -60,6 +60,7 @@ public slots:
 	void on_spinBox_contrast_valueChanged(double arg1);
 
 	void on_pushButton_saveConfig_clicked();
+	void on_pushButton_loadConfig_clicked();
 
 private:
 	Ui::MainWindowDesign ui;

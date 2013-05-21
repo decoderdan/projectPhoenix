@@ -215,6 +215,67 @@ void MainWindow::on_pushButton_saveConfig_clicked() {
 
 }
 
+void MainWindow::on_pushButton_loadConfig_clicked() {
+
+	double threshold_val;
+	double contrast_val;
+	double gain_val;
+	double resolution_val;
+	double minDist_val;
+	double maxDist_val;
+	double leftLimit_val;
+	double rightLimit_val;
+	bool continuous_val;
+	bool stare_val;
+	int angularRes_val;
+
+
+	QString filename = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                    QApplication::applicationDirPath(),
+                                                    tr("(*.ini)"));
+	m_sSettingsFile = filename;
+	QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
+
+	threshold_val = settings.value("threshold", "").toDouble();
+	contrast_val = settings.value("contrast", "").toDouble();
+	gain_val = settings.value("gain", "").toDouble();
+	resolution_val = settings.value("resolution", "").toDouble();
+	minDist_val = settings.value("minDist", "").toDouble();
+	maxDist_val = settings.value("maxDist", "").toDouble();
+	leftLimit_val = settings.value("leftLimit", "").toDouble();
+	rightLimit_val = settings.value("rightLimit", "").toDouble();
+	continuous_val = settings.value("continuous", "").toBool();
+	stare_val = settings.value("stare", "").toBool();
+	angularRes_val = settings.value("angularRes", "").toInt();
+
+	ui.spinBox_threshold->setValue(threshold_val);
+	ui.spinBox_contrast->setValue(contrast_val);
+	ui.spinBox_gain->setValue(gain_val);
+	ui.spinBox_resolution->setValue(resolution_val);
+	ui.spinBox_minDist->setValue(minDist_val);
+	ui.spinBox_maxDist->setValue(maxDist_val);
+	ui.spinBox_leftLimit->setValue(leftLimit_val);
+	ui.spinBox_rightLimit->setValue(rightLimit_val);
+	if(continuous_val == true) {	
+		ui.checkBox_continuous->setChecked(true);
+	} else if(continuous_val == false)  {
+		ui.checkBox_continuous->setChecked(false);
+	}
+	if(stare_val == true) {	
+		ui.checkBox_stare->setChecked(true);
+	} else if(stare_val == false)  {
+		ui.checkBox_stare->setChecked(false);
+	}
+	if(angularRes_val == 8) {	
+		ui.radioButton_angularResHigh->setChecked(true);
+	} else if(angularRes_val == 16) {	
+		ui.radioButton_angularResMedium->setChecked(true);
+	} else if(angularRes_val == 32) {	
+		ui.radioButton_angularResLow->setChecked(true);
+	}
+		
+}
+
 /*****************************************************************************
 ** Implementation [Menu]
 *****************************************************************************/
