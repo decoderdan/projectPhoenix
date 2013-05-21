@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <iostream>
 #include "ros/ros.h"
 #include <std_msgs/Float32.h>
 #include <custom_msg/IMUData.h>
@@ -22,6 +23,10 @@ float yaw_Ki = 0;
 float yaw_Kd = 0;
 float yaw_input = 0;
 float yaw_target = 0;
+float yaw_error = 0;
+float yaw_previous_error = 0;
+float yaw_integral = 0;
+float yaw_derivative = 0;
 /******************************************************
  * 
  *  callbacks; 
@@ -40,10 +45,20 @@ void pidGuiCallBack(const custom_msg::PIDValues& data) {
 	yaw_Kp = data.yaw_Kp;
 	yaw_Ki = data.yaw_Ki;
 	yaw_Kd = data.yaw_Kd;
+
+	std::cout << "yaw Kp set to = " << yaw_Kp  << std::endl;
+	std::cout << "yaw Ki set to = " << yaw_Ki  << std::endl;
+	std::cout << "yaw Kd set to = " << yaw_Kd  << std::endl;
+	
+	yaw_error = 0;
+	yaw_previous_error = 0;
+	yaw_integral = 0;
+	yaw_derivative = 0;
 }
 
 void vectorCallBack(const custom_msg::TargetVector& data) {
 	yaw_target = data.vector_yaw;
+	std::cout << "yaw target set to = " << yaw_target  << std::endl;
 }
 /******************************************************
  * 
@@ -59,33 +74,30 @@ int main( int argc, char **argv )
 	motorMsg = n.advertise<custom_msg::MotorConfig>("motor_config", 100);
 	ros::Subscriber imuSub = n.subscribe("imu", 100, imuCallBack);
 	ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);
-	ros::Subscriber pidguiSub = n.subscribe("pidgui", 100, pidGuiCallBack);
+	ros::Subscriber pidGuiSub = n.subscribe("pidGui", 100, pidGuiCallBack);
 	ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack);	
 	
 	ros::Rate r(50);
 
-	float yaw_error = 0;
-	float yaw_previous_error = 0;
-	float yaw_integral = 0;
-	float yaw_derivative = 0;
+	
 	float yaw_output = 0;
-	float dt = (1/50);
+	float dt = 0.02;
 
 	while(ros::ok())
 		{	
 			ros::spinOnce(); //Call all waiting callbacks at this point
 			//yaw pid
 			yaw_error = yaw_target - yaw_input;
-  			yaw_integral = yaw_integral + yaw_error*dt;
+  			yaw_integral = yaw_integral + (yaw_error*dt);
   			yaw_derivative = (yaw_error - yaw_previous_error)/dt;
   			yaw_previous_error = yaw_error;
-  			yaw_output = yaw_Kp*yaw_error + yaw_Ki*yaw_integral + yaw_Kd*yaw_derivative; //fullpid
-
+  			yaw_output = (yaw_Kp*yaw_error); + (yaw_Ki*yaw_integral) + (yaw_Kd*yaw_derivative); //fullpid
 			
-			motorCfg.front_right = constrain(yaw_output, -100, 100);
-			motorCfg.front_left = constrain(-yaw_output, -100, 100);
-			motorCfg.back_right = constrain(yaw_output, -100, 100);
-			motorCfg.back_left = constrain(-yaw_output, -100, 100);
+			
+			motorCfg.front_right = int(constrain(yaw_output, -100, 100));
+			motorCfg.front_left = int(constrain(-yaw_output, -100, 100));
+			motorCfg.back_right = int(constrain(-yaw_output, -100, 100));
+			motorCfg.back_left = int(constrain(yaw_output, -100, 100));
 			motorCfg.front = 0;
 			motorCfg.back = 0;	
 			motorMsg.publish(motorCfg);
