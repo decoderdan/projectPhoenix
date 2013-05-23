@@ -130,6 +130,8 @@ int main( int argc, char **argv )
 			/* yaw pid */
 			/***********/
 			yaw_error = yaw_target - yaw_input;
+			if (yaw_error > 180) {yaw_error-=360;}	// optomise yaw to turn through shortest route
+			if (yaw_error < -180) {yaw_error+=360;}
   			yaw_integral = yaw_integral + (yaw_error*dt);
   			yaw_derivative = (yaw_error - yaw_previous_error)/dt;
   			yaw_previous_error = yaw_error;
