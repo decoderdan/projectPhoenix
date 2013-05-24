@@ -1,0 +1,27 @@
+<package>
+  <description brief="phoenix_gui">
+
+     phoenix_gui
+
+  </description>
+  <author></author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/phoenix_gui</url>
+
+
+  <rosdep name="qt4"/>
+
+  <!-- rosbuild1 -->
+  <depend package="qt_build"/>
+  <depend package="roscpp"/>
+  <depend package="custom_msg"/>
+  
+  <rosbuild2>
+    <depend package="qt_build"/>
+    <depend package="roscpp"/>
+    <depend package="custom_msg"/>
+
+  </rosbuild2>
+  
+</package>

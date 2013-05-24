@@ -182,7 +182,7 @@
           <double>-180.000000000000000</double>
          </property>
          <property name="maximum">
-          <double>0.000000000000000</double>
+          <double>180.000000000000000</double>
          </property>
         </widget>
        </item>
@@ -190,6 +190,9 @@
         <widget class="QDoubleSpinBox" name="spinBox_rightLimit">
          <property name="suffix">
           <string> deg</string>
+         </property>
+         <property name="minimum">
+          <double>-180.000000000000000</double>
          </property>
          <property name="maximum">
           <double>180.000000000000000</double>

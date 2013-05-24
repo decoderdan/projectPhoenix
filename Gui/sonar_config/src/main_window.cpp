@@ -32,8 +32,6 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 {
 	ui.setupUi(this); // Calling this incidentally connects all ui's triggers to on_...() callbacks in this class.
 
-	ReadSettings();
-
 	setWindowIcon(QIcon(":/images/icon.png"));
 	
 	QObject::connect(&qnode, SIGNAL(rosShutdown()), this, SLOT(close()));
