@@ -1,7 +1,7 @@
 /**
- * @file /src/qnode.cpp
+ * @file /src/qnode.brief
  *
- * @brief Ros communication central!
+ * @cpp Ros communication central!
  *
  * @date February 2011
  **/
@@ -67,7 +67,7 @@ void QNode::run() {
 	emit rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
 }
 
-void QNode::pubConfig(double yawKp_val, double yawKi_val, double yawKd_val, double yawTarget_val, double pitchKp_val, double pitchKi_val, double pitchKd_val, double pitchTarget_val, double depthKp_val, double depthKi_val, double depthKd_val, double depthTarget_val) {
+void QNode::pubConfig_PID(double yawKp_val, double yawKi_val, double yawKd_val, double yawTarget_val, double pitchKp_val, double pitchKi_val, double pitchKd_val, double pitchTarget_val, double depthKp_val, double depthKi_val, double depthKd_val, double depthTarget_val) {
 
 	custom_msg::PIDValues curConfig;
 	custom_msg::TargetVector curTargets;	
