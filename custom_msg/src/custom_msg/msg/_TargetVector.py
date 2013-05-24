@@ -4,7 +4,7 @@ import struct
 
 
 class TargetVector(roslib.message.Message):
-  _md5sum = "c8a135bba33cf1fda99a3f5ca1bc439d"
+  _md5sum = "3609c0c755086df7cbff26aa1b7de964"
   _type = "custom_msg/TargetVector"
   _has_header = False #flag to mark the presence of a Header object
   _full_text = """float32 vector_x
@@ -13,11 +13,16 @@ float32 vector_z
 float32 vector_yaw
 float32 vector_pitch
 float32 vector_roll
-
+bool set_x
+bool set_y
+bool set_z
+bool set_yaw
+bool set_pitch
+bool set_roll
 
 """
-  __slots__ = ['vector_x','vector_y','vector_z','vector_yaw','vector_pitch','vector_roll']
-  _slot_types = ['float32','float32','float32','float32','float32','float32']
+  __slots__ = ['vector_x','vector_y','vector_z','vector_yaw','vector_pitch','vector_roll','set_x','set_y','set_z','set_yaw','set_pitch','set_roll']
+  _slot_types = ['float32','float32','float32','float32','float32','float32','bool','bool','bool','bool','bool','bool']
 
   def __init__(self, *args, **kwds):
     """
@@ -27,7 +32,7 @@ float32 vector_roll
     changes.  You cannot mix in-order arguments and keyword arguments.
     
     The available fields are:
-       vector_x,vector_y,vector_z,vector_yaw,vector_pitch,vector_roll
+       vector_x,vector_y,vector_z,vector_yaw,vector_pitch,vector_roll,set_x,set_y,set_z,set_yaw,set_pitch,set_roll
     
     @param args: complete set of field values, in .msg order
     @param kwds: use keyword arguments corresponding to message field names
@@ -48,6 +53,18 @@ float32 vector_roll
         self.vector_pitch = 0.
       if self.vector_roll is None:
         self.vector_roll = 0.
+      if self.set_x is None:
+        self.set_x = False
+      if self.set_y is None:
+        self.set_y = False
+      if self.set_z is None:
+        self.set_z = False
+      if self.set_yaw is None:
+        self.set_yaw = False
+      if self.set_pitch is None:
+        self.set_pitch = False
+      if self.set_roll is None:
+        self.set_roll = False
     else:
       self.vector_x = 0.
       self.vector_y = 0.
@@ -55,6 +72,12 @@ float32 vector_roll
       self.vector_yaw = 0.
       self.vector_pitch = 0.
       self.vector_roll = 0.
+      self.set_x = False
+      self.set_y = False
+      self.set_z = False
+      self.set_yaw = False
+      self.set_pitch = False
+      self.set_roll = False
 
   def _get_types(self):
     """
@@ -70,7 +93,7 @@ float32 vector_roll
     """
     try:
       _x = self
-      buff.write(_struct_6f.pack(_x.vector_x, _x.vector_y, _x.vector_z, _x.vector_yaw, _x.vector_pitch, _x.vector_roll))
+      buff.write(_struct_6f6B.pack(_x.vector_x, _x.vector_y, _x.vector_z, _x.vector_yaw, _x.vector_pitch, _x.vector_roll, _x.set_x, _x.set_y, _x.set_z, _x.set_yaw, _x.set_pitch, _x.set_roll))
     except struct.error as se: self._check_types(se)
     except TypeError as te: self._check_types(te)
 
@@ -84,8 +107,14 @@ float32 vector_roll
       end = 0
       _x = self
       start = end
-      end += 24
-      (_x.vector_x, _x.vector_y, _x.vector_z, _x.vector_yaw, _x.vector_pitch, _x.vector_roll,) = _struct_6f.unpack(str[start:end])
+      end += 30
+      (_x.vector_x, _x.vector_y, _x.vector_z, _x.vector_yaw, _x.vector_pitch, _x.vector_roll, _x.set_x, _x.set_y, _x.set_z, _x.set_yaw, _x.set_pitch, _x.set_roll,) = _struct_6f6B.unpack(str[start:end])
+      self.set_x = bool(self.set_x)
+      self.set_y = bool(self.set_y)
+      self.set_z = bool(self.set_z)
+      self.set_yaw = bool(self.set_yaw)
+      self.set_pitch = bool(self.set_pitch)
+      self.set_roll = bool(self.set_roll)
       return self
     except struct.error as e:
       raise roslib.message.DeserializationError(e) #most likely buffer underfill
@@ -101,7 +130,7 @@ float32 vector_roll
     """
     try:
       _x = self
-      buff.write(_struct_6f.pack(_x.vector_x, _x.vector_y, _x.vector_z, _x.vector_yaw, _x.vector_pitch, _x.vector_roll))
+      buff.write(_struct_6f6B.pack(_x.vector_x, _x.vector_y, _x.vector_z, _x.vector_yaw, _x.vector_pitch, _x.vector_roll, _x.set_x, _x.set_y, _x.set_z, _x.set_yaw, _x.set_pitch, _x.set_roll))
     except struct.error as se: self._check_types(se)
     except TypeError as te: self._check_types(te)
 
@@ -117,11 +146,17 @@ float32 vector_roll
       end = 0
       _x = self
       start = end
-      end += 24
-      (_x.vector_x, _x.vector_y, _x.vector_z, _x.vector_yaw, _x.vector_pitch, _x.vector_roll,) = _struct_6f.unpack(str[start:end])
+      end += 30
+      (_x.vector_x, _x.vector_y, _x.vector_z, _x.vector_yaw, _x.vector_pitch, _x.vector_roll, _x.set_x, _x.set_y, _x.set_z, _x.set_yaw, _x.set_pitch, _x.set_roll,) = _struct_6f6B.unpack(str[start:end])
+      self.set_x = bool(self.set_x)
+      self.set_y = bool(self.set_y)
+      self.set_z = bool(self.set_z)
+      self.set_yaw = bool(self.set_yaw)
+      self.set_pitch = bool(self.set_pitch)
+      self.set_roll = bool(self.set_roll)
       return self
     except struct.error as e:
       raise roslib.message.DeserializationError(e) #most likely buffer underfill
 
 _struct_I = roslib.message.struct_I
-_struct_6f = struct.Struct("<6f")
+_struct_6f6B = struct.Struct("<6f6B")

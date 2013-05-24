@@ -15,6 +15,8 @@ custom_msg::MotorConfig motorCfg;
 
 static std_msgs::Float32 z;
 
+float move_x = 0;
+float move_y = 0;
 
 float yaw_Kp = 1;
 float yaw_Ki = 0;
@@ -92,10 +94,11 @@ void pidGuiCallBack(const custom_msg::PIDValues& data) {
 }
 
 void vectorCallBack(const custom_msg::TargetVector& data) {
-	yaw_target = data.vector_yaw;
-	pitch_target = data.vector_pitch;
-	depth_target = data.vector_z;
-	std::cout << "Target values updated "  << std::endl;
+	if (data.set_yaw == true) {yaw_target = data.vector_yaw;std::cout << "Yaw target updated "  << std::endl;}
+	if (data.set_pitch == true) {pitch_target = data.vector_pitch;std::cout << "Pitch target updated "  << std::endl;}
+	if (data.set_z == true) {depth_target = data.vector_z;std::cout << "Depth target updated "  << std::endl;}
+	if (data.set_x == true) {move_x = data.vector_x;}
+	if (data.set_y == true) {move_y = data.vector_y;}
 	//std::cout << "yaw target set to = " << yaw_target  << std::endl;
 }
 /******************************************************
@@ -154,12 +157,12 @@ int main( int argc, char **argv )
   			depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
 			
 			//output to motors
-			motorCfg.front_right = int(constrain(yaw_output, -100, 100));
-			motorCfg.front_left = int(constrain(-yaw_output, -100, 100));
-			motorCfg.back_right = int(constrain(-yaw_output, -100, 100));
-			motorCfg.back_left = int(constrain(yaw_output, -100, 100));
-			motorCfg.front = int(constrain((depth_output+pitch_output), -100, 100));
-			motorCfg.back = int(constrain((depth_output-pitch_output), -100, 100));	
+			motorCfg.front_right = int(constrain((move_x+yaw_output), -100, 100));
+			motorCfg.front_left = int(constrain((move_x-yaw_output), -100, 100));
+			motorCfg.back_right = int(constrain((depth_output+pitch_output), -100, 100));
+			motorCfg.back_left = int(constrain((depth_output-pitch_output), -100, 100));
+			motorCfg.front = 0;
+			motorCfg.back = 0;	
 			motorMsg.publish(motorCfg);
 			
 			r.sleep(); //Sleep for a little while
