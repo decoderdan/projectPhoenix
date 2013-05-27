@@ -54,7 +54,6 @@ float depth_derivative = 0;
  * ***************************************************/
 
 void depthCallBack(const std_msgs::Float32& depth) {
-	z.data = -(depth.data-10.0);
 	depth_input = z.data;
 }
 
