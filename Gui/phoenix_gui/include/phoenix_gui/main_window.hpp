@@ -15,6 +15,7 @@
 #include <QtGui/QMainWindow>
 #include "ui_main_window.h"
 #include "qnode.hpp"
+#include <std_msgs/Float32.h>
 
 /*****************************************************************************
 ** Namespace
@@ -40,14 +41,19 @@ public:
 
 	void closeEvent(QCloseEvent *event); // Overloaded function
 	void showNoMasterMessage();
+	
+	
 
 public slots:
 	/******************************************
 	** Auto-connections (connectSlotsByName())
 	*******************************************/
 	
-	void on_actionAbout_triggered();
-
+	/* main gui slots */
+	void on_actionExit_triggered();
+	void on_actionEmergency_Stop_triggered();
+	void on_actionResurface_triggered();
+	
 	/* network setup slots */
 	void on_button_connect_clicked(bool check );
 	void on_checkbox_use_environment_stateChanged(int state);
@@ -63,8 +69,8 @@ public slots:
 	void on_pushButton_loadConfig_sonar_clicked();
 	void on_spinBox_minDist_sonar_valueChanged(double arg1);
 	void on_spinBox_maxDist_sonar_valueChanged(double arg1);
-//	void on_spinBox_leftLimit_sonar_valueChanged(double arg1);
-//	void on_spinBox_rightLimit_sonar_valueChanged(double arg1);
+	void on_spinBox_leftLimit_sonar_valueChanged(double arg1);
+	void on_spinBox_rightLimit_sonar_valueChanged(double arg1);
 	void on_spinBox_threshold_sonar_valueChanged(double arg1);
 	void on_spinBox_contrast_sonar_valueChanged(double arg1);
 
@@ -73,6 +79,11 @@ public slots:
 	** Manual connections
 	*******************************************/
 	void noMaster();
+	
+	void showDepthActual(float);
+	void showYawActual(float);
+	void showPitchActual(float);
+
 private:
 	Ui::MainWindowDesign ui;
 	QNode qnode;

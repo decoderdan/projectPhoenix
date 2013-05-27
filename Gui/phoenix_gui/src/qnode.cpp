@@ -36,10 +36,11 @@ QNode::QNode(int argc, char** argv ) :
 	{}
 
 QNode::~QNode() {
-    if(ros::isStarted()) {
-      ros::shutdown(); // explicitly needed since we use ros::start();
-      ros::waitForShutdown();
-    }
+	std::cout << "Gui closed!" << std::endl;
+	if(ros::isStarted()) {
+	ros::shutdown(); // explicitly needed since we use ros::start();
+	ros::waitForShutdown();
+	}
 	wait();
 }
 
@@ -48,12 +49,17 @@ bool QNode::init() {
 	if ( ! ros::master::check() ) {
 		return false;
 	}
+	ros::master::setRetryTimeout(ros::WallDuration(10,0));
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
 	// Add your ros communications here.
 	pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);
 	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
 	sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);
+
+	imuSub = n.subscribe("imu", 100, &QNode::imuCallBack, this);
+   	depthSub = n.subscribe("depth", 100, &QNode::depthCallBack, this);
+   	
 	start();
 	return true;
 }
@@ -63,7 +69,7 @@ bool QNode::init(const std::string &master_url, const std::string &host_url) {
 	remappings["__master"] = master_url;
 	remappings["__hostname"] = host_url;
 	ros::init(remappings,"phoenix_gui");
-	ros::master::setRetryTimeout(ros::WallDuration(1,0));
+	ros::master::setRetryTimeout(ros::WallDuration(10,0));
 	if ( ! ros::master::check() ) {
 		return false;
 	}
@@ -73,18 +79,32 @@ bool QNode::init(const std::string &master_url, const std::string &host_url) {
 	pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);
 	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
 	sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);
+
+	imuSub = n.subscribe("imu", 100, &QNode::imuCallBack, this);
+   	depthSub = n.subscribe("depth", 100, &QNode::depthCallBack, this);
+
 	start();
 	return true;
 }
 
 void QNode::run() {
-//	ros::Rate loop_rate(1);
+	ros::Rate loop_rate(50);
 	while ( ros::ok() ) {
-//		ros::spinOnce();
-//		loop_rate.sleep();
+		ros::spinOnce();
+		loop_rate.sleep();
 	}
 	std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
 	emit rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
+}
+
+void QNode::emergencyStop(){
+	std::cout << "Emergency stop received from gui !!!" << std::endl;
+	
+}
+
+void QNode::resurface(){
+	std::cout << "Resurface command received from gui !!!" << std::endl;
+	
 }
 
 void QNode::pubConfig_PID(double yawKp_val, double yawKi_val, double yawKd_val, double yawTarget_val, double pitchKp_val, double pitchKi_val, double pitchKd_val, double pitchTarget_val, double depthKp_val, double depthKi_val, double depthKd_val, double depthTarget_val) {
@@ -106,9 +126,15 @@ void QNode::pubConfig_PID(double yawKp_val, double yawKi_val, double yawKd_val, 
 	curTargets.vector_pitch = pitchTarget_val;
 	curTargets.vector_z = depthTarget_val;
 
+	curTargets.set_yaw = true;
+	curTargets.set_pitch = true;
+	curTargets.set_roll = false;
+	curTargets.set_x = false;
+	curTargets.set_y = false;
+	curTargets.set_z = true;
+
 	pid_config_publisher.publish(curPIDConfig);
 	target_publisher.publish(curTargets);
-
 
 }
 
@@ -142,6 +168,28 @@ void QNode::pubConfig_sonar(double threshold_val, double contrast_val, double ga
 	curSonarConfig.angular_resolution = angularRes_val;
 
 	sonar_config_publisher.publish(curSonarConfig);
+}
+
+void QNode::depthCallBack(const std_msgs::Float32& depth) {
+	std_msgs::Float32 z;
+   //     z.data = -(depth.data-10.0);
+	emit depthActualUpdated((float)depth.data);
+}
+
+
+void QNode::imuCallBack(const custom_msg::IMUData& data) {
+	std::cout << "imu callback" << std::endl;
+	
+        float yaw_input = data.yaw;
+        
+        std::cout << "yaw = " << yaw_input << std::endl;
+        
+        float pitch_input = data.pitch;
+        
+        std::cout << "pitch = " << pitch_input << std::endl;
+        
+        emit yawActualUpdated(yaw_input);
+        emit pitchActualUpdated(pitch_input);
 }
 
 }  // namespace phoenix_gui

@@ -13,6 +13,7 @@
 #include <QMessageBox>
 #include <iostream>
 #include "../include/phoenix_gui/main_window.hpp"
+#include <custom_msg/IMUData.h>
 
 /*****************************************************************************
 ** Namespaces
@@ -32,11 +33,20 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 {
 	ui.setupUi(this); // Calling this incidentally connects all ui's triggers to on_...() callbacks in this class.
 
-//    ReadSettings();
+	ReadSettings();
 	setWindowIcon(QIcon(":/images/icon.png"));
-    QObject::connect(&qnode, SIGNAL(rosShutdown()), this, SLOT(close()));
 
-	QObject::connect(&qnode, SIGNAL(noMaster()), this, SLOT(noMaster()));
+	QObject::connect(&qnode, SIGNAL(rosShutdown()), this, SLOT(close()));
+	QObject::connect(&qnode, SIGNAL(noMaster()), this, SLOT(noMaster()));	
+	QObject::connect(&qnode, SIGNAL(depthActualUpdated(float)), this, SLOT(showDepthActual(float)));
+	QObject::connect(&qnode, SIGNAL(yawActualUpdated(float)), this, SLOT(showYawActual(float)));
+	QObject::connect(&qnode, SIGNAL(pitchActualUpdated(float)), this, SLOT(showPitchActual(float)));
+
+
+	ui.tabConfig->setEnabled(false);
+	
+	ui.mainTabs->setCurrentIndex(0);
+	
     /*********************
     ** Auto Start
     **********************/
@@ -55,13 +65,33 @@ void MainWindow::showNoMasterMessage() {
 	QMessageBox msgBox;
 	msgBox.setText("Couldn't find the ros master.");
 	msgBox.exec();
-    close();
+}
+/******************
+** toolbar slots **
+******************/
+
+void MainWindow::on_actionExit_triggered() {
+	WriteSettings();
+	close();
 }
 
-/*
- * These triggers whenever the button is clicked, regardless of whether it
- * is already checked or not.
- */
+void MainWindow::on_actionEmergency_Stop_triggered() {
+	QMessageBox msgBox;
+	
+	qnode.emergencyStop();
+	
+	msgBox.setText("Emergency stop!");
+	msgBox.exec();
+}
+
+void MainWindow::on_actionResurface_triggered() {
+	QMessageBox msgBox;
+	
+	qnode.resurface();
+	
+	msgBox.setText("Sub will now resurface (hopefully)");
+	msgBox.exec();
+}
 
 void MainWindow::on_button_connect_clicked(bool check ) {
 	if ( ui.checkbox_use_environment->isChecked() ) {
@@ -69,6 +99,10 @@ void MainWindow::on_button_connect_clicked(bool check ) {
 			showNoMasterMessage();
 		} else {
 			ui.button_connect->setEnabled(false);
+			
+			// switch to config tab
+			ui.tabConfig->setEnabled(true);
+        		ui.mainTabs->setCurrentIndex(1);
 		}
 	} else {
 		if ( ! qnode.init(ui.line_edit_master->text().toStdString(),
@@ -78,8 +112,14 @@ void MainWindow::on_button_connect_clicked(bool check ) {
 			ui.button_connect->setEnabled(false);
 			ui.line_edit_master->setReadOnly(true);
 			ui.line_edit_host->setReadOnly(true);
+			
+			// switch to config tab
+			ui.tabConfig->setEnabled(true);
+        		ui.mainTabs->setCurrentIndex(1);
 		}
 	}
+	
+
 }
 
 
@@ -92,7 +132,6 @@ void MainWindow::on_checkbox_use_environment_stateChanged(int state) {
 	}
 	ui.line_edit_master->setEnabled(enabled);
 	ui.line_edit_host->setEnabled(enabled);
-	//ui.line_edit_topic->setEnabled(enabled);
 }
 
 /*********************************************************
@@ -135,11 +174,89 @@ void MainWindow::on_pushButton_applyConfig_PID_clicked() {
 }
 
 void MainWindow::on_pushButton_saveConfig_PID_clicked() {
+	double yawKp_val;
+	double yawKi_val;
+	double yawKd_val;
 
+	double pitchKp_val;
+	double pitchKi_val;
+	double pitchKd_val;
+
+	double depthKp_val;
+	double depthKi_val;
+	double depthKd_val;
+
+	yawKp_val = ui.spinBox_yawKp->value();
+	yawKi_val = ui.spinBox_yawKi->value();
+	yawKd_val = ui.spinBox_yawKd->value();
+
+	pitchKp_val = ui.spinBox_pitchKp->value();
+	pitchKi_val = ui.spinBox_pitchKi->value();
+	pitchKd_val = ui.spinBox_pitchKd->value();
+
+	depthKp_val = ui.spinBox_depthKp->value();
+	depthKi_val = ui.spinBox_depthKi->value();
+	depthKd_val = ui.spinBox_depthKd->value();
+
+	QString filename = QFileDialog::getSaveFileName(this, tr("Save PID Config"),
+		                            QApplication::applicationDirPath(),
+		                            tr("(*.ini)"));
+	m_sSettingsFile = filename;
+	QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
+	settings.setValue("yawKp", yawKp_val);
+	settings.setValue("yawKi", yawKi_val);
+	settings.setValue("yawKd", yawKd_val);
+	settings.setValue("pitchKp", pitchKp_val);
+	settings.setValue("pitchKi", pitchKi_val);
+	settings.setValue("pitchKd", pitchKd_val);
+	settings.setValue("depthKp", depthKp_val);
+	settings.setValue("depthKi", depthKi_val);
+	settings.setValue("depthKd", depthKd_val);
 }
 
 void MainWindow::on_pushButton_loadConfig_PID_clicked() {
+	double yawKp_val;
+	double yawKi_val;
+	double yawKd_val;
+	double yawTarget_val;
 
+	double pitchKp_val;
+	double pitchKi_val;
+	double pitchKd_val;
+	double pitchTarget_val;
+
+	double depthKp_val;
+	double depthKi_val;
+	double depthKd_val;
+	double depthTarget_val;
+
+	QString filename = QFileDialog::getOpenFileName(this, tr("Open PID Config"),
+		                            QApplication::applicationDirPath(),
+		                            tr("(*.ini)"));
+	m_sSettingsFile = filename;
+	QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
+	
+	yawKp_val = settings.value("yawKp", "").toDouble();
+	yawKi_val = settings.value("yawKi", "").toDouble();
+	yawKd_val = settings.value("yawKd", "").toDouble();
+	pitchKp_val = settings.value("pitchKp", "").toDouble();
+	pitchKi_val = settings.value("pitchKi", "").toDouble();
+	pitchKd_val = settings.value("pitchKd", "").toDouble();
+	depthKp_val = settings.value("depthKp", "").toDouble();
+	depthKi_val = settings.value("depthKi", "").toDouble();
+	depthKd_val = settings.value("depthKd", "").toDouble();
+	
+	ui.spinBox_yawKp->setValue(yawKp_val);
+	ui.spinBox_yawKi->setValue(yawKi_val);
+	ui.spinBox_yawKd->setValue(yawKd_val);
+
+	ui.spinBox_pitchKp->setValue(pitchKp_val);
+	ui.spinBox_pitchKi->setValue(pitchKi_val);
+	ui.spinBox_pitchKd->setValue(pitchKd_val);
+
+	ui.spinBox_depthKp->setValue(depthKp_val);
+	ui.spinBox_depthKi->setValue(depthKi_val);
+	ui.spinBox_depthKd->setValue(depthKd_val);
 }
 
 /*********************************************************
@@ -324,7 +441,7 @@ void MainWindow::on_spinBox_maxDist_sonar_valueChanged(double arg1)
     }
 }
 
-/*
+
 void MainWindow::on_spinBox_leftLimit_sonar_valueChanged(double arg1)
 {
     // must be LESS than rightLimit value
@@ -340,9 +457,9 @@ void MainWindow::on_spinBox_rightLimit_sonar_valueChanged(double arg1)
         ui.spinBox_leftLimit_sonar->setValue(arg1 - 1);
     }
 } 
-*/
 
-// ?!? thresh + contrast MAX 80dB
+
+// thresh + contrast = MAX 80dB
 
 void MainWindow::on_spinBox_contrast_sonar_valueChanged(double arg1) 
 {
@@ -368,10 +485,6 @@ void MainWindow::on_spinBox_threshold_sonar_valueChanged(double arg1)
 ** Implementation [Menu]
 *****************************************************************************/
 
-void MainWindow::on_actionAbout_triggered() {
-    QMessageBox::about(this, tr("About ..."),tr("<h2>PACKAGE_NAME Test Program 0.10</h2><p>Copyright Yujin Robot</p><p>This package needs an about description.</p>"));
-}
-
 /*****************************************************************************
 ** Implementation [Configuration]
 *****************************************************************************/
@@ -382,10 +495,8 @@ void MainWindow::ReadSettings() {
     restoreState(settings.value("windowState").toByteArray());
     QString master_url = settings.value("master_url",QString("http://192.168.1.2:11311/")).toString();
     QString host_url = settings.value("host_url", QString("192.168.1.3")).toString();
-    //QString topic_name = settings.value("topic_name", QString("/chatter")).toString();
     ui.line_edit_master->setText(master_url);
     ui.line_edit_host->setText(host_url);
-    //ui.line_edit_topic->setText(topic_name);
     bool remember = settings.value("remember_settings", false).toBool();
     ui.checkbox_remember_settings->setChecked(remember);
     bool checked = settings.value("use_environment_variables", false).toBool();
@@ -393,7 +504,6 @@ void MainWindow::ReadSettings() {
     if ( checked ) {
     	ui.line_edit_master->setEnabled(false);
     	ui.line_edit_host->setEnabled(false);
-    	//ui.line_edit_topic->setEnabled(false);
     }
 }
 
@@ -401,7 +511,7 @@ void MainWindow::WriteSettings() {
     QSettings settings("Qt-Ros Package", "phoenix_gui");
     settings.setValue("master_url",ui.line_edit_master->text());
     settings.setValue("host_url",ui.line_edit_host->text());
-    //settings.setValue("topic_name",ui.line_edit_topic->text());
+    
     settings.setValue("use_environment_variables",QVariant(ui.checkbox_use_environment->isChecked()));
     settings.setValue("geometry", saveGeometry());
     settings.setValue("windowState", saveState());
@@ -411,6 +521,7 @@ void MainWindow::WriteSettings() {
 
 void MainWindow::noMaster()
 {
+	std::cout << "Ros Master cannot be reached!" << std::endl;
 	QSound::play("mysounds/bells.wav");
 }
 
@@ -418,6 +529,21 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
 	WriteSettings();
 	QMainWindow::closeEvent(event);
+}
+
+void MainWindow::showDepthActual(float value)
+{
+	ui.lcdNumber_depthActual->display((double)value);
+}
+
+void MainWindow::showYawActual(float value)
+{
+	ui.lcdNumber_yawActual->display((double)value);
+}
+
+void MainWindow::showPitchActual(float value)
+{
+	ui.lcdNumber_pitchActual->display((double)value);
 }
 
 }  // namespace phoenix_gui
