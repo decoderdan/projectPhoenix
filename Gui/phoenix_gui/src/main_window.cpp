@@ -42,7 +42,9 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 	QObject::connect(&qnode, SIGNAL(yawActualUpdated(float)), this, SLOT(showYawActual(float)));
 	QObject::connect(&qnode, SIGNAL(pitchActualUpdated(float)), this, SLOT(showPitchActual(float)));
 
-
+	/* disable some gui things... until connected */
+	
+	ui.toolBar->setEnabled(false);
 	ui.tabConfig->setEnabled(false);
 	
 	ui.mainTabs->setCurrentIndex(0);
@@ -100,7 +102,8 @@ void MainWindow::on_button_connect_clicked(bool check ) {
 		} else {
 			ui.button_connect->setEnabled(false);
 			
-			// switch to config tab
+			// re-enable disabled gui items
+			ui.toolBar->setEnabled(true);
 			ui.tabConfig->setEnabled(true);
         		ui.mainTabs->setCurrentIndex(1);
 		}
@@ -113,7 +116,8 @@ void MainWindow::on_button_connect_clicked(bool check ) {
 			ui.line_edit_master->setReadOnly(true);
 			ui.line_edit_host->setReadOnly(true);
 			
-			// switch to config tab
+			// re-enable disabled gui items
+			ui.toolBar->setEnabled(true);
 			ui.tabConfig->setEnabled(true);
         		ui.mainTabs->setCurrentIndex(1);
 		}
@@ -218,17 +222,14 @@ void MainWindow::on_pushButton_loadConfig_PID_clicked() {
 	double yawKp_val;
 	double yawKi_val;
 	double yawKd_val;
-	double yawTarget_val;
 
 	double pitchKp_val;
 	double pitchKi_val;
 	double pitchKd_val;
-	double pitchTarget_val;
 
 	double depthKp_val;
 	double depthKi_val;
 	double depthKd_val;
-	double depthTarget_val;
 
 	QString filename = QFileDialog::getOpenFileName(this, tr("Open PID Config"),
 		                            QApplication::applicationDirPath(),
