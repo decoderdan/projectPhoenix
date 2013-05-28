@@ -8,6 +8,8 @@
 #include <custom_msg/SonarData.h>
 #include <custom_msg/SonarConfig.h> //For custom sonar configuration.
 
+
+
 namespace uwe_sub {
 
 	namespace sonar {
@@ -423,7 +425,6 @@ namespace uwe_sub {
 				  len += 6;
 				  if(len > buffer_size)
 					  return 0;               //packet is to small wait for more data
-
 				  //checking for the end of the packet 
 				  if (buffer[len-1] == PACKET_END) 
 				  {
@@ -764,6 +765,7 @@ namespace uwe_sub {
 					head_config.pulse_length = (config.max_distance+10)*25/10;
 
 					//TODO: Wait to stop receiving head data
+					while (waitForPacket(mtHeadData, 500));
 					writeHeadCommand(head_config,timeout);
 
 					if (waitForPacket(mtAlive, 10000)) {
@@ -799,13 +801,26 @@ namespace uwe_sub {
 		};
 	}
 }
-
+uwe_sub::sonar::sonarInterface sonar;
 
 /* Sonar Config Callback */
 void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
 	//This is where we receive new configuration settings.
 	ROS_INFO("Sonar Configuration settings have changed.");
 	std::cout << "Got a new sonar configuration!" << std::endl;
+	uwe_sub::sonar::MicronConfig conf;
+	conf.threshold = config.threshold;  //0dB
+	conf.contrast = config.contrast; //12dB
+	conf.gain = conf.gain; //40% Initial Gain
+	conf.resolution = config.resolution; //10cm sampling
+	conf.max_distance = config.max_distance; //10 meter range
+	conf.min_distance = config.min_distance; //Ignore the first 0.75 meters
+	conf.left_limit = uwe_sub::sonar::Angle::fromDeg(config.left_limit);
+	conf.right_limit = uwe_sub::sonar::Angle::fromDeg(config.right_limit);
+	conf.continuous = config.continuous;
+	conf.stare = config.stare;
+	conf.angular_resolution = config.angular_resolution; //LOW, MEDIUM, HIGH
+	sonar.configure(conf,10000);
 }
 
 /******************************************************
@@ -815,8 +830,6 @@ void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
  * ***************************************************/
 int main( int argc, char **argv )
 {
-
-	uwe_sub::sonar::sonarInterface sonar;
 
 	ros::init(argc, argv, "sonar_interface");
 
