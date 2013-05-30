@@ -29,6 +29,6 @@ rosbuild_genmsg()
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-rosbuild_add_executable(mission src/mission_control/mission.cpp)
+rosbuild_add_executable(mission_control src/mission_control/mission.cpp)
 rosbuild_add_executable(test_selecter src/mission_control/test_selecter.cpp)
 rosbuild_add_executable(mission_square src/mission_square/mission_square.cpp)

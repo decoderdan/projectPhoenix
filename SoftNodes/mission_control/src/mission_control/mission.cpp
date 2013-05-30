@@ -1,13 +1,26 @@
 #include "ros/ros.h"
+#include <sstream>
 #include "std_msgs/UInt8.h"
+#include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
 
-int state_selected = 0;
+void stateCallback(const std_msgs::UInt8& finished_task);
+void broadcastWPs();
 
-void stateCallback(const std_msgs::UInt8& state)
-{
-  ROS_INFO("The current state is: [%d]", state.data);
-  state_selected = state.data;
-}
+int state_selected = 1;
+
+ros::Publisher state_pub;
+
+
+/* Create a transform broadcaster and listener */
+static tf::TransformBroadcaster br;
+  
+/* Here are our minimal transforms. IMU, SVP and Sonar */
+static tf::TransformBroadcaster broadcaster;
+//tf::Transform imu_tr;
+//tf::Transform svp_tr;
+//tf::Transform sonar_tr;
+
 
 int main(int argc, char **argv)
 {
@@ -21,19 +34,21 @@ int main(int argc, char **argv)
 
   ros::Subscriber sub = n.subscribe("select_state", 1000, stateCallback);
 
-  ros::Rate loop_rate(10);  //loop every 10hz
+  ROS_INFO("TEST PRINT");
 
   std_msgs::UInt8 current_state;
 
-  while (ros::ok())
-  {
- 
-    ros::spinOnce();
+  //while (ros::ok())
+  //{
+
+
+    	//ros::spinOnce();
 
     switch(state_selected)
     {
-	case 1 : current_state.data = 1;  //state for rising to the surface
+	case 1 : broadcastWPs();
 	     break;
+
 	case 2 : current_state.data = 2;
 	     break;
 	case 3 : current_state.data = 3;
@@ -47,14 +62,40 @@ int main(int argc, char **argv)
     }
 	
     state_pub.publish(current_state);
-
-
-    loop_rate.sleep();
-
     
-  }
+ // }
 
 
   return 0;
+}
+
+void broadcastWPs()
+{
+
+	std::cout << "broadcast the waypoints for a square" << std::endl;
+
+	broadcaster.sendTransform(
+    		tf::StampedTransform(
+ 			tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(5.0, 0.0, 0.0)), //(x,y,z)
+    		ros::Time::now(),"/world", "/squareWP1")); 
+	
+	broadcaster.sendTransform(
+    		tf::StampedTransform(
+ 			tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(5.0, 5.0, 0.0)), //(x,y,z)
+    		ros::Time::now(),"/world", "/squareWP2")); 
+
+	broadcaster.sendTransform(
+    		tf::StampedTransform(
+ 			tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 5.0, 0.0)), //(x,y,z)
+    		ros::Time::now(),"/world", "/squareWP3")); 
+
+	broadcaster.sendTransform(
+    		tf::StampedTransform(
+ 			tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 0.0, 0.0)), //(x,y,z)
+    		ros::Time::now(),"/world", "/squareWP4"));  
+}
+void stateCallback(const std_msgs::UInt8& finished_task)
+{
+
 }
 
