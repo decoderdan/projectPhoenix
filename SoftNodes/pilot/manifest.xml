@@ -11,6 +11,7 @@
   <depend package="roscpp"/>
   <depend package="custom_msg"/>
   <depend package="joy"/>
+  <depend package="tf"/>
 </package>
 
 
