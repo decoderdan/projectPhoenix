@@ -55,8 +55,9 @@ bool QNode::init() {
 	// Add your ros communications here.
 	pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);
 	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
-	sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);
-
+	sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);	
+	dead_reckoning_vel_publisher = n.advertise<std_msgs::Float32>("estimated_velocity", 1000);
+	
 	imuSub = n.subscribe("imu", 100, &QNode::imuCallBack, this);
    	depthSub = n.subscribe("depth", 100, &QNode::depthCallBack, this);
    	
@@ -79,6 +80,9 @@ bool QNode::init(const std::string &master_url, const std::string &host_url) {
 	pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);
 	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
 	sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);
+	dead_reckoning_vel_publisher = n.advertise<std_msgs::Float32>("estimated_velocity", 1000);
+
+	
 
 	imuSub = n.subscribe("imu", 100, &QNode::imuCallBack, this);
    	depthSub = n.subscribe("depth", 100, &QNode::depthCallBack, this);
@@ -190,6 +194,30 @@ void QNode::imuCallBack(const custom_msg::IMUData& data) {
         
         emit yawActualUpdated(yaw_input);
         emit pitchActualUpdated(pitch_input);
+}
+
+/********************************************
+**		Dead reckoning              *
+********************************************/
+
+void QNode::startCalibration() {
+	std::cout << "stating the 5 second velocity calibration run" << std::endl;
+	
+	// send a forward 20% command
+	
+	// wait 5 seconds
+	
+	// send a stop command
+
+}
+
+void QNode::pubEstVelocity(float vel) {
+
+    std_msgs::Float32 velocity;
+        
+    velocity.data = vel;
+
+    dead_reckoning_vel_publisher.publish(velocity);
 }
 
 }  // namespace phoenix_gui

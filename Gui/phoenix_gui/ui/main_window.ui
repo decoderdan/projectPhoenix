@@ -249,7 +249,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tabConfig_pid">
        <attribute name="title">
@@ -849,8 +849,6 @@
            </widget>
           </widget>
          </widget>
-         <zorder>widget_PID</zorder>
-         <zorder>frame</zorder>
         </widget>
        </widget>
       </widget>
@@ -1130,6 +1128,70 @@
           </layout>
          </item>
         </layout>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tabConfig_dead_reckoning">
+       <attribute name="title">
+        <string>Dead Reckoning</string>
+       </attribute>
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="geometry">
+         <rect>
+          <x>70</x>
+          <y>20</y>
+          <width>631</width>
+          <height>91</height>
+         </rect>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="title">
+         <string>Estimate Velocity Calibration</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <widget class="QWidget" name="gridLayoutWidget_2">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>20</y>
+           <width>621</width>
+           <height>71</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_7">
+          <item row="0" column="0">
+           <widget class="QPushButton" name="pushButton_runCalibration_deadReckoning">
+            <property name="text">
+             <string>Run Calibration</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>WARNING - this will drive forward for 5 seconds</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QPushButton" name="pushButton_setDist_deadReckoning">
+            <property name="text">
+             <string>Set Estimated Velocity</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="spinBox_distance_deadReckoning">
+            <property name="suffix">
+             <string> m</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </widget>
      </widget>

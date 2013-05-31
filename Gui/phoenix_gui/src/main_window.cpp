@@ -478,6 +478,31 @@ void MainWindow::on_spinBox_threshold_sonar_valueChanged(double arg1)
     }
 }
 
+/************************************************************************
+** 		Dead Reckoning Slots
+************************************************************************/
+
+void MainWindow::on_pushButton_setDist_deadReckoning_clicked()
+{
+	float estDist;
+	float velocity;
+	
+	// get estimated distance from spinbox
+	estDist = ui.spinBox_distance_deadReckoning->value();
+
+	// calculate the velocity
+	velocity = estDist / 5.0;
+	
+	//publish the velocity
+	qnode.pubEstVelocity(velocity);
+}
+
+void MainWindow::on_pushButton_runCalibration_deadReckoning_clicked()
+{
+	// run the 'calibration' run
+	qnode.startCalibration();
+}
+
 /*****************************************************************************
 ** Implemenation [Slots][manually connected]
 *****************************************************************************/

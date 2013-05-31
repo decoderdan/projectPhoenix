@@ -73,6 +73,10 @@ public slots:
 	void on_spinBox_rightLimit_sonar_valueChanged(double arg1);
 	void on_spinBox_threshold_sonar_valueChanged(double arg1);
 	void on_spinBox_contrast_sonar_valueChanged(double arg1);
+	
+	/* dead reckoning slots */
+	void on_pushButton_setDist_deadReckoning_clicked();
+	void on_pushButton_runCalibration_deadReckoning_clicked();
 
 	
 	/******************************************
