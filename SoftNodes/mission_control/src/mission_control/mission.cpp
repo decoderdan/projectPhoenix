@@ -5,14 +5,17 @@
 #include <tf/transform_listener.h>
 #include <sensor_msgs/Joy.h>
 
-void joyCallback(const sensor_msgs::Joy::ConstPtr&);
 void broadcastWPs();
 void manualControl(int);
 void setStartPoint();
+void joyCallback(const sensor_msgs::Joy::ConstPtr&);
 
 int state_selected = 1;
 int x_button = 0;
 int a_button = 0;
+
+tf::StampedTransform origin_tf; //Stores our origin tf
+
 
 int main(int argc, char **argv)
 {
@@ -20,10 +23,12 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "mission_control");
   ros::NodeHandle n;
 
+	/* Subscribe to joystick */
+	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback);
   
-  ROS_INFO("TEST PRINT");
+  ROS_INFO("Mission Control Node Started - Subscribed to joystick");
 
-while (1) 
+while (ros::ok()) 
 {
   switch(state_selected)
   {
@@ -38,6 +43,8 @@ while (1)
   		   broadcastWPs(); 
   		   break;
   }
+  
+  ros::spinOnce(); //Allow joystick callback
 }
   return 0;
 }
@@ -48,21 +55,21 @@ void broadcastWPs()
 
 	std::cout << "broadcast the waypoints for a square" << std::endl;
 
-	tf::Transform wp;
+	//First, broadcast our final destination relative to the world (This is our current position)
+	broadcaster.sendTransform( tf::StampedTransform( origin_tf, ros::Time::now(), "/world", "/square_origin" ));
 
+	//Now post the rest of the way points
+	tf::Transform wp;
+	
 	wp.setOrigin( tf::Vector3(5.0, 0.0, 0.0) );
 	wp.setRotation( tf::createQuaternionFromRPY(0.0, 0.0, 0.0) );
-	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", "/square_WP1" ));
-
-	wp.setOrigin( tf::Vector3(5.0, 5.0, 0.0) );
-	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", "/square_WP2" ));
-
-	wp.setOrigin( tf::Vector3(0.0, 5.0, 0.0) );
-	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", "/square_WP3" ));
-
+	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", "/wp1" ));
+	wp.setOrigin( tf::Vector3(5.0, -5.0, 0.0) );
+	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", "/wp2" ));
+	wp.setOrigin( tf::Vector3(0.0, -5.0, 0.0) );
+	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", "/wp3" ));
 	wp.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
-	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", "/square_WP4" ));
-
+	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", "/wp4" ));
 }
 
 void manualControl(int on)
@@ -80,41 +87,39 @@ void manualControl(int on)
 
 void setStartPoint()
 {
-	 tf::StampedTransform transform;
-	 
+	 static tf::TransformListener listener; //FIXED: Added the listener
        try
        {
-         wp.lookupTransform("/imu", "/square_origin",  //this line does not compile. I dont know what is wrong
-                                  ros::Time(0), transform);
+         //wp.lookupTransform("/imu", "/square_origin",  //this line does not compile. I dont know what is wrong
+         //                         ros::Time(0), transform);
+       	 //Rename wp to listener, and add listener as above
+       	 
+       	 //Lookup the IMU relative to the world and store it in origin_tf. This will act as our base point.
+       	 listener.lookupTransform("/world", "/imu", ros::Time(0), origin_tf);
+       	 
+       	 state_selected = 3;	//now origin_tf has been saved start moving to the waypoints
        }
        
        catch (tf::TransformException ex)
        {
          ROS_ERROR("%s",ex.what());
        }
-       
-       state_selected = 3;	//now origin waypoint has been saved start moving to the waypoints
 }
 
-void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
-{
+void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
+	
+  x_button = joy->buttons[2];		//X Button
+  a_button = joy->buttons[0];   //A Button
 
-  x_button = joy->buttons[2];		//X button
-  a_button = joy->buttons[1];
-
-     if(x_button)
-     {
-	  if(x_button)
-	  {
-	  	ROS_INFO("The sub is moving in a square [%d]", x_button);
+	if(x_button && (state_selected != 3))
+	{
+		ROS_INFO("The sub is moving in a square [%d]", x_button);
 		state_selected = 2;	//first set origin waypoint then move in a square
-	  }
+	}
 
-	  if(a_button)
-	  {
-	  	ROS_INFO("The sub is manually controlled [%d]", x_button);
+	if(a_button)
+	{
+		ROS_INFO("The sub is manually controlled [%d]", x_button);
 		state_selected = 1;
-	  }
-
-    }
+	}
 }
