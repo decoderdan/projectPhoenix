@@ -4,6 +4,7 @@
 #include <custom_msg/TargetVector.h>
 
 #define MIN_DISTANCE_FROM_WP 0.15
+#define MIN_ANGLE 3.0;
 
 float yaw_input;
 
@@ -36,22 +37,31 @@ int main(int argc, char** argv){
 
         std::cout << "Angle: " << angle_diff << ", Distance: " << dist_diff << std::endl;
 
-        //See if we are close?
+        custom_msg::TargetVector tv;
+        tv.set_y = false;
+	tv.set_z = false;
+        tv.set_pitch = false;
+        tv.set_roll = false;
+
+	//See if we are close?
         if (dist_diff <= MIN_DISTANCE_FROM_WP) {
             //We have acheived the way point.
-            //Rotate, then move to the next one...
+	    tv.vector_x = 0;
+	    //Increase the wp counter
+	    cur_wp++;
         }
         else {
-            //Still on this way point.
-            custom_msg::TargetVector tv;
-            tv.vector_x = 20; //20% speed
+	    if ((angle_diff > MIN_ANGLE) || (angle_diff < (-MIN_ANGLE))) {
+            	//Still on this way point.
+            	tv.vector_x = 20; //20% speed
+	    }
+	    else {
+              	tv.vector_x = 0; //0% speed
+	    }
             tv.vector_yaw = angle_diff;
-            tv.set_y = false;
-            tv.set_z = false;
-            tv.set_pitch = false;
-            tv.set_roll = false;
-            //Don't publish it yet
         }
+
+	//pub
 
       }
       catch (tf::TransformException ex) {
