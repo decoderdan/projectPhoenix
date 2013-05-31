@@ -339,7 +339,7 @@
              <x>0</x>
              <y>0</y>
              <width>760</width>
-             <height>200</height>
+             <height>251</height>
             </rect>
            </property>
            <property name="frameShape">
@@ -354,7 +354,7 @@
               <x>0</x>
               <y>0</y>
               <width>761</width>
-              <height>201</height>
+              <height>253</height>
              </rect>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_7">
@@ -461,7 +461,7 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="4" column="1">
+                     <item row="5" column="1">
                       <widget class="QLCDNumber" name="lcdNumber_yawActual">
                        <property name="font">
                         <font>
@@ -481,7 +481,7 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="4" column="0">
+                     <item row="5" column="0">
                       <widget class="QLabel" name="label_16">
                        <property name="text">
                         <string>Actual</string>
@@ -495,6 +495,13 @@
                        </property>
                        <property name="maximum">
                         <double>180.000000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="1">
+                      <widget class="QCheckBox" name="checkBox_yaw">
+                       <property name="text">
+                        <string>Yaw Target</string>
                        </property>
                       </widget>
                      </item>
@@ -595,7 +602,7 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="4" column="1">
+                     <item row="5" column="1">
                       <widget class="QLCDNumber" name="lcdNumber_pitchActual">
                        <property name="font">
                         <font>
@@ -615,7 +622,7 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="4" column="0">
+                     <item row="5" column="0">
                       <widget class="QLabel" name="label_17">
                        <property name="text">
                         <string>Actual</string>
@@ -629,6 +636,13 @@
                        </property>
                        <property name="maximum">
                         <double>90.000000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="1">
+                      <widget class="QCheckBox" name="checkBox_pitch">
+                       <property name="text">
+                        <string>Pitch Target</string>
                        </property>
                       </widget>
                      </item>
@@ -729,7 +743,7 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="4" column="1">
+                     <item row="5" column="1">
                       <widget class="QLCDNumber" name="lcdNumber_depthActual">
                        <property name="font">
                         <font>
@@ -758,7 +772,7 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="4" column="0">
+                     <item row="5" column="0">
                       <widget class="QLabel" name="label_18">
                        <property name="text">
                         <string>Actual</string>
@@ -775,6 +789,13 @@
                        </property>
                        <property name="singleStep">
                         <double>0.010000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="1">
+                      <widget class="QCheckBox" name="checkBox_depth">
+                       <property name="text">
+                        <string>Depth Target</string>
                        </property>
                       </widget>
                      </item>
@@ -827,10 +848,9 @@
             </layout>
            </widget>
           </widget>
-          <zorder>horizontalLayoutWidget</zorder>
-          <zorder>horizontalLayoutWidget</zorder>
-          <zorder>frame</zorder>
          </widget>
+         <zorder>widget_PID</zorder>
+         <zorder>frame</zorder>
         </widget>
        </widget>
       </widget>

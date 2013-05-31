@@ -4,17 +4,23 @@
 #include <std_msgs/Float32.h>
 #include <custom_msg/IMUData.h>
 #include <custom_msg/MotorConfig.h>
+#include <custom_msg/TargetVector.h>
 
 std_msgs::Float32 z;      //Z axes storage
 bool first_run = true;    //Is this the first time the callback has run?
 bool motors_on_x = false; //Are the motors moving the sub forward? (X Axes)
 bool motors_on_y = false; //Are the motors strafing the sub? (Y Axes)
 double est_vel_x = 1.0;   // ?!? 1.0 what ?
+float vector_x;
 
 void depthCallBack(const std_msgs::Float32& depth) {
   z.data = 0; //Ignore this for now - it needs to be fixed
 }
 
+void vectorCallBack(const custom_msg::TargetVector& vector)
+{
+  vector_x = vector.vector_x;  //Just save the last target vector.x to a global vector_x for use elsewhere
+}
 
 void motorConfigCallBack(const custom_msg::MotorConfig& config)
 {
@@ -99,9 +105,9 @@ void imuCallBack(const custom_msg::IMUData& data) {
 //  if (!motors_on_x) vel_x = 0;
 //  if (!motors_on_y) vel_y = 0
 
-/** only track the position in x if both motors on (will only work 'properly' if motors are driving forward, for now) **/
+/** only track the position in x if target_vector != 0 **/
 
-  if (motors_on_x) {
+  if (vector_x != 0) {
   	/* integrate position */
   	pos_x += est_vel_x *dt;
   }
@@ -133,6 +139,8 @@ int main(int argc, char** argv){
   ros::Subscriber imuSub = n.subscribe("imu", 100, imuCallBack);
   ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);
   ros::Subscriber motorSub = n.subscribe("motor_config", 100, motorConfigCallBack);
+  ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack);
+  
 
   ros::spin();
 
