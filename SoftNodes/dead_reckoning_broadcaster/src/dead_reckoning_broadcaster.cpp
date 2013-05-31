@@ -20,6 +20,7 @@ void depthCallBack(const std_msgs::Float32& depth) {
 void vectorCallBack(const custom_msg::TargetVector& vector)
 {
   vector_x = vector.vector_x;  //Just save the last target vector.x to a global vector_x for use elsewhere
+  ROS_INFO("Got new x vector %f", vector_x);
 }
 
 void motorConfigCallBack(const custom_msg::MotorConfig& config)
@@ -49,10 +50,6 @@ void imuCallBack(const custom_msg::IMUData& data) {
   static float last_r = 0;
   static float last_p = 0;
 
-  /* Integrated velocity storage */
-  static float vel_x = 0;
-  static float vel_y = 0;
-
   /* Get the time since the last imu call back (determine dt) */
   static ros::Time last_time =  ros::Time::now();
   ros::Time current_time =  ros::Time::now();
@@ -62,54 +59,22 @@ void imuCallBack(const custom_msg::IMUData& data) {
   /* Create a transform broadcaster and listener */
   static tf::TransformBroadcaster br;
   
-  /* Here are our minimal transforms. IMU, SVP and Sonar */
+  /* Here are our minimal transforms. IMU */
   tf::Transform imu_tr;
-  //tf::Transform svp_tr;
-  //tf::Transform sonar_tr;
-
-  /* Sonar transformation */
-  //sonar_tr.setOrigin(tf::Vector3(-0.32, 0.12, -0.30));
-  //sonar_tr.setRotation( tf::createQuaternionFromRPY(0,0,M_PI) );
-
-  /* SVP transformation */
-  //float svp_distance_from_imu = -0.06;
-  //svp_tr.setOrigin(tf::Vector3(0.0, -0.10, svp_distance_from_imu));
-  //svp_tr.setRotation( tf::createQuaternionFromRPY(0,0,0) );
-
-  /* Store some averages */
-  static float total_x = 0;
-  static float total_y = 0;
-  static float count = 0;
-  static float avg_x = 0;
-  static float avg_y = 0;
- 
-// 	count++;
-// 	total_x += data.acc_x;
-// 	total_y += data.acc_y;
- 	 
-//  avg_x = (total_x / count);
-//  avg_y = (total_y / count);
-  
-  /* Integrate velocities on x/y */
-//  vel_x += (data.acc_x - avg_x) * dt;
-//  vel_y += (data.acc_y - avg_y) * dt;
   
   static float pos_x = 0;
   static float pos_y = 0;
   
-  /* Integrate position */
-//  pos_x += vel_x * dt;
-//  pos_y -= vel_y * dt;
-
-  /* Attenuate if we're not supposed to be moving */
-//  if (!motors_on_x) vel_x = 0;
-//  if (!motors_on_y) vel_y = 0
-
-/** only track the position in x if target_vector != 0 **/
+/** only track the position in x if vector_x != 0 **/
 
   if (vector_x != 0) {
   	/* integrate position */
-  	pos_x += est_vel_x *dt;
+  	float new_y = est_vel_x * dt * sin((-data.yaw) * (M_PI/180.0));
+    float new_x = est_vel_x * dt * cos((-data.yaw) * (M_PI/180.0));
+    
+    pos_x += new_x;
+    pos_y += new_y;
+  	//pos_x += est_vel_x *dt;
   }
   	 
   /* Set the imu's pose */
