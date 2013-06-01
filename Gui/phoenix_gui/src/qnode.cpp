@@ -57,6 +57,7 @@ bool QNode::init() {
 	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
 	sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);	
 	dead_reckoning_vel_publisher = n.advertise<std_msgs::Float32>("estimated_velocity", 1000);
+	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
 	
 	imuSub = n.subscribe("imu", 100, &QNode::imuCallBack, this);
    	depthSub = n.subscribe("depth", 100, &QNode::depthCallBack, this);
@@ -81,7 +82,7 @@ bool QNode::init(const std::string &master_url, const std::string &host_url) {
 	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
 	sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);
 	dead_reckoning_vel_publisher = n.advertise<std_msgs::Float32>("estimated_velocity", 1000);
-
+	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
 	
 
 	imuSub = n.subscribe("imu", 100, &QNode::imuCallBack, this);
@@ -201,14 +202,32 @@ void QNode::imuCallBack(const custom_msg::IMUData& data) {
 ********************************************/
 
 void QNode::startCalibration() {
-	std::cout << "stating the 5 second velocity calibration run" << std::endl;
+	// std::cout << "stating the 5 second velocity calibration run" << std::endl;
+	ROS_INFO("Starting the 5 second velocity calibration run");
+	custom_msg::TargetVector tv;
+	
+	// set only the x target
+	tv.set_x = true;
+	tv.set_y = false;
+	tv.set_z = false;
+	tv.set_yaw = false;
+        tv.set_pitch = false;
+        tv.set_roll = false;
 	
 	// send a forward 20% command
+	tv.vector_x = 20; //20% speed
+	target_publisher.publish(tv);
+	ROS_INFO("Motors to 20");
 	
 	// wait 5 seconds
+	ros::Time start_time = ros::Time::now();
+	while(ros::Time::now().toSec() < (start_time.toSec() + 5.00)) {}
 	
-	// send a stop command
 
+	// send a stop command
+	tv.vector_x = 0; //0% speed
+	target_publisher.publish(tv);
+	ROS_INFO("Motors to 0");
 }
 
 void QNode::pubEstVelocity(float vel) {

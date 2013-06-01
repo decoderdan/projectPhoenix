@@ -10,8 +10,13 @@ std_msgs::Float32 z;      //Z axes storage
 bool first_run = true;    //Is this the first time the callback has run?
 bool motors_on_x = false; //Are the motors moving the sub forward? (X Axes)
 bool motors_on_y = false; //Are the motors strafing the sub? (Y Axes)
-double est_vel_x = 1.0;   // ?!? 1.0 what ?
+double est_vel_x = 1.0;   //Init this with 1 meters per second... can be changed with the gui
 float vector_x;
+
+void estVelocityCallBack(const std_msgs::Float32& velocity) {
+  est_vel_x = velocity.data;
+  ROS_INFO("est_vel_x set to %f", est_vel_x);
+}
 
 void depthCallBack(const std_msgs::Float32& depth) {
   z.data = 0; //Ignore this for now - it needs to be fixed
@@ -105,7 +110,7 @@ int main(int argc, char** argv){
   ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);
   ros::Subscriber motorSub = n.subscribe("motor_config", 100, motorConfigCallBack);
   ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack);
-  
+  ros::Subscriber estVelocitySub = n.subscribe("estimated_velocity", 100, estVelocityCallBack);
 
   ros::spin();
 
