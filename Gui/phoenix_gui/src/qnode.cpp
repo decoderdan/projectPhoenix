@@ -103,13 +103,27 @@ void QNode::run() {
 }
 
 void QNode::emergencyStop(){
-	std::cout << "Emergency stop received from gui !!!" << std::endl;
+	ROS_WARN("Emergency stop received from gui !!!");
 	
 }
 
 void QNode::resurface(){
-	std::cout << "Resurface command received from gui !!!" << std::endl;
+	custom_msg::TargetVector tv;
 	
+	ROS_WARN("Resurface command received from gui !!!");
+	
+	// set only the z target
+	tv.set_x = false;
+	tv.set_y = false;
+	tv.set_z = true;
+	tv.set_yaw = false;
+        tv.set_pitch = false;
+        tv.set_roll = false;
+	
+	// set z (depth) to 0 meters
+	tv.vector_z = 0;
+	target_publisher.publish(tv);
+	ROS_INFO("Target depth set to 0 meters");
 }
 
 void QNode::pubConfig_PID(double yawKp_val, double yawKi_val, double yawKd_val, double yawTarget_val, bool yawTarget_set, double pitchKp_val, double pitchKi_val, double pitchKd_val, double pitchTarget_val, bool pitchTarget_set, double depthKp_val, double depthKi_val, double depthKd_val, double depthTarget_val, bool depthTarget_set) {

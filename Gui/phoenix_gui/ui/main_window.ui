@@ -239,7 +239,7 @@
      <attribute name="title">
       <string>Config</string>
      </attribute>
-     <widget class="QTabWidget" name="tabWidget">
+     <widget class="QTabWidget" name="configTabs">
       <property name="geometry">
        <rect>
         <x>0</x>
