@@ -147,16 +147,19 @@ void MainWindow::on_pushButton_applyConfig_PID_clicked() {
 	double yawKi_val;
 	double yawKd_val;
 	double yawTarget_val;
+	bool yawTarget_set;
 
 	double pitchKp_val;
 	double pitchKi_val;
 	double pitchKd_val;
 	double pitchTarget_val;
-
+	bool pitchTarget_set;
+	
 	double depthKp_val;
 	double depthKi_val;
 	double depthKd_val;
 	double depthTarget_val;
+	bool depthTarget_set;
 
 	yawKp_val = ui.spinBox_yawKp->value();
 	yawKi_val = ui.spinBox_yawKi->value();
@@ -174,34 +177,74 @@ void MainWindow::on_pushButton_applyConfig_PID_clicked() {
 	pitchTarget_val = ui.spinBox_pitchTarget->value();
 	depthTarget_val = ui.spinBox_depthTarget->value();
 	
-	qnode.pubConfig_PID(yawKp_val, yawKi_val, yawKd_val, yawTarget_val, pitchKp_val, pitchKi_val, pitchKd_val, pitchTarget_val, depthKp_val, depthKi_val, depthKd_val, depthTarget_val);
+	if(ui.checkBox_yaw->isChecked()) {
+		yawTarget_set = true; 
+	} else {
+		yawTarget_set = false; 
+	}
+	if(ui.checkBox_pitch->isChecked()) {
+		pitchTarget_set = true; 
+	} else {
+		pitchTarget_set = false; 
+	}
+	if(ui.checkBox_depth->isChecked()) {
+		depthTarget_set = true; 
+	} else {
+		depthTarget_set = false; 
+	}
+	
+	qnode.pubConfig_PID(yawKp_val, yawKi_val, yawKd_val, yawTarget_val, yawTarget_set, pitchKp_val, pitchKi_val, pitchKd_val, pitchTarget_val, pitchTarget_set, depthKp_val, depthKi_val, depthKd_val, depthTarget_val, depthTarget_set);
 }
 
 void MainWindow::on_pushButton_saveConfig_PID_clicked() {
 	double yawKp_val;
 	double yawKi_val;
 	double yawKd_val;
-
+	double yawTarget_val;
+	bool yawTarget_set;
+	
 	double pitchKp_val;
 	double pitchKi_val;
 	double pitchKd_val;
-
+	double pitchTarget_val;
+	bool pitchTarget_set;
+	
 	double depthKp_val;
 	double depthKi_val;
 	double depthKd_val;
-
+	double depthTarget_val;
+	bool depthTarget_set;
+	
 	yawKp_val = ui.spinBox_yawKp->value();
 	yawKi_val = ui.spinBox_yawKi->value();
 	yawKd_val = ui.spinBox_yawKd->value();
-
+	yawTarget_val = ui.spinBox_yawTarget->value();
+	if(ui.checkBox_yaw->isChecked()) {
+		yawTarget_set = true;
+	} else {
+		yawTarget_set = false;
+	}
+	
 	pitchKp_val = ui.spinBox_pitchKp->value();
 	pitchKi_val = ui.spinBox_pitchKi->value();
 	pitchKd_val = ui.spinBox_pitchKd->value();
-
+	pitchTarget_val = ui.spinBox_pitchTarget->value();
+	if(ui.checkBox_pitch->isChecked()) {
+		pitchTarget_set = true;
+	} else {
+		pitchTarget_set = false;
+	}
+	
 	depthKp_val = ui.spinBox_depthKp->value();
 	depthKi_val = ui.spinBox_depthKi->value();
 	depthKd_val = ui.spinBox_depthKd->value();
-
+	depthTarget_val = ui.spinBox_depthTarget->value();
+	if(ui.checkBox_depth->isChecked()) {
+		depthTarget_set = true;
+	} else {
+		depthTarget_set = false;
+	}
+	
 	QString filename = QFileDialog::getSaveFileName(this, tr("Save PID Config"),
 		                            QApplication::applicationDirPath(),
 		                            tr("(*.ini)"));
@@ -210,26 +253,38 @@ void MainWindow::on_pushButton_saveConfig_PID_clicked() {
 	settings.setValue("yawKp", yawKp_val);
 	settings.setValue("yawKi", yawKi_val);
 	settings.setValue("yawKd", yawKd_val);
+	settings.setValue("yawTarget", yawTarget_val);
+	settings.setValue("yawTargetSet", yawTarget_set);
 	settings.setValue("pitchKp", pitchKp_val);
 	settings.setValue("pitchKi", pitchKi_val);
 	settings.setValue("pitchKd", pitchKd_val);
+	settings.setValue("pitchTarget", pitchTarget_val);
+	settings.setValue("pitchTargetSet", pitchTarget_set);
 	settings.setValue("depthKp", depthKp_val);
 	settings.setValue("depthKi", depthKi_val);
 	settings.setValue("depthKd", depthKd_val);
+	settings.setValue("depthTarget", depthTarget_val);
+	settings.setValue("depthTargetSet", depthTarget_set);
 }
 
 void MainWindow::on_pushButton_loadConfig_PID_clicked() {
 	double yawKp_val;
 	double yawKi_val;
 	double yawKd_val;
-
+	double yawTarget_val;
+	bool yawTarget_set;
+	
 	double pitchKp_val;
 	double pitchKi_val;
 	double pitchKd_val;
-
+	double pitchTarget_val;
+	bool pitchTarget_set;
+	
 	double depthKp_val;
 	double depthKi_val;
 	double depthKd_val;
+	double depthTarget_val;
+	bool depthTarget_set;
 
 	QString filename = QFileDialog::getOpenFileName(this, tr("Open PID Config"),
 		                            QApplication::applicationDirPath(),
@@ -240,24 +295,50 @@ void MainWindow::on_pushButton_loadConfig_PID_clicked() {
 	yawKp_val = settings.value("yawKp", "").toDouble();
 	yawKi_val = settings.value("yawKi", "").toDouble();
 	yawKd_val = settings.value("yawKd", "").toDouble();
+	yawTarget_val = settings.value("yawTarget", "").toDouble();
+	yawTarget_set = settings.value("yawTargetSet", "").toBool();
+	
 	pitchKp_val = settings.value("pitchKp", "").toDouble();
 	pitchKi_val = settings.value("pitchKi", "").toDouble();
 	pitchKd_val = settings.value("pitchKd", "").toDouble();
+	pitchTarget_val = settings.value("pitchTarget", "").toDouble();
+	pitchTarget_set = settings.value("pitchTargetSet", "").toBool();
+	
 	depthKp_val = settings.value("depthKp", "").toDouble();
 	depthKi_val = settings.value("depthKi", "").toDouble();
 	depthKd_val = settings.value("depthKd", "").toDouble();
+	depthTarget_val = settings.value("depthTarget", "").toDouble();
+	depthTarget_set = settings.value("depthTargetSet", "").toBool();
 	
 	ui.spinBox_yawKp->setValue(yawKp_val);
 	ui.spinBox_yawKi->setValue(yawKi_val);
 	ui.spinBox_yawKd->setValue(yawKd_val);
+	ui.spinBox_yawTarget->setValue(yawTarget_val);
+	if(yawTarget_set == true) {	
+		ui.checkBox_yaw->setChecked(true);
+	} else {
+		ui.checkBox_yaw->setChecked(false);
+	}
 
 	ui.spinBox_pitchKp->setValue(pitchKp_val);
 	ui.spinBox_pitchKi->setValue(pitchKi_val);
 	ui.spinBox_pitchKd->setValue(pitchKd_val);
+	ui.spinBox_pitchTarget->setValue(pitchTarget_val);
+	if(pitchTarget_set == true) {	
+		ui.checkBox_pitch->setChecked(true);
+	} else {
+		ui.checkBox_pitch->setChecked(false);
+	}
 
 	ui.spinBox_depthKp->setValue(depthKp_val);
 	ui.spinBox_depthKi->setValue(depthKi_val);
 	ui.spinBox_depthKd->setValue(depthKd_val);
+	ui.spinBox_depthTarget->setValue(depthTarget_val);
+	if(depthTarget_set == true) {	
+		ui.checkBox_depth->setChecked(true);
+	} else {
+		ui.checkBox_depth->setChecked(false);
+	}
 }
 
 /*********************************************************

@@ -112,7 +112,7 @@ void QNode::resurface(){
 	
 }
 
-void QNode::pubConfig_PID(double yawKp_val, double yawKi_val, double yawKd_val, double yawTarget_val, double pitchKp_val, double pitchKi_val, double pitchKd_val, double pitchTarget_val, double depthKp_val, double depthKi_val, double depthKd_val, double depthTarget_val) {
+void QNode::pubConfig_PID(double yawKp_val, double yawKi_val, double yawKd_val, double yawTarget_val, bool yawTarget_set, double pitchKp_val, double pitchKi_val, double pitchKd_val, double pitchTarget_val, bool pitchTarget_set, double depthKp_val, double depthKi_val, double depthKd_val, double depthTarget_val, bool depthTarget_set) {
 
 	custom_msg::PIDValues curPIDConfig;
 	custom_msg::TargetVector curTargets;	
@@ -131,12 +131,25 @@ void QNode::pubConfig_PID(double yawKp_val, double yawKi_val, double yawKd_val, 
 	curTargets.vector_pitch = pitchTarget_val;
 	curTargets.vector_z = depthTarget_val;
 
-	curTargets.set_yaw = true;
-	curTargets.set_pitch = true;
+	if(yawTarget_set) {
+		curTargets.set_yaw = true;
+	} else {
+		curTargets.set_yaw = false;
+	}
+	if(pitchTarget_set) {
+		curTargets.set_pitch = true;
+	} else {
+		curTargets.set_pitch = false;
+	}
+	if(depthTarget_set) {
+		curTargets.set_z = true;
+	} else {
+		curTargets.set_z = false;
+	}
 	curTargets.set_roll = false;
 	curTargets.set_x = false;
 	curTargets.set_y = false;
-	curTargets.set_z = true;
+		
 
 	pid_config_publisher.publish(curPIDConfig);
 	target_publisher.publish(curTargets);
