@@ -6,6 +6,8 @@
 #include <serial_port/serial_port.hpp>
 #include <custom_msg/MotorConfig.h>
 
+bool emergency_stop;
+
 namespace uwe_sub {
 
 	namespace motors {
@@ -48,7 +50,7 @@ namespace uwe_sub {
 					return false;
 				}
 
-	 		public:
+	 		public: 			
 	 			motorInterface() {
 	 				reed_status = false; //Set to false
 	 			}
@@ -100,6 +102,7 @@ namespace uwe_sub {
 }
 
 void motorConfigCallBack(const custom_msg::MotorConfig&);
+void emergencyCallBack(const std_msgs::Bool& stop);
 
 uwe_sub::motors::motorInterface motors;
 
@@ -121,16 +124,31 @@ int main( int argc, char **argv )
 
 	//Subscribe to
 	ros::Subscriber motorSub = n.subscribe("motor_config", 100, motorConfigCallBack);
-
+	ros::Subscriber emergencySub = n.subscribe("emergency", 100, emergencyCallBack);
+	
 	ros::Rate r(50); //50Hz message
 	
 	/* Open and Configure the Serial Port. */
 	//TODO: Correct serial port
 	if (motors.initialize("/dev/ttyACM0")) {
-
+		emergency_stop = false;
+		
 		while(ros::ok())
-		{				
-			motors.move();
+		{	
+			if(emergency_stop == true) {
+				// set all motors to 0
+				custom_msg::MotorConfig stopped_config;
+				stopped_config.front = 0;
+				stopped_config.back = 0;
+				stopped_config.front_left = 0;
+				stopped_config.front_right = 0;
+				stopped_config.back_left = 0;
+				stopped_config.back_right = 0;
+				motors.update(stopped_config);
+				motors.move();
+			} else if (emergency_stop == false) {			
+				motors.move();
+			}
 			reedStatus.data = motors.reedStatus();
 			reedStatusMsg.publish(reedStatus);
 			
@@ -148,5 +166,20 @@ int main( int argc, char **argv )
 void motorConfigCallBack(const custom_msg::MotorConfig& config)
 {
 	motors.update(config);
+	return;
+}
+
+void emergencyCallBack(const std_msgs::Bool& stop)
+{
+	if(stop.data == true) {
+		// set a global flag for motorConfigCallback to ignor all other values
+		emergency_stop = true;
+		ROS_INFO("emergency stop = true");
+		
+	} else if (stop.data == false) {
+		// clear the flag
+		emergency_stop = false;
+		ROS_INFO("emergency stop = false");
+	}	
 	return;
 }
