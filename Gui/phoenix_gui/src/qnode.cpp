@@ -19,6 +19,7 @@
 #include <custom_msg/PIDValues.h>
 #include <custom_msg/TargetVector.h>
 #include <custom_msg/SonarConfig.h>
+#include "std_msgs/UInt8.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -53,6 +54,7 @@ bool QNode::init() {
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
 	// Add your ros communications here.
+	emergency_publisher = n.advertise<std_msgs::UInt8>("emergency", 1000);
 	pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);
 	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
 	sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);	
@@ -78,6 +80,7 @@ bool QNode::init(const std::string &master_url, const std::string &host_url) {
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
 	// Add your ros communications here.
+	emergency_publisher = n.advertise<std_msgs::UInt8>("emergency", 1000);
 	pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);
 	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
 	sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);
@@ -103,7 +106,13 @@ void QNode::run() {
 }
 
 void QNode::emergencyStop(){
+	std_msgs::UInt8 emergency_state;
+	
 	ROS_WARN("Emergency stop received from gui !!!");
+	
+	emergency_state.data = 1;
+	
+	emergency_publisher.publish(emergency_state);
 	
 }
 

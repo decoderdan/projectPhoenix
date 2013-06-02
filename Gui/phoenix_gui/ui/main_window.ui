@@ -1322,6 +1322,11 @@
     <string>Exit</string>
    </property>
   </action>
+  <action name="actionResume">
+   <property name="text">
+    <string>Resume</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

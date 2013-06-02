@@ -66,6 +66,7 @@ private:
 	int init_argc;
 	char** init_argv;
 	
+	ros::Publisher emergency_publisher;
 	ros::Publisher pid_config_publisher;
 	ros::Publisher target_publisher;
 	ros::Publisher sonar_config_publisher;
