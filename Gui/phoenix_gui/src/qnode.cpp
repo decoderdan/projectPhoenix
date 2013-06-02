@@ -183,7 +183,7 @@ void QNode::pubConfig_sonar(double threshold_val, double contrast_val, double ga
 	curSonarConfig.right_limit = rightLimit_val;
 	curSonarConfig.continuous = continuous_val;
 	curSonarConfig.stare = stare_val;
-	curSonarConfig.angular_resolution = angularRes_val;
+	curSonarConfig.angular_resolution = angularRes_val; 
 
 	sonar_config_publisher.publish(curSonarConfig);
 }

@@ -376,14 +376,26 @@ void MainWindow::on_pushButton_applyConfig_sonar_clicked() {
 	} else {
 		stare_val = false;
 	} 
+	
+	// 0.05625 * gui val =  deg per 'step'
+	// gui val = step / 0.05625
+		
 	if(ui.radioButton_angularResHigh_sonar->isChecked()) {
 		angularRes_val = 8;
 	} else if(ui.radioButton_angularResMedium_sonar->isChecked()) {
 		angularRes_val = 16;
 	} else if(ui.radioButton_angularResLow_sonar->isChecked()) {
 		angularRes_val = 32;
+	} else if(ui.radioButton_angularResUltraLow_sonar->isChecked()) { // 100 'steps'
+		angularRes_val = 64;
+	} else if(ui.radioButton_angularRes50_sonar->isChecked()) { // 50 'steps'
+		angularRes_val = 128;
+	} else if(ui.radioButton_angularRes25_sonar->isChecked()) { // 25 'steps'
+		angularRes_val = 256;
+	} else if(ui.radioButton_angularRes12_5_sonar->isChecked()) {  // 12.5 'steps'
+		angularRes_val = 512;
 	}
-
+	
 	qnode.pubConfig_sonar(threshold_val, contrast_val, gain_val, resolution_val, minDist_val, maxDist_val, leftLimit_val, rightLimit_val, continuous_val, stare_val, angularRes_val);
 
 }
