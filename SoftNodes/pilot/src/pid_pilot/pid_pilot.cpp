@@ -2,6 +2,7 @@
 #include <iostream>
 #include "ros/ros.h"
 #include <std_msgs/Float32.h>
+#include <std_msgs/Bool.h>
 #include <custom_msg/IMUData.h>
 #include <custom_msg/MotorConfig.h>
 #include <custom_msg/TargetVector.h>
@@ -47,11 +48,29 @@ float depth_error = 0;
 float depth_previous_error = 0;
 float depth_integral = 0;
 float depth_derivative = 0;
+
+bool emergency_stop;
+
 /******************************************************
  * 
  *  callbacks; 
  * 
  * ***************************************************/
+ 
+void emergencyCallBack(const std_msgs::Bool& stop)
+{
+	if(stop.data == true) {
+		// set a global flag for pid 
+		emergency_stop = true;
+		ROS_INFO("emergency stop = true");
+		
+	} else if (stop.data == false) {
+		// clear the flag
+		emergency_stop = false;
+		ROS_INFO("emergency stop = false");
+	}	
+	return;
+}
 
 void depthCallBack(const std_msgs::Float32& depth) {
 	depth_input = z.data;
@@ -116,6 +135,7 @@ int main( int argc, char **argv )
 	ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);
 	ros::Subscriber pidGuiSub = n.subscribe("pidGui", 100, pidGuiCallBack);
 	ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack);	
+	ros::Subscriber emergencySub = n.subscribe("emergency", 100, emergencyCallBack);
 	
 	ros::Rate r(50);
 
@@ -128,41 +148,52 @@ int main( int argc, char **argv )
 	while(ros::ok())
 		{	
 			ros::spinOnce(); //Call all waiting callbacks at this point
-			/***********/
-			/* yaw pid */
-			/***********/
-			yaw_error = yaw_target - yaw_input;
-			if (yaw_error > 180) {yaw_error-=360;}	// optomise yaw to turn through shortest route
-			if (yaw_error < -180) {yaw_error+=360;}
-  			yaw_integral = yaw_integral + (yaw_error*dt);
-  			yaw_derivative = (yaw_error - yaw_previous_error)/dt;
-  			yaw_previous_error = yaw_error;
-  			yaw_output = (yaw_Kp*yaw_error) + (yaw_Ki*yaw_integral) + (yaw_Kd*yaw_derivative);
-			/***********/
-			/* pitch pid */
-			/***********/
-			pitch_error = pitch_target - pitch_input;
-  			pitch_integral = pitch_integral + (pitch_error*dt);
-  			pitch_derivative = (pitch_error - pitch_previous_error)/dt;
-  			pitch_previous_error = pitch_error;
-  			pitch_output = (pitch_Kp*pitch_error) + (pitch_Ki*pitch_integral) + (pitch_Kd*pitch_derivative);
-			/***********/
-			/* depth pid */
-			/***********/
-			depth_error = depth_target - depth_input;
-  			depth_integral = depth_integral + (depth_error*dt);
-  			depth_derivative = (depth_error - depth_previous_error)/dt;
-  			depth_previous_error = depth_error;
-  			depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
 			
-			//output to motors
-			motorCfg.front_right = int(constrain((move_x+yaw_output), -100, 100));
-			motorCfg.front_left = int(constrain((move_x-yaw_output), -100, 100));
-			motorCfg.back_right = int(constrain((depth_output+pitch_output), -100, 100));
-			motorCfg.back_left = int(constrain((depth_output-pitch_output), -100, 100));
-			motorCfg.front = 0;
-			motorCfg.back = 0;	
-			motorMsg.publish(motorCfg);
+			if(emergency_stop == false) {
+				/***********/
+				/* yaw pid */
+				/***********/
+				yaw_error = yaw_target - yaw_input;
+				if (yaw_error > 180) {yaw_error-=360;}	// optomise yaw to turn through shortest route
+				if (yaw_error < -180) {yaw_error+=360;}
+	  			yaw_integral = yaw_integral + (yaw_error*dt);
+	  			yaw_derivative = (yaw_error - yaw_previous_error)/dt;
+	  			yaw_previous_error = yaw_error;
+	  			yaw_output = (yaw_Kp*yaw_error) + (yaw_Ki*yaw_integral) + (yaw_Kd*yaw_derivative);
+				/***********/
+				/* pitch pid */
+				/***********/
+				pitch_error = pitch_target - pitch_input;
+	  			pitch_integral = pitch_integral + (pitch_error*dt);
+	  			pitch_derivative = (pitch_error - pitch_previous_error)/dt;
+	  			pitch_previous_error = pitch_error;
+	  			pitch_output = (pitch_Kp*pitch_error) + (pitch_Ki*pitch_integral) + (pitch_Kd*pitch_derivative);
+				/***********/
+				/* depth pid */
+				/***********/
+				depth_error = depth_target - depth_input;
+	  			depth_integral = depth_integral + (depth_error*dt);
+	  			depth_derivative = (depth_error - depth_previous_error)/dt;
+	  			depth_previous_error = depth_error;
+	  			depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
+			
+				//output to motors
+				motorCfg.front_right = int(constrain((move_x+yaw_output), -100, 100));
+				motorCfg.front_left = int(constrain((move_x-yaw_output), -100, 100));
+				motorCfg.back_right = int(constrain((depth_output+pitch_output), -100, 100));
+				motorCfg.back_left = int(constrain((depth_output-pitch_output), -100, 100));
+				motorCfg.front = 0;
+				motorCfg.back = 0;	
+				motorMsg.publish(motorCfg);
+			} else if (emergency_stop == true) {
+								//output to motors
+				motorCfg.front_right = 0;
+				motorCfg.front_left = 0;
+				motorCfg.back_right = 0;
+				motorCfg.back_left = 0;
+				motorCfg.front = 0;
+				motorCfg.back = 0;	
+			}
 			
 			r.sleep(); //Sleep for a little while
 		}
