@@ -42,7 +42,7 @@ public:
 	bool init(const std::string &master_url, const std::string &host_url);
 	void run();
 	
-	void emergencyStop();
+	void emergencyStop(bool stop);
 	void resurface();
 	
 	void pubConfig_PID(double yawKp_val, double yawKi_val, double yawKd_val, double yawTarget_val, bool yawTarget_set, double pitchKp_val, double pitchKi_val, double pitchKd_val, double pitchTarget_val, bool pitchTarget_set, double depthKp_val, double depthKi_val, double depthKd_val, double depthTarget_val, bool depthTarget_set);

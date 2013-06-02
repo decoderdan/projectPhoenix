@@ -80,10 +80,18 @@ void MainWindow::on_actionExit_triggered() {
 void MainWindow::on_actionEmergency_Stop_triggered() {
 	QMessageBox msgBox;
 	
-	qnode.emergencyStop();
+	if(ui.actionEmergency_Stop->text()=="Emergency Stop") {
+		qnode.emergencyStop(true);
+		msgBox.setText("Emergency stop!");
+		msgBox.exec();
+        	ui.actionEmergency_Stop->setText("Emergency Reset");
+	} else if (ui.actionEmergency_Stop->text()=="Emergency Reset") {
+		qnode.emergencyStop(false);
+		msgBox.setText("Emergency stop reset");
+		msgBox.exec();
+        	ui.actionEmergency_Stop->setText("Emergency Stop");
+	}
 	
-	msgBox.setText("Emergency stop!");
-	msgBox.exec();
 }
 
 void MainWindow::on_actionResurface_triggered() {

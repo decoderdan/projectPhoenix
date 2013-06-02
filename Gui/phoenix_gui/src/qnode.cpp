@@ -105,15 +105,18 @@ void QNode::run() {
 	emit rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
 }
 
-void QNode::emergencyStop(){
+void QNode::emergencyStop(bool stop){
 	std_msgs::Bool emergency_stop;
 	
-	ROS_WARN("Emergency stop received from gui !!!");
-	
-	emergency_stop.data = true;
-	
-	emergency_publisher.publish(emergency_stop);
-	
+	if(stop == true) {
+		ROS_WARN("Emergency stop received from gui !!!");
+		emergency_stop.data = true;
+		emergency_publisher.publish(emergency_stop);
+	} else if (stop == false) {
+		ROS_WARN("Emergency stop reset received from gui !!!");
+		emergency_stop.data = false;
+		emergency_publisher.publish(emergency_stop);
+	}
 }
 
 void QNode::resurface(){
