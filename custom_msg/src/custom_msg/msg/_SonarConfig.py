@@ -4,7 +4,7 @@ import struct
 
 
 class SonarConfig(roslib.message.Message):
-  _md5sum = "c5e62524de5448688c893991a0f35975"
+  _md5sum = "e096dcb3a2093f71fae328a39785f627"
   _type = "custom_msg/SonarConfig"
   _has_header = False #flag to mark the presence of a Header object
   _full_text = """float32 threshold
@@ -17,11 +17,11 @@ float32 left_limit
 float32 right_limit
 bool continuous
 bool stare
-int8 angular_resolution
+uint16 angular_resolution
 
 """
   __slots__ = ['threshold','contrast','min_distance','max_distance','resolution','gain','left_limit','right_limit','continuous','stare','angular_resolution']
-  _slot_types = ['float32','float32','float32','float32','float32','float32','float32','float32','bool','bool','int8']
+  _slot_types = ['float32','float32','float32','float32','float32','float32','float32','float32','bool','bool','uint16']
 
   def __init__(self, *args, **kwds):
     """
@@ -89,7 +89,7 @@ int8 angular_resolution
     """
     try:
       _x = self
-      buff.write(_struct_8f2Bb.pack(_x.threshold, _x.contrast, _x.min_distance, _x.max_distance, _x.resolution, _x.gain, _x.left_limit, _x.right_limit, _x.continuous, _x.stare, _x.angular_resolution))
+      buff.write(_struct_8f2BH.pack(_x.threshold, _x.contrast, _x.min_distance, _x.max_distance, _x.resolution, _x.gain, _x.left_limit, _x.right_limit, _x.continuous, _x.stare, _x.angular_resolution))
     except struct.error as se: self._check_types(se)
     except TypeError as te: self._check_types(te)
 
@@ -103,8 +103,8 @@ int8 angular_resolution
       end = 0
       _x = self
       start = end
-      end += 35
-      (_x.threshold, _x.contrast, _x.min_distance, _x.max_distance, _x.resolution, _x.gain, _x.left_limit, _x.right_limit, _x.continuous, _x.stare, _x.angular_resolution,) = _struct_8f2Bb.unpack(str[start:end])
+      end += 36
+      (_x.threshold, _x.contrast, _x.min_distance, _x.max_distance, _x.resolution, _x.gain, _x.left_limit, _x.right_limit, _x.continuous, _x.stare, _x.angular_resolution,) = _struct_8f2BH.unpack(str[start:end])
       self.continuous = bool(self.continuous)
       self.stare = bool(self.stare)
       return self
@@ -122,7 +122,7 @@ int8 angular_resolution
     """
     try:
       _x = self
-      buff.write(_struct_8f2Bb.pack(_x.threshold, _x.contrast, _x.min_distance, _x.max_distance, _x.resolution, _x.gain, _x.left_limit, _x.right_limit, _x.continuous, _x.stare, _x.angular_resolution))
+      buff.write(_struct_8f2BH.pack(_x.threshold, _x.contrast, _x.min_distance, _x.max_distance, _x.resolution, _x.gain, _x.left_limit, _x.right_limit, _x.continuous, _x.stare, _x.angular_resolution))
     except struct.error as se: self._check_types(se)
     except TypeError as te: self._check_types(te)
 
@@ -138,8 +138,8 @@ int8 angular_resolution
       end = 0
       _x = self
       start = end
-      end += 35
-      (_x.threshold, _x.contrast, _x.min_distance, _x.max_distance, _x.resolution, _x.gain, _x.left_limit, _x.right_limit, _x.continuous, _x.stare, _x.angular_resolution,) = _struct_8f2Bb.unpack(str[start:end])
+      end += 36
+      (_x.threshold, _x.contrast, _x.min_distance, _x.max_distance, _x.resolution, _x.gain, _x.left_limit, _x.right_limit, _x.continuous, _x.stare, _x.angular_resolution,) = _struct_8f2BH.unpack(str[start:end])
       self.continuous = bool(self.continuous)
       self.stare = bool(self.stare)
       return self
@@ -147,4 +147,4 @@ int8 angular_resolution
       raise roslib.message.DeserializationError(e) #most likely buffer underfill
 
 _struct_I = roslib.message.struct_I
-_struct_8f2Bb = struct.Struct("<8f2Bb")
+_struct_8f2BH = struct.Struct("<8f2BH")

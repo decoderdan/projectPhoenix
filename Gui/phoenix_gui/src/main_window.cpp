@@ -359,7 +359,7 @@ void MainWindow::on_pushButton_applyConfig_sonar_clicked() {
 	double rightLimit_val;
 	bool continuous_val;
 	bool stare_val;
-	int angularRes_val;
+	uint16_t angularRes_val;
 
 	threshold_val = ui.spinBox_threshold_sonar->value();
 	contrast_val = ui.spinBox_contrast_sonar->value();
@@ -414,7 +414,7 @@ void MainWindow::on_pushButton_saveConfig_sonar_clicked() {
 	double rightLimit_val;
 	bool continuous_val;
 	bool stare_val;
-	int angularRes_val;
+	uint16_t angularRes_val;
 
 	threshold_val = ui.spinBox_threshold_sonar->value();
 	contrast_val = ui.spinBox_contrast_sonar->value();
@@ -473,7 +473,7 @@ void MainWindow::on_pushButton_loadConfig_sonar_clicked() {
 	double rightLimit_val;
 	bool continuous_val;
 	bool stare_val;
-	int angularRes_val;
+	uint16_t angularRes_val;
 
 
 	QString filename = QFileDialog::getOpenFileName(this, tr("Open Sonar Config"),

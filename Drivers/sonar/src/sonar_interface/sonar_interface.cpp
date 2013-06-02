@@ -246,7 +246,7 @@ namespace uwe_sub {
 		  Angle left_limit;
 		  Angle right_limit;
 
-		  uint8_t angular_resolution; 
+		  uint16_t angular_resolution; 
 
 		  double max_distance;
 		  double min_distance;
@@ -676,7 +676,7 @@ namespace uwe_sub {
 					uint16_t right_limit = (((M_PI-(-config.right_limit.rad))/(M_PI*2.0))*6399.0); //FIXED
 
 			
-					uint8_t motor_step_angle_size = config.angular_resolution; //FIXED
+					uint16_t motor_step_angle_size = config.angular_resolution; //FIXED
 
 					uint8_t initial_gain = config.gain*210; //FIXED
 					uint16_t lockout_time = 2.0*config.min_distance/config.speed_of_sound*10e6; //FIXED

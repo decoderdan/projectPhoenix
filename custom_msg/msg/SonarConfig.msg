@@ -8,4 +8,4 @@ float32 left_limit
 float32 right_limit
 bool continuous
 bool stare
-int8 angular_resolution
+uint16 angular_resolution
