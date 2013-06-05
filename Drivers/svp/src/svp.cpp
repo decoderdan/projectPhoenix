@@ -7,7 +7,6 @@
 #include <math.h>
 #include <string.h>
 
-
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "std_msgs/Float32.h"
@@ -16,7 +15,7 @@
 
 #include <sstream>
 
-int fd; 				/* File descriptor for the port */
+int fd; 			/* File descriptor for the port */
 char returnBuffer[100]; 	/*Buffer which stores read data*/
 float depth, velocity, lastDepth;		/*Floats for the returned values*/
 
@@ -24,18 +23,17 @@ float depth, velocity, lastDepth;		/*Floats for the returned values*/
 ** Reads the data		**
 *********************************/
 
-int read_port(void){	
+int read_port(void) {
 	return read(fd,returnBuffer,sizeof(returnBuffer));
 }
-
 
 /*********************************
 ** Opens serial port S0		**
 *********************************/
 
 int open_port(void){	
-
-	fd = open("/dev/serial/by-id/usb-FTDI_US232R_FTB3UJNB-if00-port0", O_RDWR | O_NDELAY | O_NOCTTY);
+	//fd = open("/dev/serial/by-id/usb-FTDI_US232R_FTB3UJNB-if00-port0", O_RDWR | O_NDELAY | O_NOCTTY);
+	fd = open("/dev/ttyS0", O_RDWR | O_NDELAY | O_NOCTTY);
 	if (fd == -1){
 		ROS_ERROR("Could not open port");
 		return 0;

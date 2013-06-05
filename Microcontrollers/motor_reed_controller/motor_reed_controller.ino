@@ -6,10 +6,10 @@ boolean stringComplete = false;  // whether the string is complete
 Servo front_right_servo, back_right_servo,back_left_servo,front_left_servo;
 
 void setup() {
-  front_right_servo.attach(12);
-  back_right_servo.attach(9);
-  back_left_servo.attach(10);
-  front_left_servo.attach(5);
+  front_right_servo.attach(5); 
+  back_right_servo.attach(6); 
+  back_left_servo.attach(9); 
+  front_left_servo.attach(10); 
   // initialize serial:
   Serial.begin(115200);
   // reserve 200 bytes for the inputString:
@@ -62,10 +62,10 @@ void loop() {
         int front_left = (int)strtol(pEnd, &pEnd, 10);
         int back_left = (int)strtol(pEnd, NULL, 10);
         
-        front_right_servo.write(map(front_right, -100, 100, 0, 180));
-        back_right_servo.write(map(back_right, -100, 100, 0, 180));
-        back_left_servo.write(map(back_left, -100, 100, 0, 180));
-        front_left_servo.write(map(front_left, -100, 100, 0, 180));
+        front_right_servo.write(map(front_right, -100, 100, 30, 150));
+        back_right_servo.write(map(back_right, -100, 100, 30, 150));
+        back_left_servo.write(map(back_left, -100, 100, 30, 150));
+        front_left_servo.write(map(front_left, -100, 100, 30, 150));
         
         //Serial.print("Front: ");
         //Serial.println(front);
