@@ -4,11 +4,12 @@ bin
 msg_gen
 
 # Files
-.py
-.pyc
-.cproject
-.project
-.pydevproject
+*.py
+*.swp
+*.pyc
+*.cproject
+*.project
+*.pydevproject
 *.so
 *.*~
 

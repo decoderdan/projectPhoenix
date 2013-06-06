@@ -1,0 +1,16 @@
+<package>
+  <description brief="imu_transform_broadcaster">
+
+     imu_transform_broadcaster
+
+  </description>
+  <author>dan ubu 32</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/sub_transform_broadcaster</url>
+  <depend package="roscpp"/>
+  <depend package="tf"/>
+	<depend package="custom_msg"/>
+</package>
+
+

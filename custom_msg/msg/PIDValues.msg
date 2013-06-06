@@ -1,0 +1,12 @@
+float32 yaw_Kp
+float32 yaw_Ki
+float32 yaw_Kd
+float32 pitch_Kp
+float32 pitch_Ki
+float32 pitch_Kd
+float32 roll_Kp
+float32 roll_Ki
+float32 roll_Kd
+float32 depth_Kp
+float32 depth_Ki
+float32 depth_Kd
