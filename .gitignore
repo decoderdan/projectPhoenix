@@ -1,0 +1,15 @@
+# Directories
+build
+bin
+msg_gen
+
+# Files
+.py
+.pyc
+.cproject
+.project
+.pydevproject
+*.so
+*.*~
+
+cmake_install.cmake
