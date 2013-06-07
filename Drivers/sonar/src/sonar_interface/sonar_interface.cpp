@@ -640,7 +640,9 @@ namespace uwe_sub {
 				int initialize(std::string const& port, int baudrate=115200) {
 					foundCount = 0;
 					if (openPort(port,baudrate,true)) {
+						ROS_INFO("Sonar online");
 						if (waitForPacket(mtAlive, 10000)) {
+							ROS_INFO("received mtAlive");
 							VersionData v = getVersionData();
 							if (v.nodeID != NULL) {
 								std::cout << "Sonar Online: Software Version:" << (int)v.softwareVersion << std::endl;
@@ -845,8 +847,8 @@ int main( int argc, char **argv )
 	ros::Rate loop_rate(100);
 	/* Open and Configure the Serial Port. */
 	//TODO: The device needs to be pointed to the RS232 on the fitpc. What id does this have?
-	if (sonar.initialize("/dev/ttyS0")) {
-
+	if (sonar.initialize("/dev/ttyUSB0")) {
+		std::cout << "Port open" << std::endl;
 		uwe_sub::sonar::MicronConfig conf;
 
 		/*NOTES ON CONFIGURATION:
@@ -895,11 +897,11 @@ int main( int argc, char **argv )
 				sonarMsg.publish(sonarDataOut);
 
 				//Print to the screen
-				/*for (int i = 0; i < data.bins.size(); i++) {
+				for (int i = 0; i < data.bins.size(); i++) {
 					if ((i != 0) && (i%10==0)) printf("\n");
 					printf("[%02X] ", data.bins[i]);
 				}
-				printf("\n");*/
+				printf("\n");
 			}
 	
 			ros::spinOnce();	

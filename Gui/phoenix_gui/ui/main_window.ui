@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <property name="movable">
      <bool>false</bool>
@@ -242,10 +242,10 @@
      <widget class="QTabWidget" name="configTabs">
       <property name="geometry">
        <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>785</width>
-        <height>521</height>
+        <x>2</x>
+        <y>2</y>
+        <width>780</width>
+        <height>470</height>
        </rect>
       </property>
       <property name="currentIndex">
@@ -255,600 +255,519 @@
        <attribute name="title">
         <string>PID</string>
        </attribute>
-       <widget class="QScrollArea" name="scrollArea_PID">
+       <widget class="QFrame" name="frame">
         <property name="geometry">
          <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>780</width>
-          <height>445</height>
+          <x>10</x>
+          <y>10</y>
+          <width>760</width>
+          <height>260</height>
          </rect>
         </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>445</height>
-         </size>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
         </property>
-        <property name="sizeIncrement">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="baseSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOn</enum>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="widgetResizable">
-         <bool>true</bool>
-        </property>
-        <widget class="QWidget" name="scrollAreaWidgetContents">
+        <widget class="QWidget" name="horizontalLayoutWidget">
          <property name="geometry">
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>765</width>
-           <height>443</height>
+           <width>761</width>
+           <height>253</height>
           </rect>
          </property>
-         <widget class="QWidget" name="widget_PID" native="true">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>760</width>
-            <height>800</height>
-           </rect>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>800</height>
-           </size>
-          </property>
-          <property name="baseSize">
-           <size>
-            <width>0</width>
-            <height>800</height>
-           </size>
-          </property>
-          <widget class="QFrame" name="frame">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>760</width>
-             <height>261</height>
-            </rect>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <widget class="QWidget" name="horizontalLayoutWidget">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>761</width>
-              <height>253</height>
-             </rect>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
-             <item>
-              <spacer name="horizontalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_4">
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_2">
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout">
-                   <item>
-                    <widget class="QLabel" name="label_yaw">
-                     <property name="font">
-                      <font>
-                       <pointsize>12</pointsize>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Yaw</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <layout class="QGridLayout" name="gridLayout">
-                     <item row="0" column="1">
-                      <widget class="QDoubleSpinBox" name="spinBox_yawKp">
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-1000.000000000000000</double>
-                       </property>
-                       <property name="maximum">
-                        <double>1000.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="1">
-                      <widget class="QDoubleSpinBox" name="spinBox_yawKi">
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-1000.000000000000000</double>
-                       </property>
-                       <property name="maximum">
-                        <double>1000.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="1">
-                      <widget class="QDoubleSpinBox" name="spinBox_yawKd">
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-1000.000000000000000</double>
-                       </property>
-                       <property name="maximum">
-                        <double>1000.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="0">
-                      <widget class="QLabel" name="label_4">
-                       <property name="text">
-                        <string>Kp</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="0">
-                      <widget class="QLabel" name="label_5">
-                       <property name="text">
-                        <string>Ki</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0">
-                      <widget class="QLabel" name="label_6">
-                       <property name="text">
-                        <string>Kd</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="0">
-                      <widget class="QLabel" name="label_13">
-                       <property name="text">
-                        <string>Target</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="1">
-                      <widget class="QLCDNumber" name="lcdNumber_yawActual">
-                       <property name="font">
-                        <font>
-                         <pointsize>12</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="lineWidth">
-                        <number>1</number>
-                       </property>
-                       <property name="smallDecimalPoint">
-                        <bool>false</bool>
-                       </property>
-                       <property name="segmentStyle">
-                        <enum>QLCDNumber::Flat</enum>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="0">
-                      <widget class="QLabel" name="label_16">
-                       <property name="text">
-                        <string>Actual</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="1">
-                      <widget class="QDoubleSpinBox" name="spinBox_yawTarget">
-                       <property name="minimum">
-                        <double>-180.000000000000000</double>
-                       </property>
-                       <property name="maximum">
-                        <double>180.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="4" column="1">
-                      <widget class="QCheckBox" name="checkBox_yaw">
-                       <property name="text">
-                        <string>Yaw Target</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <widget class="Line" name="line">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_2">
-                   <item>
-                    <widget class="QLabel" name="label_pitch">
-                     <property name="font">
-                      <font>
-                       <pointsize>12</pointsize>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Pitch</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <layout class="QGridLayout" name="gridLayout_2">
-                     <item row="0" column="1">
-                      <widget class="QDoubleSpinBox" name="spinBox_pitchKp">
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-1000.000000000000000</double>
-                       </property>
-                       <property name="maximum">
-                        <double>1000.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="1">
-                      <widget class="QDoubleSpinBox" name="spinBox_pitchKi">
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-1000.000000000000000</double>
-                       </property>
-                       <property name="maximum">
-                        <double>1000.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="1">
-                      <widget class="QDoubleSpinBox" name="spinBox_pitchKd">
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-1000.000000000000000</double>
-                       </property>
-                       <property name="maximum">
-                        <double>1000.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="0">
-                      <widget class="QLabel" name="label_7">
-                       <property name="text">
-                        <string>Kp</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="0">
-                      <widget class="QLabel" name="label_8">
-                       <property name="text">
-                        <string>Ki</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0">
-                      <widget class="QLabel" name="label_9">
-                       <property name="text">
-                        <string>Kd</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="0">
-                      <widget class="QLabel" name="label_14">
-                       <property name="text">
-                        <string>Target</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="1">
-                      <widget class="QLCDNumber" name="lcdNumber_pitchActual">
-                       <property name="font">
-                        <font>
-                         <pointsize>12</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="lineWidth">
-                        <number>1</number>
-                       </property>
-                       <property name="smallDecimalPoint">
-                        <bool>false</bool>
-                       </property>
-                       <property name="segmentStyle">
-                        <enum>QLCDNumber::Flat</enum>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="0">
-                      <widget class="QLabel" name="label_17">
-                       <property name="text">
-                        <string>Actual</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="1">
-                      <widget class="QDoubleSpinBox" name="spinBox_pitchTarget">
-                       <property name="minimum">
-                        <double>-90.000000000000000</double>
-                       </property>
-                       <property name="maximum">
-                        <double>90.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="4" column="1">
-                      <widget class="QCheckBox" name="checkBox_pitch">
-                       <property name="text">
-                        <string>Pitch Target</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <widget class="Line" name="line_2">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_3">
-                   <item>
-                    <widget class="QLabel" name="label_depth">
-                     <property name="font">
-                      <font>
-                       <pointsize>12</pointsize>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Depth</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <layout class="QGridLayout" name="gridLayout_3">
-                     <item row="0" column="1">
-                      <widget class="QDoubleSpinBox" name="spinBox_depthKp">
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-1000.000000000000000</double>
-                       </property>
-                       <property name="maximum">
-                        <double>1000.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="1">
-                      <widget class="QDoubleSpinBox" name="spinBox_depthKi">
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-1000.000000000000000</double>
-                       </property>
-                       <property name="maximum">
-                        <double>1000.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="1">
-                      <widget class="QDoubleSpinBox" name="spinBox_depthKd">
-                       <property name="decimals">
-                        <number>4</number>
-                       </property>
-                       <property name="minimum">
-                        <double>-1000.000000000000000</double>
-                       </property>
-                       <property name="maximum">
-                        <double>1000.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="0">
-                      <widget class="QLabel" name="label_10">
-                       <property name="text">
-                        <string>Kp</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="0">
-                      <widget class="QLabel" name="label_11">
-                       <property name="text">
-                        <string>Ki</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0">
-                      <widget class="QLabel" name="label_12">
-                       <property name="text">
-                        <string>Kd</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="0">
-                      <widget class="QLabel" name="label_15">
-                       <property name="text">
-                        <string>Target</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="1">
-                      <widget class="QLCDNumber" name="lcdNumber_depthActual">
-                       <property name="font">
-                        <font>
-                         <pointsize>12</pointsize>
-                         <weight>50</weight>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                       <property name="autoFillBackground">
-                        <bool>false</bool>
-                       </property>
-                       <property name="lineWidth">
-                        <number>1</number>
-                       </property>
-                       <property name="smallDecimalPoint">
-                        <bool>false</bool>
-                       </property>
-                       <property name="mode">
-                        <enum>QLCDNumber::Dec</enum>
-                       </property>
-                       <property name="segmentStyle">
-                        <enum>QLCDNumber::Flat</enum>
-                       </property>
-                       <property name="intValue" stdset="0">
-                        <number>0</number>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="0">
-                      <widget class="QLabel" name="label_18">
-                       <property name="text">
-                        <string>Actual</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="1">
-                      <widget class="QDoubleSpinBox" name="spinBox_depthTarget">
-                       <property name="minimum">
-                        <double>10.000000000000000</double>
-                       </property>
-                       <property name="maximum">
-                        <double>15.000000000000000</double>
-                       </property>
-                       <property name="singleStep">
-                        <double>0.010000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="4" column="1">
-                      <widget class="QCheckBox" name="checkBox_depth">
-                       <property name="text">
-                        <string>Depth Target</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_4">
-                 <item>
-                  <widget class="QPushButton" name="pushButton_applyConfig_PID">
-                   <property name="text">
-                    <string>Apply Config</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_saveConfig_PID">
-                   <property name="text">
-                    <string>Save Config</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_loadConfig_PID">
-                   <property name="text">
-                    <string>Load Config</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_5">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </widget>
-          </widget>
-         </widget>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout">
+                <item>
+                 <widget class="QLabel" name="label_yaw">
+                  <property name="font">
+                   <font>
+                    <pointsize>12</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Yaw</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QGridLayout" name="gridLayout">
+                  <item row="0" column="1">
+                   <widget class="QDoubleSpinBox" name="spinBox_yawKp">
+                    <property name="decimals">
+                     <number>4</number>
+                    </property>
+                    <property name="minimum">
+                     <double>-1000.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>1000.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QDoubleSpinBox" name="spinBox_yawKi">
+                    <property name="decimals">
+                     <number>4</number>
+                    </property>
+                    <property name="minimum">
+                     <double>-1000.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>1000.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QDoubleSpinBox" name="spinBox_yawKd">
+                    <property name="decimals">
+                     <number>4</number>
+                    </property>
+                    <property name="minimum">
+                     <double>-1000.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>1000.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_4">
+                    <property name="text">
+                     <string>Kp</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_5">
+                    <property name="text">
+                     <string>Ki</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_6">
+                    <property name="text">
+                     <string>Kd</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_13">
+                    <property name="text">
+                     <string>Target</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QLCDNumber" name="lcdNumber_yawActual">
+                    <property name="font">
+                     <font>
+                      <pointsize>12</pointsize>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="lineWidth">
+                     <number>1</number>
+                    </property>
+                    <property name="smallDecimalPoint">
+                     <bool>false</bool>
+                    </property>
+                    <property name="segmentStyle">
+                     <enum>QLCDNumber::Flat</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="label_16">
+                    <property name="text">
+                     <string>Actual</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QDoubleSpinBox" name="spinBox_yawTarget">
+                    <property name="minimum">
+                     <double>-180.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>180.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QCheckBox" name="checkBox_yaw">
+                    <property name="text">
+                     <string>Yaw Target</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="Line" name="line">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_2">
+                <item>
+                 <widget class="QLabel" name="label_pitch">
+                  <property name="font">
+                   <font>
+                    <pointsize>12</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Pitch</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QGridLayout" name="gridLayout_2">
+                  <item row="0" column="1">
+                   <widget class="QDoubleSpinBox" name="spinBox_pitchKp">
+                    <property name="decimals">
+                     <number>4</number>
+                    </property>
+                    <property name="minimum">
+                     <double>-1000.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>1000.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QDoubleSpinBox" name="spinBox_pitchKi">
+                    <property name="decimals">
+                     <number>4</number>
+                    </property>
+                    <property name="minimum">
+                     <double>-1000.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>1000.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QDoubleSpinBox" name="spinBox_pitchKd">
+                    <property name="decimals">
+                     <number>4</number>
+                    </property>
+                    <property name="minimum">
+                     <double>-1000.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>1000.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_7">
+                    <property name="text">
+                     <string>Kp</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_8">
+                    <property name="text">
+                     <string>Ki</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_9">
+                    <property name="text">
+                     <string>Kd</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_14">
+                    <property name="text">
+                     <string>Target</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QLCDNumber" name="lcdNumber_pitchActual">
+                    <property name="font">
+                     <font>
+                      <pointsize>12</pointsize>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="lineWidth">
+                     <number>1</number>
+                    </property>
+                    <property name="smallDecimalPoint">
+                     <bool>false</bool>
+                    </property>
+                    <property name="segmentStyle">
+                     <enum>QLCDNumber::Flat</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="label_17">
+                    <property name="text">
+                     <string>Actual</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QDoubleSpinBox" name="spinBox_pitchTarget">
+                    <property name="minimum">
+                     <double>-90.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>90.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QCheckBox" name="checkBox_pitch">
+                    <property name="text">
+                     <string>Pitch Target</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="Line" name="line_2">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_3">
+                <item>
+                 <widget class="QLabel" name="label_depth">
+                  <property name="font">
+                   <font>
+                    <pointsize>12</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Depth</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QGridLayout" name="gridLayout_3">
+                  <item row="0" column="1">
+                   <widget class="QDoubleSpinBox" name="spinBox_depthKp">
+                    <property name="decimals">
+                     <number>4</number>
+                    </property>
+                    <property name="minimum">
+                     <double>-1000.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>1000.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QDoubleSpinBox" name="spinBox_depthKi">
+                    <property name="decimals">
+                     <number>4</number>
+                    </property>
+                    <property name="minimum">
+                     <double>-1000.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>1000.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QDoubleSpinBox" name="spinBox_depthKd">
+                    <property name="decimals">
+                     <number>4</number>
+                    </property>
+                    <property name="minimum">
+                     <double>-1000.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>1000.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_10">
+                    <property name="text">
+                     <string>Kp</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_11">
+                    <property name="text">
+                     <string>Ki</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_12">
+                    <property name="text">
+                     <string>Kd</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_15">
+                    <property name="text">
+                     <string>Target</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QLCDNumber" name="lcdNumber_depthActual">
+                    <property name="font">
+                     <font>
+                      <pointsize>12</pointsize>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="autoFillBackground">
+                     <bool>false</bool>
+                    </property>
+                    <property name="lineWidth">
+                     <number>1</number>
+                    </property>
+                    <property name="smallDecimalPoint">
+                     <bool>false</bool>
+                    </property>
+                    <property name="mode">
+                     <enum>QLCDNumber::Dec</enum>
+                    </property>
+                    <property name="segmentStyle">
+                     <enum>QLCDNumber::Flat</enum>
+                    </property>
+                    <property name="intValue" stdset="0">
+                     <number>0</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="label_18">
+                    <property name="text">
+                     <string>Actual</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QDoubleSpinBox" name="spinBox_depthTarget">
+                    <property name="minimum">
+                     <double>10.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>15.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.010000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QCheckBox" name="checkBox_depth">
+                    <property name="text">
+                     <string>Depth Target</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QPushButton" name="pushButton_applyConfig_PID">
+                <property name="text">
+                 <string>Apply Config</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_saveConfig_PID">
+                <property name="text">
+                 <string>Save Config</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_loadConfig_PID">
+                <property name="text">
+                 <string>Load Config</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </widget>
        </widget>
       </widget>
@@ -1234,6 +1153,39 @@
          </layout>
         </widget>
        </widget>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tabVisuals">
+     <attribute name="title">
+      <string>Visuals</string>
+     </attribute>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="geometry">
+       <rect>
+        <x>2</x>
+        <y>2</y>
+        <width>780</width>
+        <height>470</height>
+       </rect>
+      </property>
+      <property name="currentIndex">
+       <number>2</number>
+      </property>
+      <widget class="QWidget" name="tabVisuals_sonar">
+       <attribute name="title">
+        <string>Sonar</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tabVisuals_camera">
+       <attribute name="title">
+        <string>Camera</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tabVisuals_rviz">
+       <attribute name="title">
+        <string>Rviz</string>
+       </attribute>
       </widget>
      </widget>
     </widget>

@@ -402,7 +402,7 @@ void MainWindow::on_pushButton_applyConfig_sonar_clicked() {
 	} else if(ui.radioButton_angularRes50_sonar->isChecked()) { // 50 'steps'
 		angularRes_val = 128;
 	} else if(ui.radioButton_angularRes25_sonar->isChecked()) { // 25 'steps'
-		angularRes_val = 256;
+		angularRes_val = 255;
 	} else if(ui.radioButton_angularRes12_5_sonar->isChecked()) {  // 12.5 'steps'
 		angularRes_val = 512;
 	}
