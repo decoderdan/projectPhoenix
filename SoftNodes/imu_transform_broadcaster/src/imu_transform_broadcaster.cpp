@@ -23,11 +23,17 @@ void imuCallBack(const custom_msg::IMUData& data) {
   
   /* Transformation declarations */
   tf::Transform imu_tr;
-  
+
+  /* For integration - 
+	dt( (pev_x_val + new_x_val) / 2 )  */
+  static float prev_x_val = 0;
+  static float prev_y_val = 0;
+  static float prev_vel_x = 0;
+  static float prev_vel_y = 0;
+
   /* Velocity and Position storage */
   static float vel_x = 0;
   static float vel_y = 0;
-  
   static float pos_x = 0;
   static float pos_y = 0;
   
@@ -35,12 +41,22 @@ void imuCallBack(const custom_msg::IMUData& data) {
  
   /* Integrate velocities on x/y
    * TODO: X/Y Velocities should take YPR into account */
-  vel_x += data.acc_x * dt;
-  vel_y += data.acc_y * dt;
-  
+  //vel_x += data.acc_x * dt;
+  //vel_y += data.acc_y * dt;
+  vel_x += ((prev_x_val + data.acc_x) /2 ) * dt;
+  vel_y += ((prev_y_val + data.acc_y) /2 ) * dt;
+
   /* Integrate position */
-  pos_x += vel_x * dt;
-  pos_y -= vel_y * dt;
+  //pos_x += vel_x * dt;
+  //pos_y -= vel_y * dt;
+  pos_x += ((prev_vel_x * vel_x) /2) * dt;
+  pos_y -= ((prev_vel_y * vel_y) /2) * dt;
+
+  /*set prev values for integration*/
+  prev_x_val = data.acc_x;
+  prev_x_val = data.acc_y;
+  prev_vel_x = vel_x;
+  prev_vel_y = vel_y;
 
   /* Set the imu's pose */
   imu_tr.setOrigin( tf::Vector3(pos_x, pos_y, 0.0) );
