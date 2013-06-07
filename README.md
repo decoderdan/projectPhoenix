@@ -3,4 +3,4 @@ projectPheonix
 
 ROS AUV - Scratch build
 
-- UWESub
+- UWESub 2013
