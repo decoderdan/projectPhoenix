@@ -704,8 +704,8 @@ namespace uwe_sub {
 					//to 24dB (38 to 77).
 					//Note: Min of 9dB in Tritech sofware (Unless ADLow is
 					//			more than 70dB. IE: ADLow = 72dB, ADSpan = 8dB
-					head_config.ad_span = ((config.contrast*3.1875)<=255)?(config.contrast*3.1875):255;
-
+					head_config.ad_span = (((int)(config.contrast*3.1875))<=255)?((int)(config.contrast*3.1875)):255;
+					std::cout << "ad_span = " << (int)head_config.ad_span << " contrast = " << config.contrast << std::endl;
 					//ADLow ***********************************************
 					//Controls the base position of the bins received.
 					//Essentially, this controls the sensitivity of the sonar
@@ -713,7 +713,8 @@ namespace uwe_sub {
 					//Typically should be 40 (13dB)
 					//Note: Max of 78dB in Tritech software.
 					//ADLow and ADSpan combined shouldn't be more than 80dB
-					head_config.ad_low = ((config.threshold*3.1875)<=255)?(config.contrast*3.1875):255;
+					head_config.ad_low = (((int)(config.threshold*3.1875))<=255)?((int)(config.threshold*3.1875)):255;
+					std::cout << "ad_low = " << (int)head_config.ad_low << " threshold = " << config.threshold << std::endl;
 
 					//IGain ************************************************
 					//0-255 = 0dB-80dB = 0-100%
@@ -753,8 +754,8 @@ namespace uwe_sub {
 					head_config.minor_axis_dir = (0x40) | (0x06<<8); //1600
 					head_config.major_axis_pan = (0x01); //1
 
-					//Use channel 2. Raw & ReplyASL should always be on
-					head_config.head_control = (((!config.low_resolution)?ADC8ON:0)|(config.continuous?CONT:0)|(config.stare?STARELLIM:0)|RAW|HASMOT|REPLYASL|CHAN2 );
+					//Use channel 2. Raw & ReplyASL should always be on // ?!? OR'd with 8 to 'invert'
+					head_config.head_control = (((!config.low_resolution)?ADC8ON:0)|(config.continuous?CONT:0)|(config.stare?STARELLIM:0)|8|RAW|HASMOT|REPLYASL|CHAN2 );
 			
 					//Using slope settings from old sonar driver... Don't know where
 					//The values came from originally. Makes a HELL of a difference though!
@@ -810,10 +811,22 @@ void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
 	//This is where we receive new configuration settings.
 	ROS_INFO("Sonar Configuration settings have changed.");
 	std::cout << "Got a new sonar configuration!" << std::endl;
+	std::cout << "threshold " << config.threshold << std::endl;
+	std::cout << "contrast " << config.contrast << std::endl;
+	std::cout << "gain " << config.gain << std::endl;
+	std::cout << "resolution " << config.resolution << std::endl;
+	std::cout << "min dist " << config.min_distance << std::endl;
+	std::cout << "max dist " << config.max_distance << std::endl;
+	std::cout << "left limit " << config.left_limit << std::endl;
+	std::cout << "right limit " << config.right_limit << std::endl;
+	std::cout << "continuous " << config.continuous << std::endl;
+	std::cout << "stare " << config.stare << std::endl;
+	std::cout << "ang resolution " << config.angular_resolution << std::endl;
+
 	uwe_sub::sonar::MicronConfig conf;
 	conf.threshold = config.threshold;  //0dB
 	conf.contrast = config.contrast; //12dB
-	conf.gain = conf.gain; //40% Initial Gain
+	conf.gain = config.gain; //40% Initial Gain
 	conf.resolution = config.resolution; //10cm sampling
 	conf.max_distance = config.max_distance; //10 meter range
 	conf.min_distance = config.min_distance; //Ignore the first 0.75 meters
@@ -823,6 +836,19 @@ void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
 	conf.stare = config.stare;
 	conf.angular_resolution = config.angular_resolution; //LOW, MEDIUM, HIGH
 	sonar.configure(conf,10000);
+
+	//print conf. stuff
+	std::cout << "conf." << std::endl;
+	std::cout << "conf.threshold " << conf.threshold << std::endl;
+	std::cout << "conf.contrast " << conf.contrast << std::endl;
+	std::cout << "conf.gain " << conf.gain << std::endl;
+	std::cout << "conf.resolution " << conf.resolution << std::endl;
+	std::cout << "conf.min dist " << conf.min_distance << std::endl;
+	std::cout << "conf.max dist " << conf.max_distance << std::endl;
+	//problem printing left & right limits :(
+	std::cout << "conf.continuous " << conf.continuous << std::endl;
+	std::cout << "conf.stare " << conf.stare << std::endl;
+	std::cout << "conf.ang resolution " << conf.angular_resolution << std::endl;
 }
 
 /******************************************************
@@ -840,7 +866,7 @@ int main( int argc, char **argv )
 	ros::Publisher sonarMsg = n.advertise<custom_msg::SonarData>("sonar", 100);
 
 	//Subscribe to sonar config changes
-	ros::Subscriber sonarSub = n.subscribe("sonar_config", 100, sonarConfigCallBack);
+	ros::Subscriber sonarSub = n.subscribe("sonar_config", 1, sonarConfigCallBack);
 	
 	custom_msg::SonarData sonarDataOut;
 
@@ -865,17 +891,17 @@ int main( int argc, char **argv )
 			stare: Causes the head to stare at it's left_limit when
 				   it reaches it.
 		*/
-		conf.threshold = 0;  //0dB
-		conf.contrast = 12; //12dB
-		conf.gain = 0.4; //40% Initial Gain
-		conf.resolution = 0.50; //10cm sampling
+		conf.threshold = 10;  //0dB
+		conf.contrast = 15; //12dB
+		conf.gain = 0.3; //40% Initial Gain
+		conf.resolution = 0.8; //10cm sampling
 		conf.max_distance = 75.0; //10 meter range
 		conf.min_distance = 0; //Ignore the first 0.75 meters
 		conf.left_limit = uwe_sub::sonar::Angle::fromDeg(-45.0);
 		conf.right_limit = uwe_sub::sonar::Angle::fromDeg(45.0);
 		conf.continuous = true;
 		conf.stare = false;
-		conf.angular_resolution = uwe_sub::sonar::HIGH; //LOW, MEDIUM, HIGH
+		conf.angular_resolution = uwe_sub::sonar::LOW; //LOW, MEDIUM, HIGH
 		sonar.configure(conf,10000);
 		while(ros::ok())
 		{	
