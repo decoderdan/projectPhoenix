@@ -8,8 +8,6 @@
 #include <custom_msg/SonarData.h>
 #include <custom_msg/SonarConfig.h> //For custom sonar configuration.
 
-
-
 namespace uwe_sub {
 
 	namespace sonar {
@@ -524,7 +522,7 @@ namespace uwe_sub {
 								sz = extractPacket(&buffer[0], buffer.size());
 							}
 						}
-						if (getTimeMs64() >= (startTime + 10000)) break;
+						if (getTimeMs64() >= (startTime + timeout_ms)) break;
 					}
 					return false;
 				}

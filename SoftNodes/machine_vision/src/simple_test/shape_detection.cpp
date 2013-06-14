@@ -8,19 +8,75 @@
 #include <time.h>
 #include <ctime>
 #include <cv.h>
-
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #define MAX_DATE 12
 
 void saveImgTimerCallback(const ros::TimerEvent&);
 std::string get_date(void);
 std::string get_time(void);
+void convert_cv_to_ros(void);
 void detect_objects(void);
+void detect_shape(void);
 IplImage* GetThresholdedImage(IplImage*);
 
 CvCapture* capture = 0;
 IplImage* frame;
 IplImage* frame_org;
+IplImage* imgGrayScale;
+IplImage* img;
+IplImage* imgCanny;
+
+namespace enc = sensor_msgs::image_encodings;
+
+static const char WINDOW[] = "Image window";
+
+class ImageConverter
+{
+  ros::NodeHandle nh_;
+  image_transport::ImageTransport it_;
+  image_transport::Subscriber image_sub_;
+  image_transport::Publisher image_pub_;
+  
+public:
+  ImageConverter()
+    : it_(nh_)
+  {
+    image_pub_ = it_.advertise("out", 1);
+    image_sub_ = it_.subscribe("in", 1, &ImageConverter::imageCb, this);
+
+    cv::namedWindow(WINDOW);
+  }
+
+  ~ImageConverter()
+  {
+    cv::destroyWindow(WINDOW);
+  }
+
+  void imageCb(const sensor_msgs::ImageConstPtr& msg)
+  {
+    cv_bridge::CvImagePtr cv_ptr;
+    try
+    {
+      cv_ptr = cv_bridge::toCvCopy(msg, enc::BGR8);
+    }
+    catch (cv_bridge::Exception& e)
+    {
+      ROS_ERROR("cv_bridge exception: %s", e.what());
+      return;
+    }
+
+    if (cv_ptr->image.rows > 60 && cv_ptr->image.cols > 60)
+      cv::circle(cv_ptr->image, cv::Point(50, 50), 10, CV_RGB(255,0,0));
+
+    cv::imshow(WINDOW, cv_ptr->image);
+    cv::waitKey(3);
+    
+    image_pub_.publish(cv_ptr->toImageMsg());
+  }
+};
 
 int main(int argc, char **argv)
 {	
@@ -29,6 +85,8 @@ int main(int argc, char **argv)
 
 
 	ros::NodeHandle n;
+	
+	ImageConverter ic;
 
 	//pubsished messages
 
@@ -36,7 +94,7 @@ int main(int argc, char **argv)
 
 	//timers
 	//ros::Timer ros::NodeHandle::createTimer(ros::Duration, saveImgTimerCallback, bool oneshot = false); //declare timer	
-	ros::Timer saveImgTimer = n.createTimer(ros::Duration(300), saveImgTimerCallback);	//create timer for saving images every 5mins
+	ros::Timer saveImgTimer = n.createTimer(ros::Duration(5), saveImgTimerCallback);	//create timer for saving images every 5sec (300s = 5m)
 	
 	
 	capture = cvCaptureFromCAM(1);
@@ -62,6 +120,8 @@ int main(int argc, char **argv)
 		
 		frame = cvQueryFrame( capture );
 		frame_org = frame;
+		img = frame;
+		
      		if ( !frame ) 
      		{
        		fprintf( stderr, "ERROR: frame is null...\n" );
@@ -69,9 +129,13 @@ int main(int argc, char **argv)
        		break;
       	}
 
+
+		ImageConverter ic;	//convert cv image to ros image		
+		
 		detect_objects();
 		
-      //cvShowImage( "mywindow", frame );
+		
+		detect_shape();
  		
  		
      		// Do not release the frame!
@@ -89,7 +153,14 @@ return 0;
 
 void saveImgTimerCallback(const ros::TimerEvent&)
 {
-	 std::string filename_str = "";
+	 struct passwd *pw = getpwuid(getuid());
+	 const char *homedir = pw->pw_dir;
+	 
+	 std::string filename_str;
+	 
+	 filename_str.append(homedir);
+	 
+	 filename_str.append("/projectPheonix/camera/saved_images/");
 	 
 	 filename_str.append(get_date());
 	 
@@ -104,6 +175,10 @@ void saveImgTimerCallback(const ros::TimerEvent&)
 	 cvSaveImage(filename_chr, frame_org);
 }
 
+void convert_cv_to_ros(void)
+{
+
+}
 
 void detect_objects(void)
 {
@@ -123,6 +198,11 @@ void detect_objects(void)
       cvReleaseImage(&imgHSV);
       cvReleaseImage(&imgThresh);            
       cvReleaseImage(&frame);	
+}
+
+void detect_shape(void)
+{
+
 }
 
 IplImage* GetThresholdedImage(IplImage* imgHSV)

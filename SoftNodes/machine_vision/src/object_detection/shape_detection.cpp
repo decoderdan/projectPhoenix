@@ -8,7 +8,13 @@
 #include <time.h>
 #include <ctime>
 #include <cv.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <iostream>
+#include <stdio.h>
 
+using namespace cv;
 
 #define MAX_DATE 12
 
@@ -16,11 +22,21 @@ void saveImgTimerCallback(const ros::TimerEvent&);
 std::string get_date(void);
 std::string get_time(void);
 void detect_objects(void);
+void detect_shape(void);
 IplImage* GetThresholdedImage(IplImage*);
 
 CvCapture* capture = 0;
 IplImage* frame;
 IplImage* frame_org;
+IplImage* imgThresh;
+IplImage* imgGrayScale;
+IplImage* img;
+IplImage* imgCanny;
+IplImage* shape_img;
+
+
+using namespace cv;
+
 
 int main(int argc, char **argv)
 {	
@@ -35,8 +51,8 @@ int main(int argc, char **argv)
 	//subscribed messages
 
 	//timers
-	//ros::Timer ros::NodeHandle::createTimer(ros::Duration, saveImgTimerCallback, bool oneshot = false); //declare timer	
-	ros::Timer saveImgTimer = n.createTimer(ros::Duration(300), saveImgTimerCallback);	//create timer for saving images every 5mins
+
+	ros::Timer saveImgTimer = n.createTimer(ros::Duration(5), saveImgTimerCallback);	//create timer for saving images every 5sec (300s = 5m)
 	
 	
 	capture = cvCaptureFromCAM(1);
@@ -62,6 +78,8 @@ int main(int argc, char **argv)
 		
 		frame = cvQueryFrame( capture );
 		frame_org = frame;
+		img = frame;
+		
      		if ( !frame ) 
      		{
        		fprintf( stderr, "ERROR: frame is null...\n" );
@@ -69,9 +87,12 @@ int main(int argc, char **argv)
        		break;
       	}
 
+	
+		
 		detect_objects();
 		
-      //cvShowImage( "mywindow", frame );
+		
+		detect_shape();
  		
  		
      		// Do not release the frame!
@@ -89,7 +110,14 @@ return 0;
 
 void saveImgTimerCallback(const ros::TimerEvent&)
 {
-	 std::string filename_str = "";
+	 struct passwd *pw = getpwuid(getuid());
+	 const char *homedir = pw->pw_dir;
+	 
+	 std::string filename_str;
+	 
+	 filename_str.append(homedir);
+	 
+	 filename_str.append("/projectPheonix/camera/saved_images/");
 	 
 	 filename_str.append(get_date());
 	 
@@ -108,29 +136,78 @@ void saveImgTimerCallback(const ros::TimerEvent&)
 void detect_objects(void)
 {
 	frame=cvCloneImage(frame); 
-      cvSmooth(frame, frame, CV_GAUSSIAN,3,3); //smooth the original image using Gaussian kernel
+      cvSmooth(frame, frame, CV_GAUSSIAN,7,7); //smooth the original image using Gaussian kernel 3,3
 
       IplImage* imgHSV = cvCreateImage(cvGetSize(frame), IPL_DEPTH_8U, 3);
       cvCvtColor(frame, imgHSV, CV_BGR2HSV); //Change the color format from BGR to HSV
-      IplImage* imgThresh = GetThresholdedImage(imgHSV);
+      imgThresh = GetThresholdedImage(imgHSV);
           
-      cvSmooth(imgThresh, imgThresh, CV_GAUSSIAN,3,3); //smooth the binary image using Gaussian kernel
+      cvSmooth(imgThresh, imgThresh, CV_GAUSSIAN,7,7); //smooth the binary image using Gaussian kernel 3,3
             
+      shape_img = imgThresh;      
       cvShowImage("Filtered_image", imgThresh);           
       cvShowImage("Video", frame);
            
       //Clean up used images
-      cvReleaseImage(&imgHSV);
-      cvReleaseImage(&imgThresh);            
-      cvReleaseImage(&frame);	
+      //cvReleaseImage(&imgHSV);
+      //cvReleaseImage(&imgThresh);            
+      //cvReleaseImage(&frame);	
 }
 
 IplImage* GetThresholdedImage(IplImage* imgHSV)
 {       
        IplImage* imgThresh=cvCreateImage(cvGetSize(imgHSV),IPL_DEPTH_8U, 1);
-       cvInRangeS(imgHSV, cvScalar(160,160,60), cvScalar(180,256,256), imgThresh);		//(170,160,60) (180,256,256)
+       cvInRangeS(imgHSV, cvScalar(0,120,0), cvScalar(6,256,256), imgThresh);		//(170,160,60) (180,256,256)
        return imgThresh;
 } 
+
+void detect_shape(void)
+{	
+
+	IplImage* gray = imgThresh;
+	IplImage* img = frame_org;
+
+(cvGetSize(gray), IPL_DEPTH_8U, 1);
+CvMemStorage* storage = cvCreateMemStorage(0);
+
+
+IplImage* canny = cvCreateImage(cvGetSize(gray),IPL_DEPTH_8U,1);
+IplImage* rgbcanny = cvCreateImage(cvGetSize(gray),IPL_DEPTH_8U,3);
+cvCanny(gray, canny, 50, 100, 3);
+
+CvSeq* circles = cvHoughCircles(canny, storage, CV_HOUGH_GRADIENT, 1, 50.0, 100, 20,0,200);  //1, 40.0, 100, 100,0,0);
+															  //dp, min dist, high thresh of canny,accumulator(small val more false circles,min rad, max rad)
+														
+cvCvtColor(canny, rgbcanny, CV_GRAY2BGR);
+
+for (int i = 0; i < circles->total; i++)
+{
+     // round the floats to an int
+     float* p = (float*)cvGetSeqElem(circles, i);
+     cv::Point center(cvRound(p[0]), cvRound(p[1]));
+     int radius = cvRound(p[2]);
+
+     // draw the circle center
+     cvCircle(img, center, 3, CV_RGB(0,255,0), -1, 8, 0 );
+
+     // draw the circle outline
+     cvCircle(img, center, radius+1, CV_RGB(0,255,0), 2, 8, 0 );
+
+     ROS_INFO("x: %d y: %d r: %d\n",center.x,center.y, radius);
+}
+
+
+cvNamedWindow("circles", 1);
+cvNamedWindow("Image", 1);
+cvShowImage("circles", rgbcanny);
+cvShowImage("Image", img);
+
+
+
+       
+}
+
+
 
 std::string get_time(void)
 {

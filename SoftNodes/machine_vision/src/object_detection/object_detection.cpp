@@ -8,7 +8,9 @@
 #include <time.h>
 #include <ctime>
 #include <cv.h>
-
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #define MAX_DATE 12
 
@@ -36,7 +38,7 @@ int main(int argc, char **argv)
 
 	//timers
 	//ros::Timer ros::NodeHandle::createTimer(ros::Duration, saveImgTimerCallback, bool oneshot = false); //declare timer	
-	ros::Timer saveImgTimer = n.createTimer(ros::Duration(300), saveImgTimerCallback);	//create timer for saving images every 5mins
+	ros::Timer saveImgTimer = n.createTimer(ros::Duration(5), saveImgTimerCallback);	//create timer for saving images every 5sec (300s = 5m)
 	
 	
 	capture = cvCaptureFromCAM(1);
@@ -89,7 +91,14 @@ return 0;
 
 void saveImgTimerCallback(const ros::TimerEvent&)
 {
-	 std::string filename_str = "";
+	 struct passwd *pw = getpwuid(getuid());
+	 const char *homedir = pw->pw_dir;
+	 
+	 std::string filename_str;
+	 
+	 filename_str.append(homedir);
+	 
+	 filename_str.append("/projectPheonix/camera/saved_images/");
 	 
 	 filename_str.append(get_date());
 	 
