@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <inttypes.h> //For string to uint16_T
 #include <sys/time.h> //For timeout
 #include <ctime>			//For timeout
 #include "ros/ros.h"
@@ -639,6 +640,7 @@ namespace uwe_sub {
 					foundCount = 0;
 					if (openPort(port,baudrate,true)) {
 						ROS_INFO("Sonar online");
+                                                flushPort();
 						if (waitForPacket(mtAlive, 10000)) {
 							ROS_INFO("received mtAlive");
 							VersionData v = getVersionData();
@@ -833,7 +835,7 @@ void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
 	conf.continuous = config.continuous;
 	conf.stare = config.stare;
 	conf.angular_resolution = config.angular_resolution; //LOW, MEDIUM, HIGH
-	sonar.configure(conf,10000);
+        sonar.configure(conf,3000);
 
 	//print conf. stuff
 	std::cout << "conf." << std::endl;
@@ -889,18 +891,35 @@ int main( int argc, char **argv )
 			stare: Causes the head to stare at it's left_limit when
 				   it reaches it.
 		*/
-		conf.threshold = 10;  //0dB
-		conf.contrast = 15; //12dB
-		conf.gain = 0.3; //40% Initial Gain
-		conf.resolution = 0.8; //10cm sampling
-		conf.max_distance = 75.0; //10 meter range
-		conf.min_distance = 0; //Ignore the first 0.75 meters
-		conf.left_limit = uwe_sub::sonar::Angle::fromDeg(-45.0);
-		conf.right_limit = uwe_sub::sonar::Angle::fromDeg(45.0);
-		conf.continuous = true;
-		conf.stare = false;
-		conf.angular_resolution = uwe_sub::sonar::LOW; //LOW, MEDIUM, HIGH
-		sonar.configure(conf,10000);
+
+                /* Verify there have been some arguments */
+                if (argc == 12) {
+                    conf.threshold = atof(argv[1]); //Read the configuration
+                    conf.contrast = atof(argv[2]); //Read the configuration
+                    conf.gain = atof(argv[3]); //Read the configuration
+                    conf.resolution = atof(argv[4]); //Read the configuration
+                    conf.min_distance = atof(argv[5]); //Read the configuration
+                    conf.max_distance = atof(argv[6]); //Read the configuration
+                    conf.left_limit = uwe_sub::sonar::Angle::fromDeg(atof(argv[7])); //Read the configuration
+                    conf.right_limit = uwe_sub::sonar::Angle::fromDeg(atof(argv[8])); //Read the configuration
+                    conf.continuous = (atoi(argv[9]) == 1);
+                    conf.stare = (atoi(argv[10]) == 1);
+                    sscanf(argv[11], "%u", &conf.angular_resolution);
+                }
+                else {
+                    conf.threshold = 10;  //0dB
+                    conf.contrast = 15; //12dB
+                    conf.gain = 0.3; //40% Initial Gain
+                    conf.resolution = 0.8; //10cm sampling
+                    conf.max_distance = 75.0; //10 meter range
+                    conf.min_distance = 0; //Ignore the first 0.75 meters
+                    conf.left_limit = uwe_sub::sonar::Angle::fromDeg(-45.0);
+                    conf.right_limit = uwe_sub::sonar::Angle::fromDeg(45.0);
+                    conf.continuous = true;
+                    conf.stare = false;
+                    conf.angular_resolution = uwe_sub::sonar::LOW; //LOW, MEDIUM, HIGH
+                }
+                sonar.configure(conf,3000);
 		while(ros::ok())
 		{	
 			uwe_sub::sonar::SonarData data;
