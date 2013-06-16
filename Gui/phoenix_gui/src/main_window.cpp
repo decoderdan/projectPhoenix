@@ -38,9 +38,12 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
 	QObject::connect(&qnode, SIGNAL(rosShutdown()), this, SLOT(close()));
 	QObject::connect(&qnode, SIGNAL(noMaster()), this, SLOT(noMaster()));	
+        QObject::connect(&qnode, SIGNAL(motorBattUpdated(int)), this, SLOT(showMotorBatt(int)));
+        QObject::connect(&qnode, SIGNAL(systemBattUpdated(int)), this, SLOT(showSystemBatt(int)));
 	QObject::connect(&qnode, SIGNAL(depthActualUpdated(float)), this, SLOT(showDepthActual(float)));
 	QObject::connect(&qnode, SIGNAL(yawActualUpdated(float)), this, SLOT(showYawActual(float)));
 	QObject::connect(&qnode, SIGNAL(pitchActualUpdated(float)), this, SLOT(showPitchActual(float)));
+        QObject::connect(&qnode, SIGNAL(rawImageUpdated(QPixmap)), this, SLOT(showRawImage(QPixmap)));
 
 	/* disable some gui things... until connected */
 	
@@ -48,7 +51,13 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 	ui.tabConfig->setEnabled(false);
 	
 	ui.mainTabs->setCurrentIndex(0);
-	
+
+
+	/* test an image */
+
+	QPixmap mypix ("/home/chris/Pictures/img.jpg");
+        ui.raw_image_container->setPixmap(mypix.scaled(480,320,Qt::KeepAspectRatio)); //p.scaled(w,h,Qt::KeepAspectRatio
+
     /*********************
     ** Auto Start
     **********************/
@@ -674,6 +683,25 @@ void MainWindow::showYawActual(float value)
 void MainWindow::showPitchActual(float value)
 {
 	ui.lcdNumber_pitchActual->display((double)value);
+}
+
+void MainWindow::showRawImage(QPixmap raw_image)
+{
+        ui.raw_image_container->setPixmap(raw_image.scaled(480,320,Qt::KeepAspectRatio));
+}
+
+void MainWindow::showSystemBatt(int value)
+{
+        QPalette pal;
+
+        ui.progressBar_systemBatt->setValue(value);
+}
+
+void MainWindow::showMotorBatt(int value)
+{
+        QPalette pal;
+
+        ui.progressBar_motorBatt->setValue(value);
 }
 
 }  // namespace phoenix_gui

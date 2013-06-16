@@ -13,13 +13,14 @@
 #include <ros/ros.h>
 #include <ros/network.h>
 #include <string>
-#include <std_msgs/String.h>
 #include <sstream>
 #include "../include/phoenix_gui/qnode.hpp"
 #include <custom_msg/PIDValues.h>
 #include <custom_msg/TargetVector.h>
 #include <custom_msg/SonarConfig.h>
-#include "std_msgs/Bool.h"
+#include <cv_bridge/cv_bridge.h>
+#include <image_transport/image_transport.h>
+
 
 /*****************************************************************************
 ** Namespaces
@@ -58,12 +59,14 @@ bool QNode::init() {
 	pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);
 	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
 	sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);	
-	dead_reckoning_vel_publisher = n.advertise<std_msgs::Float32>("estimated_velocity", 1000);
-	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
-	
+        dead_reckoning_vel_publisher = n.advertise<std_msgs::Float32>("estimated_velocity", 1000);
+
+        systemBattSub = n.subscribe("system_battery", 100, &QNode::systemBatteryCallBack, this);
+        motorBattSub  = n.subscribe("motor_battery", 100, &QNode::motorBatteryCallBack, this);
 	imuSub = n.subscribe("imu", 100, &QNode::imuCallBack, this);
    	depthSub = n.subscribe("depth", 100, &QNode::depthCallBack, this);
-   	
+        rawImgSub = n.subscribe("raw_image", 10, &QNode::rawImgReceivedCallback, this);
+
 	start();
 	return true;
 }
@@ -80,16 +83,17 @@ bool QNode::init(const std::string &master_url, const std::string &host_url) {
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
 	// Add your ros communications here.
-	emergency_publisher = n.advertise<std_msgs::Bool>("emergency", 1000);
-	pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);
-	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
-	sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);
-	dead_reckoning_vel_publisher = n.advertise<std_msgs::Float32>("estimated_velocity", 1000);
-	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
-	
+        emergency_publisher = n.advertise<std_msgs::Bool>("emergency", 1000);
+        pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);
+        target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
+        sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);
+        dead_reckoning_vel_publisher = n.advertise<std_msgs::Float32>("estimated_velocity", 1000);
 
-	imuSub = n.subscribe("imu", 100, &QNode::imuCallBack, this);
-   	depthSub = n.subscribe("depth", 100, &QNode::depthCallBack, this);
+        systemBattSub = n.subscribe("system_battery", 100, &QNode::systemBatteryCallBack, this);
+        motorBattSub  = n.subscribe("motor_battery", 100, &QNode::motorBatteryCallBack, this);
+        imuSub = n.subscribe("imu", 100, &QNode::imuCallBack, this);
+        depthSub = n.subscribe("depth", 100, &QNode::depthCallBack, this);
+        rawImgSub = n.subscribe("raw_image", 10, &QNode::rawImgReceivedCallback, this);
 
 	start();
 	return true;
@@ -236,6 +240,14 @@ void QNode::imuCallBack(const custom_msg::IMUData& data) {
         emit pitchActualUpdated(pitch_input);
 }
 
+void QNode::systemBatteryCallBack(const std_msgs::Int8& voltage) {
+        emit systemBattUpdated(voltage.data);
+}
+
+void QNode::motorBatteryCallBack(const std_msgs::Int8& voltage) {
+        emit motorBattUpdated(voltage.data);
+}
+
 /********************************************
 **		Dead reckoning              *
 ********************************************/
@@ -276,6 +288,75 @@ void QNode::pubEstVelocity(float vel) {
     velocity.data = vel;
 
     dead_reckoning_vel_publisher.publish(velocity);
+}
+
+
+/*****************************************************************************************************
+**                                       Camera                                                      *
+** http://rtabmap.googlecode.com/svn-history/r513/branches/audio/ros-pkg/rtabmap/src/ImageViewQt.cpp *
+*****************************************************************************************************/
+
+void QNode::rawImgReceivedCallback(const sensor_msgs::ImageConstPtr & img)
+{
+        if(img->data.size())
+        {
+                cv_bridge::CvImageConstPtr ptr = cv_bridge::toCvShare(img);
+
+                //ROS_INFO("Received an image size=(%d,%d)", ptr->image.cols, ptr->image.rows);
+
+  /*              if(imagesSaved)
+                {
+                        std::string path = "./imagesSaved";
+                        if(!UDirectory::exists(path))
+                        {
+                                if(!UDirectory::makeDir(path))
+                                {
+                                        ROS_ERROR("Cannot make dir %s", path.c_str());
+                                }
+                        }
+                        path.append("/");
+                        path.append(uNumber2Str(i++));
+                        path.append(".bmp");
+                        if(!cv::imwrite(path.c_str(), ptr->image))
+                        {
+                                ROS_ERROR("Cannot save image to %s", path.c_str());
+                        }
+                        else
+                        {
+                                ROS_INFO("Saved image %s", path.c_str());
+                        }
+                }
+                else if(view && view->isVisible())
+                {
+                        view->setPixmap(QPixmap::fromImage(cvtCvMat2QImage(ptr->image)));
+                }
+
+*/
+                emit rawImageUpdated(QPixmap::fromImage(cvtCvMat2QImage(ptr->image)));
+        }
+}
+
+QImage QNode::cvtCvMat2QImage(const cv::Mat & image)
+{
+        QImage qtemp;
+        if(!image.empty() && image.depth() == CV_8U)
+        {
+                const unsigned char * data = image.data;
+                qtemp = QImage(image.cols, image.rows, QImage::Format_RGB32);
+                for(int y = 0; y < image.rows; ++y, data += image.cols*image.elemSize())
+                {
+                        for(int x = 0; x < image.cols; ++x)
+                        {
+                                QRgb * p = ((QRgb*)qtemp.scanLine (y)) + x;
+                                *p = qRgb(data[x * image.channels()+2], data[x * image.channels()+1], data[x * image.channels()]);
+                        }
+                }
+        }
+        else if(!image.empty() && image.depth() != CV_8U)
+        {
+                printf("Wrong image format, must be 8_bits\n");
+        }
+        return qtemp;
 }
 
 }  // namespace phoenix_gui
