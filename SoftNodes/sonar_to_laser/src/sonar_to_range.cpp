@@ -18,6 +18,9 @@
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
 //#include <costmap_2d/costmap_2d_ros.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <pcl_ros/point_cloud.h>
+#include <pcl/point_types.h>
 
 void sonarCallback(const custom_msg::SonarData& sonarData);
 
@@ -29,6 +32,7 @@ void sonarCallback(const custom_msg::SonarData& sonarData);
  * *********************************************/
 uint32_t id = 0;
 ros::Publisher laserpub;
+ros::Publisher pcpub;
 
 int main(int argc, char **argv)
 {
@@ -39,6 +43,7 @@ int main(int argc, char **argv)
 	ros::NodeHandle n;	
 
   	laserpub = n.advertise<sensor_msgs::LaserScan>("scan", 100);
+	pcpub = n.advertise<pcl::PointCloud<pcl::PointXYZ> > ("cloud", 100);
 	ros::Subscriber sonarSub = n.subscribe("sonar", 100, sonarCallback);
 	//tf::TransformListener tf(ros::Duration(10));
 	//costmap_2d::Costmap2DROS costmap("my_costmap", tf);
@@ -73,15 +78,14 @@ void sonarCallback(const custom_msg::SonarData& sonarData) {
   	sonarHead_tr.setOrigin( tf::Vector3(0, 0, 0) );
   	sonarHead_tr.setRotation( tf::createQuaternionFromRPY(0.0,0.0,bearing) ); 
 
-	/* Broadcast the imu position relative to the world */
-  	br.sendTransform(tf::StampedTransform(sonar_tr, ros::Time::now(), "/world", "/sonar"));
-	br.sendTransform(tf::StampedTransform(sonarHead_tr, ros::Time::now(), "/sonar", "/sonarHead"));
+	
+	br.sendTransform(tf::StampedTransform(sonarHead_tr, ros::Time::now(), "/base_laser", "/base_laser_head"));
 			
   sensor_msgs::LaserScanPtr output(new sensor_msgs::LaserScan());
 
 	output->header.stamp = ros::Time::now();
 	output->header.seq = id++;
-  output->header.frame_id = "/sonar"; //associated with sonar
+  output->header.frame_id = "/base_laser"; //associated with sonar
   output->angle_min = bearing-0.0523598776;//-1.04719755; //-60 degrees
   output->angle_max = bearing+0.0523598776;//1.04719755; //+60 degrees
   output->angle_increment = 0.0523598776;//0.0872664626; //5 Degrees
@@ -98,6 +102,14 @@ void sonarCallback(const custom_msg::SonarData& sonarData) {
 	int i=0;
 	output->ranges[0] = 100;
 	output->ranges[2] = 100;
+  pcl::PointCloud<pcl::PointXYZ> cloud;
+    // Fill in the cloud data
+  cloud.header.frame_id = "/base_laser_head"; //associated with sonar
+  cloud.width    = (sonarData.bins.data.end()-sonarData.bins.data.begin());
+  cloud.height   = 1;
+  cloud.is_dense = false;
+  cloud.points.resize (cloud.width * cloud.height);
+
   for(std::vector<int>::const_iterator it = sonarData.bins.data.begin(); it != sonarData.bins.data.end(); ++it)
   {
   	//Take bin, and scale it between min and max contrast
@@ -110,8 +122,15 @@ void sonarCallback(const custom_msg::SonarData& sonarData) {
 			output->ranges[1] = (i * sonarData.resolution);//i * sonarData.resolution;
 			output->header.seq = id++;
 			laserpub.publish(output);
+		
 		}
+		cloud.points[i].x = i * sonarData.resolution;
+    		cloud.points[i].y = 0;
+    		cloud.points[i].z = (map(*it, 0, 255, 0, 2))-3;
     i++;
+
+
+  pcpub.publish (cloud);
   }
   
 }

@@ -12,6 +12,7 @@
   <depend package="custom_msg"/>
   <depend package="sensor_msgs"/>
   <depend package="tf"/>
+  <depend package="pcl_ros"/>
 
 </package>
 
