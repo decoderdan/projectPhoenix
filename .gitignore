@@ -4,12 +4,13 @@ bin
 msg_gen
 
 # Files
+*.jpg
 *.py
 *.swp
 *.pyc
-*.cproject
-*.project
-*.pydevproject
+.cproject
+.project
+.pydevproject
 *.so
 *.*~
 
