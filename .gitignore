@@ -4,6 +4,7 @@ bin
 msg_gen
 
 # Files
+*.jpg
 *.py
 *.pyc
 *.swp

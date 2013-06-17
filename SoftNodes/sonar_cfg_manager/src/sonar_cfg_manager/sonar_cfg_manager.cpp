@@ -3,7 +3,8 @@
 #include <ctime>    //For timeout
 #include "ros/ros.h"
 #include <custom_msg/SonarConfig.h> //For custom sonar configuration.
-#include <rosspawn/NodeAction.h> //To launch sonar interface with args
+#include <stdlib.h> //For system
+//#include <unistd.h> //For launching (exec)
 
 /* Sonar Config Callback */
 void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
@@ -21,6 +22,10 @@ void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
 	std::cout << "continuous " << config.continuous << std::endl;
 	std::cout << "stare " << config.stare << std::endl;
 	std::cout << "ang resolution " << config.angular_resolution << std::endl;
+        system("killall sonar_interface");
+        usleep(500);
+        //execlp("rosrun", "rosrun sonar sonar_interface 24.0 24.0 0.4 0.03 0.0 2.0 -45.0 45.0 1 0 8", "sonar sonar_interface 24.0 24.0 0.4 0.03 0.0 2.0 -45.0 45.0 1 0 8", (char*)0);
+        system("rosrun sonar sonar_interface 24.0 24.0 0.4 0.03 0.0 2.0 -45.0 45.0 1 0 8");
 }
 
 /******************************************************
