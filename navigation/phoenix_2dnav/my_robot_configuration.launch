@@ -1,0 +1,11 @@
+<launch>
+  <node pkg="sonar_to_laser" type="sonar_to_range" name="sonar_to_range" output="screen">
+  </node>
+
+  <node pkg="robot_setup_tf" type="odometry_publisher" name="odometry_publisher" output="screen">
+  </node>
+
+  <node pkg="robot_setup_tf" type="tf_broadcaster" name="tf_broadcaster" output="screen">
+  </node>
+
+</launch>

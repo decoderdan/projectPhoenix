@@ -1,0 +1,16 @@
+<package>
+  <description brief="phoenix_2dnav">
+
+     phoenix_2dnav
+
+  </description>
+  <author>Phoenix</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/phoenix_2dnav</url>
+  <depend package="move_base"/>
+  <depend package="robot_setup_tf"/>
+
+</package>
+
+
