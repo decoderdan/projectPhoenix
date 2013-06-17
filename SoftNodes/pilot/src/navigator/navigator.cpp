@@ -5,7 +5,7 @@
 #include <sstream>
 
 #define MIN_DISTANCE_FROM_WP 0.15
-#define MIN_ANGLE 20.0
+#define MIN_ANGLE 5.0
 
 float yaw_input;
 
@@ -36,7 +36,7 @@ int main(int argc, char** argv){
         listener.lookupTransform("/imu", oss.str(), ros::Time(0), transform);
 
         //Got our WP. Figure out the yaw to to wp:
-        float angle_diff = (atan2(transform.getOrigin().y(), transform.getOrigin().x()) * (180/M_PI)) + 180.0;
+        float angle_diff = atan2(transform.getOrigin().y(), transform.getOrigin().x()) * (180/M_PI);
         float dist_diff = sqrt(pow(transform.getOrigin().x(), 2) + pow(transform.getOrigin().y(), 2));
 
         std::cout << "Cur Yaw: " << yaw_input << " Target Yaw: " << angle_diff << ", Distance: " << dist_diff << std::endl;
@@ -58,7 +58,7 @@ int main(int argc, char** argv){
 					cur_wp++;
 				}
 				else {
-					if (((angle_diff- 180) < MIN_ANGLE) && ((angle_diff - 180) > (-MIN_ANGLE))) {
+					if ((angle_diff < MIN_ANGLE) && (angle_diff > (-MIN_ANGLE))) {
 						//Still on this way point.
 						tv.vector_x = 20; //20% speed
 						ROS_INFO("Bearing within tolerance. Moving forward.");
@@ -67,13 +67,11 @@ int main(int argc, char** argv){
 						tv.vector_x = 0; //0% speed
 						ROS_INFO("Stopping to adjust bearing.");
 					}
-					tv.set_x = true;
-					tv.set_yaw = true;
-					tv.vector_yaw = (yaw_input - angle_diff);
+					
+					tv.vector_yaw = yaw_input + angle_diff;
 				}
 
 			//Publish
-			std::cout << "Published" << std::endl;
 			target_publisher.publish(tv);
 
       }
