@@ -1,8 +1,0 @@
-<launch>
-	<node name="Motor Driver" pkg="motors" type="motor_reed_interface" ></node>
-	<node name="Joystick Driver" pkg="joy" type="joy_node" ></node>
-	<node name="Sonar Driver" pkg="sonar" type="sonar_interface" ></node>
-	<node name="IMU Driver" pkg="imu" type="imu_interface" ></node>
-	<node name="SVP Driver" pkg="svp" type="svp" ></node>
-	<node name="Xbox control" pkg="pilot" type="xbox_pilot" ></node>
-</launch>
