@@ -14,6 +14,8 @@ int state_selected = 1;
 int x_button = 0;
 int a_button = 0;
 
+int curwp = 0;
+
 tf::StampedTransform origin_tf; //Stores our origin tf
 
 
@@ -52,6 +54,7 @@ while (ros::ok())
 void broadcastWPs()
 {
   static tf::TransformBroadcaster broadcaster;
+	std::ostringstream oss;
 
 	std::cout << "broadcast the waypoints for a square" << std::endl;
 
@@ -60,16 +63,29 @@ void broadcastWPs()
 
 	//Now post the rest of the way points
 	tf::Transform wp;
-	
+
 	wp.setOrigin( tf::Vector3(5.0, 0.0, 0.0) );
 	wp.setRotation( tf::createQuaternionFromRPY(0.0, 0.0, 0.0) );
-	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", "/wp1" ));
+	oss << "/wp" << ((curwp * 4) + 1);
+	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", oss.str() ));
+	oss.str("");
+	oss.clear();
+
 	wp.setOrigin( tf::Vector3(5.0, -5.0, 0.0) );
-	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", "/wp2" ));
+	oss << "/wp" << ((curwp * 4) + 2);
+	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", oss.str() ));
+	oss.str("");
+	oss.clear();
+
 	wp.setOrigin( tf::Vector3(0.0, -5.0, 0.0) );
-	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", "/wp3" ));
+	oss << "/wp" << ((curwp * 4) + 3);
+	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", oss.str() ));
+	oss.str("");
+	oss.clear();
+
 	wp.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
-	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", "/wp4" ));
+	oss << "/wp" << ((curwp * 4) + 4);
+	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", oss.str() ));
 }
 
 void manualControl(int on)
@@ -113,6 +129,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
 
 	if(x_button && (state_selected != 3))
 	{
+		curwp++;
 		ROS_INFO("The sub is moving in a square [%d]", x_button);
 		state_selected = 2;	//first set origin waypoint then move in a square
 	}
