@@ -96,9 +96,9 @@ void saveImgTimerCallback(const ros::TimerEvent&)
 	 
 	 std::string filename_str;
 	 
-	 filename_str.append(homedir);
+	 //filename_str.append(homedir);
 	 
-	 filename_str.append("/projectPheonix/camera/saved_images/");
+	 //filename_str.append("/projectPheonix/camera/saved_images/");
 	 
 	 filename_str.append(get_date());
 	 
