@@ -5,6 +5,7 @@ msg_gen
 
 # Files
 *.jpg
+*.jpeg
 *.py
 *.swp
 *.pyc
