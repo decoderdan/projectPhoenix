@@ -15,6 +15,7 @@
 #define MAX_DATE 12
 
 void saveImgTimerCallback(const ros::TimerEvent&);
+void processImgTimerCallback(const ros::TimerEvent&);
 std::string get_date(void);
 std::string get_time(void);
 IplImage* filter_colour(void);
@@ -27,6 +28,7 @@ CvMemStorage* storage;
 CvCapture* capture = 0;
 IplImage* frame;
 IplImage* frame_org;
+int process_flag = 1, last_flag =0;
 
 int main(int argc, char **argv)
 {	
@@ -43,10 +45,11 @@ int main(int argc, char **argv)
 	//timers
 	//ros::Timer ros::NodeHandle::createTimer(ros::Duration, saveImgTimerCallback, bool oneshot = false); //declare timer	
 	ros::Timer saveImgTimer = n.createTimer(ros::Duration(5), saveImgTimerCallback);	//create timer for saving images every 5sec (300s = 5m)
+	ros::Timer processImgTimer = n.createTimer(ros::Duration(0.5), processImgTimerCallback);	//create timer to set a flag to start processing
 	
 	storage = cvCreateMemStorage(0);
 	
-	capture = cvCaptureFromCAM(1);
+	capture = cvCaptureFromCAM(-1);
 		if ( !capture ) 
 		{
 	      	fprintf( stderr, "ERROR: capture is NULL \n" );
@@ -58,12 +61,12 @@ int main(int argc, char **argv)
 	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 240);
 	
 	cvNamedWindow("Video");     
-	cvNamedWindow("HSV_img");
+	//cvNamedWindow("HSV_img");
       cvNamedWindow("Filtered_image");
 	cvNamedWindow("Edge_detection");
 	
 	cvMoveWindow("video", 0, 400); 
-	cvMoveWindow("HSV_img",320,400);  
+	//cvMoveWindow("HSV_img",320,400);  
       cvMoveWindow("Filtered_image",640,400);
       cvMoveWindow("Edge_detection",980,400);
 
@@ -82,12 +85,14 @@ int main(int argc, char **argv)
        		break;
       	}
 
-		IplImage* imgThresh = filter_colour();
-		detect_circles(imgThresh);
+		if(process_flag != last_flag)
+		{
+			last_flag = process_flag;
+			IplImage* imgThresh = filter_colour();
+			detect_circles(imgThresh);
 		
-		cvReleaseImage(&imgThresh);	
-		
-      //cvShowImage( "mywindow", frame );
+			cvReleaseImage(&imgThresh);
+		}	
  		
  		
      		// Do not release the frame!
@@ -127,6 +132,10 @@ void saveImgTimerCallback(const ros::TimerEvent&)
 	 cvSaveImage(filename_chr, frame_org);
 }
 
+void processImgTimerCallback(const ros::TimerEvent&)
+{
+	process_flag = ~process_flag;
+}
 
 IplImage* filter_colour(void)
 {
@@ -140,7 +149,7 @@ IplImage* filter_colour(void)
       cvSmooth(imgThresh, imgThresh, CV_GAUSSIAN,3,3); //smooth the binary image using Gaussian kernel
             
       cvShowImage("Filtered_image", imgThresh);           
-      cvShowImage("HSV_img", imgHSV);
+      //cvShowImage("HSV_img", imgHSV);
            
       //Clean up used images
       cvReleaseImage(&imgHSV);            
@@ -152,8 +161,8 @@ IplImage* GetThresholdedImage(IplImage* imgHSV)
 {       
        IplImage* imgThresh=cvCreateImage(cvGetSize(imgHSV),IPL_DEPTH_8U, 1);
        IplImage* imgThresh2=cvCreateImage(cvGetSize(imgHSV),IPL_DEPTH_8U, 1);
-       cvInRangeS(imgHSV, cvScalar(0, 50, 170), cvScalar(10, 180, 256), imgThresh);		//(170,160,60) (180,256,256)
-       cvInRangeS(imgHSV, cvScalar(170, 50, 170), cvScalar(256, 180, 256), imgThresh2);
+       cvInRangeS(imgHSV, cvScalar(0, 50, 30), cvScalar(10, 256, 256), imgThresh);		//(170,160,60) (180,256,256)
+       cvInRangeS(imgHSV, cvScalar(170, 50, 30), cvScalar(256, 256, 256), imgThresh2);
        cvOr(imgThresh,imgThresh2,imgThresh);
        cvReleaseImage(&imgThresh2);
        return imgThresh;
@@ -166,7 +175,7 @@ void detect_circles(IplImage* imgThresh)
 	cvCanny(imgThresh, canny, 50, 100, 3);	
 	cvShowImage("Edge_detection", canny);           
       
-      CvSeq* circles = cvHoughCircles(canny, storage, CV_HOUGH_GRADIENT, 1, 50.0, 100, 50,20,320);  //1, 40.0, 100, 100,0,0);
+      CvSeq* circles = cvHoughCircles(canny, storage, CV_HOUGH_GRADIENT, 1, 50.0, 100, 40,20,320);  //1, 40.0, 100, 100,0,0);
 															  //dp, min dist, high thresh of canny,accumulator(small val more false circles,min rad, max rad)
 	
 	
