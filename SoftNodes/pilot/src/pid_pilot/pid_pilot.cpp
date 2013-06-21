@@ -19,7 +19,7 @@ static std_msgs::Float32 z;
 float move_x = 0;
 float move_y = 0;
 
-float yaw_Kp = 1;
+float yaw_Kp = 0;
 float yaw_Ki = 0;
 float yaw_Kd = 0;
 float yaw_input = 0;
@@ -29,7 +29,7 @@ float yaw_previous_error = 0;
 float yaw_integral = 0;
 float yaw_derivative = 0;
 
-float pitch_Kp = 1;
+float pitch_Kp = 0;
 float pitch_Ki = 0;
 float pitch_Kd = 0;
 float pitch_input = 0;
@@ -39,7 +39,7 @@ float pitch_previous_error = 0;
 float pitch_integral = 0;
 float pitch_derivative = 0;
 
-float depth_Kp = 1;
+float depth_Kp = 0;
 float depth_Ki = 0;
 float depth_Kd = 0;
 float depth_input = 0;
@@ -178,12 +178,12 @@ int main( int argc, char **argv )
 	  			depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
 			
 				//output to motors
-				motorCfg.front_right = int(constrain((move_x+yaw_output), -100, 100));
-				motorCfg.front_left = int(constrain((move_x-yaw_output), -100, 100));
-				motorCfg.back_right = int(constrain((depth_output+pitch_output), -100, 100));
-				motorCfg.back_left = int(constrain((depth_output-pitch_output), -100, 100));
-				motorCfg.front = 0;
-				motorCfg.back = 0;	
+				motorCfg.front_right = int(constrain((move_x-yaw_output), -100, 100));
+				motorCfg.front_left = int(constrain((move_x+yaw_output), -100, 100));
+				motorCfg.back_right = int(constrain((-move_x+yaw_output), -100, 100));
+				motorCfg.back_left = int(constrain((-move_x-yaw_output), -100, 100));
+				motorCfg.front = int(constrain((depth_output+pitch_output), -100, 100));
+				motorCfg.back = int(constrain((depth_output-pitch_output), -100, 100));	
 				motorMsg.publish(motorCfg);
 			} else if (emergency_stop == true) {
 								//output to motors

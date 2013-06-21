@@ -28,12 +28,12 @@ Servo back;
 
 
 void motorConfigCallBack( const custom_msg::MotorConfig& msg){
-  mapped_front_left = map(int(msg.front_left),-100,100,0,180);
-  mapped_front_right = map(int(msg.front_right),-100,100,0,180);
-  mapped_back_left = map(int(msg.back_left),-100,100,0,180);
-  mapped_back_right = map(int(msg.back_right),-100,100,0,180);
-  mapped_front = map(int(msg.front),-100,100,0,180);
-  mapped_back = map(int(msg.back),-100,100,0,180);
+  mapped_front_left = map(int(msg.front_left),-100,100,25,155);
+  mapped_front_right = map(int(msg.front_right),-100,100,25,155);
+  mapped_back_left = map(int(msg.back_left),-100,100,25,155);
+  mapped_back_right = map(int(msg.back_right),-100,100,25,155);
+  mapped_front = map(int(msg.front),-100,100,25,155);
+  mapped_back = map(int(msg.back),-100,100,25,155);
   front_left.write(mapped_front_left);
   front_right.write(mapped_front_right);
   back_left.write(mapped_back_left);

@@ -873,7 +873,7 @@ int main( int argc, char **argv )
 	ros::Rate loop_rate(100);
 	/* Open and Configure the Serial Port. */
 	//TODO: The device needs to be pointed to the RS232 on the fitpc. What id does this have?
-	if (sonar.initialize("/dev/ttyUSB0")) {
+	if (sonar.initialize("/dev/ttyS0")) {
 		std::cout << "Port open" << std::endl;
 		uwe_sub::sonar::MicronConfig conf;
 
