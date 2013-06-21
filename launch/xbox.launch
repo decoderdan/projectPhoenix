@@ -1,0 +1,4 @@
+<launch>
+	<include file="$(find launch)/hardware.launch" /> 
+	<node name="Xbox Control" pkg="pilot" type="xbox_pilot" ></node>
+</launch>

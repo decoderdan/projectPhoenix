@@ -1,0 +1,5 @@
+<launch>
+	<include file="$(find launch)/imu.launch" /> 
+	<node name="Arduino Motor Driver" pkg="rosserial_python" type="serial_node.py" ></node>
+	<node name="SVS Driver" pkg="svs" type="svs_interface" ></node>
+</launch>

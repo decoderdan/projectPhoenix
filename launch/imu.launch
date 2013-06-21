@@ -1,0 +1,3 @@
+<launch>
+	<node name="IMU Driver" pkg="imu" type="imu_interface" respawn="true" ></node>
+</launch>
