@@ -905,6 +905,9 @@ int main( int argc, char **argv )
                     conf.continuous = (atoi(argv[9]) == 1);
                     conf.stare = (atoi(argv[10]) == 1);
                     sscanf(argv[11], "%u", &conf.angular_resolution);
+		    std::cout << "Running with args: " << std::endl <<
+				 "Threshold: " << conf.threshold << std::endl <<
+				 "Contrast:  " << conf.contrast << std::endl;
                 }
                 else {
                     conf.threshold = 10;  //0dB
