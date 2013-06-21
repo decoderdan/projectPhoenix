@@ -182,8 +182,8 @@ int main( int argc, char **argv )
 				motorCfg.front_left = int(constrain((move_x+yaw_output), -100, 100));
 				motorCfg.back_right = int(constrain((-move_x+yaw_output), -100, 100));
 				motorCfg.back_left = int(constrain((-move_x-yaw_output), -100, 100));
-				motorCfg.front = int(constrain((depth_output+pitch_output), -100, 100));
-				motorCfg.back = int(constrain((depth_output-pitch_output), -100, 100));	
+				motorCfg.front = int(constrain((-depth_output+pitch_output), -100, 100));
+				motorCfg.back = int(constrain((-depth_output-pitch_output), -100, 100));	
 				motorMsg.publish(motorCfg);
 			} else if (emergency_stop == true) {
 								//output to motors
