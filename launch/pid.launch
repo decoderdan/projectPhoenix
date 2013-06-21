@@ -1,4 +1,4 @@
 <launch>
 	<include file="$(find launch)/hardware.launch" /> 
-	<node name="PID Pilot" pkg="pilot" type="pid_pilot" ></node>
+	<node name="pid_pilot" pkg="pilot" type="pid_pilot" ></node>
 </launch>
