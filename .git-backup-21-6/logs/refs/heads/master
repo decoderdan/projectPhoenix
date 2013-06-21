@@ -1,6 +1,0 @@
-0000000000000000000000000000000000000000 9874e4fdc41c86b0dae89bd4ac6acba47120a4a7 ducktaperules <ducktaperules@googlemail.com> 1370963703 +0100	clone: from git@github.com:decoderdan/projectPhoenix.git
-9874e4fdc41c86b0dae89bd4ac6acba47120a4a7 4b52c2c9f93392b1c6dda791529d6d66a999ea1f ducktaperules <ducktaperules@googlemail.com> 1371203138 +0100	commit: test
-4b52c2c9f93392b1c6dda791529d6d66a999ea1f 08735108baa1ebdf95f4cb29a35b59d5ada70227 ducktaperules <ducktaperules@googlemail.com> 1371203371 +0100	commit (merge): Merge branch 'navstack' of github.com:decoderdan/projectPhoenix
-08735108baa1ebdf95f4cb29a35b59d5ada70227 070b8ca345d0f69627bf47e834b9ac1d96dbbbec ducktaperules <ducktaperules@googlemail.com> 1371474600 +0100	pull origin master: Fast-forward
-070b8ca345d0f69627bf47e834b9ac1d96dbbbec c4eedbea1472eabefae8aba76a42af1de584babd ducktaperules <ducktaperules@googlemail.com> 1371475008 +0100	commit: added ability to show sonar data in ros with sonar to range
-c4eedbea1472eabefae8aba76a42af1de584babd dc4b265556043dce84aaa6cac6b5532d70c70080 ducktaperules <ducktaperules@googlemail.com> 1371479513 +0100	pull uwegit master: Fast-forward
