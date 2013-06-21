@@ -30,7 +30,7 @@
      <item>
       <widget class="QTabWidget" name="mainTabs">
        <property name="currentIndex">
-        <number>2</number>
+        <number>1</number>
        </property>
        <property name="movable">
         <bool>false</bool>
@@ -252,7 +252,7 @@
           </rect>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabConfig_pid">
           <attribute name="title">
@@ -707,13 +707,16 @@
                      <item row="3" column="1">
                       <widget class="QDoubleSpinBox" name="spinBox_depthTarget">
                        <property name="minimum">
-                        <double>10.000000000000000</double>
+                        <double>0.000000000000000</double>
                        </property>
                        <property name="maximum">
-                        <double>15.000000000000000</double>
+                        <double>5.000000000000000</double>
                        </property>
                        <property name="singleStep">
                         <double>0.010000000000000</double>
+                       </property>
+                       <property name="value">
+                        <double>0.000000000000000</double>
                        </property>
                       </widget>
                      </item>
