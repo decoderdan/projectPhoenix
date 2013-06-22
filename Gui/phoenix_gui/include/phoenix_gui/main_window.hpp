@@ -41,6 +41,7 @@ public:
 
 	void closeEvent(QCloseEvent *event); // Overloaded function
 	void showNoMasterMessage();
+	float map(float x, float in_min, float in_max, float out_min, float out_max);
 
 public slots:
 	/******************************************
@@ -87,8 +88,8 @@ public slots:
 	void showPitchActual(float);
         void showRawImage(QPixmap);
 
-        void showMotorBatt(int);
-        void showSystemBatt(int);
+        void showMotorBatt(float);
+        void showSystemBatt(float);
 
 private:
 	Ui::MainWindowDesign ui;

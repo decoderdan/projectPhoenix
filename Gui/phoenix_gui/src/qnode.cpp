@@ -28,6 +28,11 @@
 
 namespace phoenix_gui {
 
+// some globals for auto reconnect
+
+std::string global_master_url;
+std::string global_host_url;
+
 /*****************************************************************************
 ** Implementation
 *****************************************************************************/
@@ -59,13 +64,13 @@ bool QNode::init() {
 	pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);
 	target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
 	sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);	
-        dead_reckoning_vel_publisher = n.advertise<std_msgs::Float32>("estimated_velocity", 1000);
+    dead_reckoning_vel_publisher = n.advertise<std_msgs::Float32>("estimated_velocity", 1000);
 
-        systemBattSub = n.subscribe("system_battery", 100, &QNode::systemBatteryCallBack, this);
-        motorBattSub  = n.subscribe("motor_battery", 100, &QNode::motorBatteryCallBack, this);
+    systemBattSub = n.subscribe("batteryStatusSystem", 100, &QNode::systemBatteryCallBack, this);
+    motorBattSub  = n.subscribe("batteryStatusMotor", 100, &QNode::motorBatteryCallBack, this);
 	imuSub = n.subscribe("imu", 100, &QNode::imuCallBack, this);
    	depthSub = n.subscribe("depth", 100, &QNode::depthCallBack, this);
-        rawImgSub = n.subscribe("raw_image", 10, &QNode::rawImgReceivedCallback, this);
+    rawImgSub = n.subscribe("raw_image", 10, &QNode::rawImgReceivedCallback, this);
 
 	start();
 	return true;
@@ -82,18 +87,22 @@ bool QNode::init(const std::string &master_url, const std::string &host_url) {
 	}
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
-	// Add your ros communications here.
-        emergency_publisher = n.advertise<std_msgs::Bool>("emergency", 1000);
-        pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);
-        target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
-        sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);
-        dead_reckoning_vel_publisher = n.advertise<std_msgs::Float32>("estimated_velocity", 1000);
 
-        systemBattSub = n.subscribe("system_battery", 100, &QNode::systemBatteryCallBack, this);
-        motorBattSub  = n.subscribe("motor_battery", 100, &QNode::motorBatteryCallBack, this);
-        imuSub = n.subscribe("imu", 100, &QNode::imuCallBack, this);
-        depthSub = n.subscribe("depth", 100, &QNode::depthCallBack, this);
-        rawImgSub = n.subscribe("raw_image", 10, &QNode::rawImgReceivedCallback, this);
+	global_master_url = master_url;
+	global_host_url = host_url;
+
+	// Add your ros communications here.
+    emergency_publisher = n.advertise<std_msgs::Bool>("emergency", 1000);
+    pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);
+    target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
+    sonar_config_publisher = n.advertise<custom_msg::SonarConfig>("sonar_config", 1000);
+    dead_reckoning_vel_publisher = n.advertise<std_msgs::Float32>("estimated_velocity", 1000);
+
+    systemBattSub = n.subscribe("batteryStatusSystem", 100, &QNode::systemBatteryCallBack, this);
+    motorBattSub  = n.subscribe("batteryStatusMotor", 100, &QNode::motorBatteryCallBack, this);
+    imuSub = n.subscribe("imu", 100, &QNode::imuCallBack, this);
+    depthSub = n.subscribe("depth", 100, &QNode::depthCallBack, this);
+    rawImgSub = n.subscribe("raw_image", 10, &QNode::rawImgReceivedCallback, this);
 
 	start();
 	return true;
@@ -104,6 +113,10 @@ void QNode::run() {
 	while ( ros::ok() ) {
 		ros::spinOnce();
 		loop_rate.sleep();
+		if( ! ros::master::check()) {
+			emit noMaster();
+			init(global_master_url, global_host_url);
+		}
 	}
 	std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
 	emit rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
@@ -240,11 +253,11 @@ void QNode::imuCallBack(const custom_msg::IMUData& data) {
         emit pitchActualUpdated(pitch_input);
 }
 
-void QNode::systemBatteryCallBack(const std_msgs::Int8& voltage) {
+void QNode::systemBatteryCallBack(const std_msgs::Float32& voltage) {
         emit systemBattUpdated(voltage.data);
 }
 
-void QNode::motorBatteryCallBack(const std_msgs::Int8& voltage) {
+void QNode::motorBatteryCallBack(const std_msgs::Float32& voltage) {
         emit motorBattUpdated(voltage.data);
 }
 

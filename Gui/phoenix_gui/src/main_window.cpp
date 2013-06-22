@@ -38,12 +38,12 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
 	QObject::connect(&qnode, SIGNAL(rosShutdown()), this, SLOT(close()));
 	QObject::connect(&qnode, SIGNAL(noMaster()), this, SLOT(noMaster()));	
-        QObject::connect(&qnode, SIGNAL(motorBattUpdated(int)), this, SLOT(showMotorBatt(int)));
-        QObject::connect(&qnode, SIGNAL(systemBattUpdated(int)), this, SLOT(showSystemBatt(int)));
+    QObject::connect(&qnode, SIGNAL(motorBattUpdated(float)), this, SLOT(showMotorBatt(float)));
+    QObject::connect(&qnode, SIGNAL(systemBattUpdated(float)), this, SLOT(showSystemBatt(float)));
 	QObject::connect(&qnode, SIGNAL(depthActualUpdated(float)), this, SLOT(showDepthActual(float)));
 	QObject::connect(&qnode, SIGNAL(yawActualUpdated(float)), this, SLOT(showYawActual(float)));
 	QObject::connect(&qnode, SIGNAL(pitchActualUpdated(float)), this, SLOT(showPitchActual(float)));
-        QObject::connect(&qnode, SIGNAL(rawImageUpdated(QPixmap)), this, SLOT(showRawImage(QPixmap)));
+    QObject::connect(&qnode, SIGNAL(rawImageUpdated(QPixmap)), this, SLOT(showRawImage(QPixmap)));		
 
 	/* disable some gui things... until connected */
 	
@@ -690,18 +690,30 @@ void MainWindow::showRawImage(QPixmap raw_image)
         ui.raw_image_container->setPixmap(raw_image.scaled(480,320,Qt::KeepAspectRatio));
 }
 
-void MainWindow::showSystemBatt(int value)
+void MainWindow::showSystemBatt(float value)
 {
         QPalette pal;
-
-        ui.progressBar_systemBatt->setValue(value);
+        // first calculate the percentage from the voltage (value)
+        // max voltage should be about 25.00v
+        // min voltage for 6s should be 19.2 (3.2v per cell)
+        // so map 
+        int percentage = map(value, 19.2, 25.0, 0, 100);
+        ui.progressBar_systemBatt->setValue(percentage);
+		ui.progressBar_systemBatt->setFormat(QString::number(value)+"v");
 }
 
-void MainWindow::showMotorBatt(int value)
+void MainWindow::showMotorBatt(float value)
 {
         QPalette pal;
+		
+		int percentage = map(value, 19.2, 25.0, 0, 100);
+        ui.progressBar_motorBatt->setValue(percentage);
+		ui.progressBar_motorBatt->setFormat(QString::number(value)+"v");
+}
 
-        ui.progressBar_motorBatt->setValue(value);
+float MainWindow::map(float x, float in_min, float in_max, float out_min, float out_max)
+{
+		return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 }  // namespace phoenix_gui

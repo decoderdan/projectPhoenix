@@ -1,0 +1,16 @@
+<package>
+  <description brief="system_monitor">
+
+     system_monitor
+
+  </description>
+  <author>chris</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/system_monitor</url>
+  <depend package="roscpp"/>
+  <depend package="custom_msg"/>
+
+</package>
+
+
