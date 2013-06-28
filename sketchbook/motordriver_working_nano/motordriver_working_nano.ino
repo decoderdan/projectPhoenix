@@ -4,10 +4,12 @@
  */
 //#include <WProgram.h>
 #include <Arduino.h>
-#include <Servo.h> 
+#include <Servo.h>
+#include <LiquidCrystal.h>
 #include <ros.h>
 #include <custom_msg/MotorConfig.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/String.h>
 
 ros::NodeHandle nh;
 std_msgs::Float32 batteryStatusMotor;
@@ -26,6 +28,7 @@ Servo back_right;
 Servo front;
 Servo back;
 
+LiquidCrystal lcd(12, 8, A0, A1, A2, A3); // the lcd
 
 void motorConfigCallBack( const custom_msg::MotorConfig& msg){
   mapped_front_left = map(int(msg.front_left),-100,100,25,155);
@@ -43,9 +46,21 @@ void motorConfigCallBack( const custom_msg::MotorConfig& msg){
   digitalWrite(13, HIGH-digitalRead(13));   // blink the led
 }
 
+void lcdLine1CallBack( const std_msgs::String& msg){
+  lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+  lcd.print(msg.data);
+}
+
+void lcdLine2CallBack( const std_msgs::String& msg){
+  lcd.setCursor(0, 1); // set the cursor to column 0, line 1
+  lcd.print(msg.data);
+}
+
 ros::Subscriber<custom_msg::MotorConfig> sub("motor_config", &motorConfigCallBack );
 ros::Publisher m("batteryStatusMotor", &batteryStatusMotor);
 ros::Publisher s("batteryStatusSystem", &batteryStatusSystem);
+ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );
+ros::Subscriber<std_msgs::String> sub2("lcd_line_2", &lcdLine2CallBack );
 
 void setup()
 {
@@ -60,6 +75,15 @@ void setup()
   back_right.attach(9); //attach it to pin 9
   front.attach(10); //attach it to pin 9
   back.attach(11); //attach it to pin 9
+
+  // set up the LCD's number of columns and rows: 
+  lcd.begin(20, 2);
+  // Print a message to the LCD.
+
+  lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+  lcd.print("  Project Phoenix   ");
+  lcd.setCursor(0, 1);
+  lcd.print("   www.uwesub.com   ");
 }
 
 void loop()
@@ -83,3 +107,7 @@ int averageAnalog(int pin){
   for(int i=0; i<4; i++) v+= analogRead(pin);
   return v/4;
 }
+
+// lcd callbacks
+
+

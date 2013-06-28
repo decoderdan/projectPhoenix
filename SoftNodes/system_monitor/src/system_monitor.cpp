@@ -31,12 +31,9 @@ int main(int argc, char **argv) {
 				getline(meminfo,line);
 				if(std::string::npos != line.find("MemFree:")) {
 					
-					std_msgs::String mem;
-					std::stringstream ss;
-					ss << line << endl;
-					mem.data = ss.str();
-					sysMsg.publish(mem);
+					std::string mem_free_str = line.substr(1,6);
 
+					std::cout << "free line =" << mem_free_str << '\n';
 					std::istringstream iss (line);
 					int val;
 					iss >> val;
