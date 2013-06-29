@@ -14,14 +14,20 @@
 #include <iostream>
 #include "../include/phoenix_gui/main_window.hpp"
 #include <custom_msg/IMUData.h>
+#include <stdlib.h>
+
+int system_alarm_delay_counter = 0;
+int motor_alarm_delay_counter = 0;
 
 /*****************************************************************************
 ** Namespaces
 *****************************************************************************/
 
+
 namespace phoenix_gui {
 
 using namespace Qt;
+//using namespace Phonon;
 
 /*****************************************************************************
 ** Implementation [MainWindow]
@@ -76,6 +82,7 @@ void MainWindow::showNoMasterMessage() {
 	QMessageBox msgBox;
 	msgBox.setText("Couldn't find the ros master.");
 	msgBox.exec();
+
 }
 /******************
 ** toolbar slots **
@@ -116,6 +123,7 @@ void MainWindow::on_button_connect_clicked(bool check ) {
 	if ( ui.checkbox_use_environment->isChecked() ) {
 		if ( !qnode.init() ) {
 			showNoMasterMessage();
+			QSound::play("/home/chris/projectPhoenix/Gui/AIR_RAID.WAV");
 		} else {
 			ui.button_connect->setEnabled(false);
 			
@@ -142,8 +150,6 @@ void MainWindow::on_button_connect_clicked(bool check ) {
         		ui.configTabs->setCurrentIndex(0);
 		}
 	}
-	
-
 }
 
 
@@ -661,7 +667,7 @@ void MainWindow::WriteSettings() {
 void MainWindow::noMaster()
 {
 	std::cout << "Ros Master cannot be reached!" << std::endl;
-	QSound::play("mysounds/bells.wav");
+	QSound::play("AIR_RAID.WAV");
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -700,6 +706,26 @@ void MainWindow::showSystemBatt(float value)
         int percentage = map(value, 19.2, 25.0, 0, 100);
         ui.progressBar_systemBatt->setValue(percentage);
 		ui.progressBar_systemBatt->setFormat(QString::number(value)+"v");
+
+		if(percentage < 5) {
+			if(system_alarm_delay_counter >= 30) {
+				system("aplay -q projectPhoenix/Gui/phoenix_gui/AIR_RAID.WAV ");
+				QMessageBox msgBox;
+				msgBox.setText("Warning, system battery below 5%");
+				system_alarm_delay_counter = 0;
+			} else {
+				system_alarm_delay_counter ++;
+			}
+		} else if(percentage < 10) {
+			if(system_alarm_delay_counter >= 120) {
+				system("aplay -q projectPhoenix/Gui/phoenix_gui/AIR_RAID.WAV ");
+				QMessageBox msgBox;
+				msgBox.setText("Warning, system battery below 10%");
+				system_alarm_delay_counter = 0;
+			} else {
+				system_alarm_delay_counter ++;
+			}
+		}
 }
 
 void MainWindow::showMotorBatt(float value)
@@ -709,6 +735,17 @@ void MainWindow::showMotorBatt(float value)
 		int percentage = map(value, 19.2, 25.0, 0, 100);
         ui.progressBar_motorBatt->setValue(percentage);
 		ui.progressBar_motorBatt->setFormat(QString::number(value)+"v");
+
+		if(percentage < 10) {
+			if(motor_alarm_delay_counter >= 120) {
+				system("aplay -q projectPhoenix/Gui/phoenix_gui/AIR_RAID.WAV ");
+				QMessageBox msgBox;
+				msgBox.setText("Warning, motor battery below 10%");
+				motor_alarm_delay_counter = 0;
+			} else {
+				motor_alarm_delay_counter ++;
+			}
+		}
 }
 
 float MainWindow::map(float x, float in_min, float in_max, float out_min, float out_max)

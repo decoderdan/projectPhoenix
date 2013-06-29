@@ -20,7 +20,7 @@
 #include <custom_msg/SonarConfig.h>
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
-
+#include <phonon/phonon>
 
 /*****************************************************************************
 ** Namespaces
