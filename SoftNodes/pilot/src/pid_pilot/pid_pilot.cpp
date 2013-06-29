@@ -73,7 +73,7 @@ void emergencyCallBack(const std_msgs::Bool& stop)
 }
 
 void depthCallBack(const std_msgs::Float32& depth) {
-	depth_input = z.data;
+	depth_input = depth.data;
 }
 
 void imuCallBack(const custom_msg::IMUData& data) {
