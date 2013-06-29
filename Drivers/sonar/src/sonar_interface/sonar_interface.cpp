@@ -944,7 +944,7 @@ int main( int argc, char **argv )
 					
 					if (conf.continuous) {
 						if ((((data.bearing + 180.0) - (last_bearing + 180.0)) > 10.0) || 
-						    (((data.bearing + 180) - (last_bearing + 180)) < 10.0)) {
+						    (((data.bearing + 180) - (last_bearing + 180)) < -10.0)) {
 							//Probably jumped a few degrees.
 							ROS_INFO("JUMPED");
 						} 
