@@ -934,20 +934,25 @@ int main( int argc, char **argv )
 
 		        sonar.configure(conf,3000);
 			while(ros::ok() && (!config_received))
-			{	
+			{
 				uwe_sub::sonar::SonarData data;
 				if (sonar.scan(data)) {
 					//Store all the data in the new sonar message
-					static double last_bearing = 0;					
-					static double jump_bearing = 0;
-					static double jump_diff = 0;
-					
+					static int last_bearing = 0;
+					static int jump_bearing = 0;
+					static int jump_diff = 0;
+
 					if (conf.continuous) {
-						if ((((data.bearing + 180.0) - (last_bearing + 180.0)) > 10.0) || 
-						    (((data.bearing + 180) - (last_bearing + 180)) < -10.0)) {
-							//Probably jumped a few degrees.
-							ROS_INFO("JUMPED");
-						} 
+						ROS_INFO("Data: %i, Last: %i", data.bearing, last_bearing);
+						int bearing_diff = (data.bearing+7000) - (last_bearing+7000);
+						if (bearing_diff < 6000) {
+						   	if ((bearing_diff > 500) || (bearing_diff < -500)) {
+								//Probably jumped a few degrees.
+								ROS_WARN("JUMPED... correcting");
+								data.bearing = last_bearing + jump_diff;
+							}
+							else { jump_diff = bearing_diff; }
+						}
 					}
 					sonarDataOut.bearing = data.bearing;
 					sonarDataOut.threshold = conf.threshold;
