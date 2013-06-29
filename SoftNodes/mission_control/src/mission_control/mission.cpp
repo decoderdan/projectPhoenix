@@ -13,11 +13,27 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr&);
 int state_selected = 1;
 int x_button = 0;
 int a_button = 0;
-
+int x_plus_axis = 5;
+int x_minus_axis = 2;
+int yaw_axis = 3;
 int curwp = 0;
+
+int x_val = 0;
+int yaw_val = 0;
 
 tf::StampedTransform origin_tf; //Stores our origin tf
 
+float constrain(float x, float min, float max)
+{
+	if (x < min) return min;
+	if (x > max) return max;
+	return x;
+}
+
+float map(float x, float in_min, float in_max, float out_min, float out_max)
+{
+	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 int main(int argc, char **argv)
 {
@@ -93,6 +109,7 @@ void manualControl(int on)
 	if (on)
 	{
 		//In here needs to send a message to activate manual controls
+		
 	}
 	
 	else
@@ -126,6 +143,9 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
 	
   x_button = joy->buttons[2];		//X Button
   a_button = joy->buttons[0];   //A Button
+
+  x_val = (int)((map(joy->axes[x_plus_axis], 1.0, -1.0, 0.0, 20.0)) - (map(joy->axes[x_minus_axis], 1.0, -1.0, 0.0, 20.0)));
+  yaw_val = (int)(map(joy->axes[yaw_axis], 1.0, -1.0, -180.0, 180.0));
 
 	if(x_button && (state_selected != 3))
 	{

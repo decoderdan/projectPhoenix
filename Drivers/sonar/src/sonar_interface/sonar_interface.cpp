@@ -801,6 +801,10 @@ namespace uwe_sub {
 					}
 					return 0;
 				}
+			
+				void close() {
+					closePort();
+				}
 		};
 	}
 }
@@ -903,7 +907,6 @@ int main( int argc, char **argv )
 	    conf.angular_resolution = uwe_sub::sonar::LOW; //LOW, MEDIUM, HIGH
 	}
 
-
 	ros::Rate loop_rate(100);
 	while (ros::ok()) {
 		config_received = false;
@@ -959,6 +962,8 @@ int main( int argc, char **argv )
 	
 				ros::spinOnce();	
 			}
+			sonar.close();
+			ROS_INFO("Closed Sonar - New sonar config");
 		}
 		else {
 			std::cout << "Sonar not ready yet." << std::endl;
