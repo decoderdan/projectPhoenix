@@ -80,7 +80,18 @@ bool QNode::init(const std::string &master_url, const std::string &host_url) {
 	std::map<std::string,std::string> remappings;
 	remappings["__master"] = master_url;
 	remappings["__hostname"] = host_url;
-	ros::init(remappings,"phoenix_gui");
+
+	std::string ip = host_url.substr(11,1);
+	int unique_num = std::atoi(ip.c_str());
+	char unique_ident_char = 'a';
+	unique_ident_char = unique_ident_char + unique_num;
+
+	std::ostringstream ss;		// print the data
+	ss << "phoenix_gui_" << unique_ident_char;
+
+	std::cout << "unique_num = " << unique_num << ", unique_ident = " << unique_ident_char << ", " << ss.str() << std::endl;
+
+	ros::init(remappings, ss.str());
 	ros::master::setRetryTimeout(ros::WallDuration(10,0));
 	if ( ! ros::master::check() ) {
 		return false;
