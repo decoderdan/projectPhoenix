@@ -63,8 +63,12 @@ int main(int argc, char **argv)
 		ros::Time imu_time = ros::Time::now();
 		
 		//vn100_getYawPitchRollTrueBodyAccelerationAngularRate
-		vn100_getYawPitchRollTrueInertialAcclerationAngularRate(&vn100, &ypr, &acceleration, &angularRate);		
-		
+		try {
+			vn100_getYawPitchRollTrueInertialAcclerationAngularRate(&vn100, &ypr, &acceleration, &angularRate);		
+		} catch(exception ex) {
+			ROS_ERROR("imu - caught error");
+		}
+
 		imuData.yaw = ypr.yaw;	
 		imuData.pitch = ypr.pitch;
 		imuData.roll = ypr.roll;
