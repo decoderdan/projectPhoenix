@@ -938,6 +938,17 @@ int main( int argc, char **argv )
 				uwe_sub::sonar::SonarData data;
 				if (sonar.scan(data)) {
 					//Store all the data in the new sonar message
+					static double last_bearing = 0;					
+					static double jump_bearing = 0;
+					static double jump_diff = 0;
+					
+					if (conf.continuous) {
+						if ((((data.bearing + 180.0) - (last_bearing + 180.0)) > 10.0) || 
+						    (((data.bearing + 180) - (last_bearing + 180)) < 10.0)) {
+							//Probably jumped a few degrees.
+							ROS_INFO("JUMPED");
+						} 
+					}
 					sonarDataOut.bearing = data.bearing;
 					sonarDataOut.threshold = conf.threshold;
 					sonarDataOut.contrast = conf.contrast;
@@ -951,6 +962,10 @@ int main( int argc, char **argv )
 					}
 					//publish the data
 					sonarMsg.publish(sonarDataOut);
+
+					//Store the last bearing.
+					last_bearing = data.bearing;
+					jump_bearing = sonarDataOut.bearing;
 
 					//Print to the screen
 					for (int i = 0; i < data.bins.size(); i++) {
