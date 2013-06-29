@@ -828,14 +828,14 @@ void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
 	std::cout << "stare " << config.stare << std::endl;
 	std::cout << "ang resolution " << config.angular_resolution << std::endl;
 
-	conf.threshold = config.threshold;  //0dB
-	conf.contrast = config.contrast; //12dB
-	conf.gain = config.gain; //40% Initial Gain
-	conf.resolution = config.resolution; //10cm sampling
-	conf.max_distance = config.max_distance; //10 meter range
-	conf.min_distance = config.min_distance; //Ignore the first 0.75 meters
-	conf.left_limit = uwe_sub::sonar::Angle::fromDeg(config.left_limit);
-	conf.right_limit = uwe_sub::sonar::Angle::fromDeg(config.right_limit);
+	conf.threshold = (double)config.threshold;  //0dB
+	conf.contrast = (double)config.contrast; //12dB
+	conf.gain = (double)config.gain/100.0; //40% Initial Gain
+	conf.resolution = (double)config.resolution; //10cm sampling
+	conf.max_distance = (double)config.max_distance; //10 meter range
+	conf.min_distance = (double)config.min_distance; //Ignore the first 0.75 meters
+	conf.left_limit = uwe_sub::sonar::Angle::fromDeg((double)config.left_limit);
+	conf.right_limit = uwe_sub::sonar::Angle::fromDeg((double)config.right_limit);
 	conf.continuous = config.continuous;
 	conf.stare = config.stare;
 	conf.angular_resolution = config.angular_resolution; //LOW, MEDIUM, HIGH
