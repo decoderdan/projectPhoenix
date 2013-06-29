@@ -939,13 +939,13 @@ int main( int argc, char **argv )
 				if (sonar.scan(data)) {
 					//Store all the data in the new sonar message
 					static int last_bearing = 0;
-					static int jump_bearing = 0;
 					static int jump_diff = 0;
+					static bool first_run = true;
 
 					if (conf.continuous) {
-						ROS_INFO("Data: %i, Last: %i", data.bearing, last_bearing);
+						//ROS_INFO("Data: %i, Last: %i", data.bearing, last_bearing);
 						int bearing_diff = (data.bearing+7000) - (last_bearing+7000);
-						if (bearing_diff < 6000) {
+						if ((bearing_diff < 6000) && (!first_run)) {
 						   	if ((bearing_diff > 500) || (bearing_diff < -500)) {
 								//Probably jumped a few degrees.
 								ROS_WARN("JUMPED... correcting");
@@ -954,6 +954,7 @@ int main( int argc, char **argv )
 							else { jump_diff = bearing_diff; }
 						}
 					}
+					first_run = false;
 					sonarDataOut.bearing = data.bearing;
 					sonarDataOut.threshold = conf.threshold;
 					sonarDataOut.contrast = conf.contrast;
@@ -970,7 +971,6 @@ int main( int argc, char **argv )
 
 					//Store the last bearing.
 					last_bearing = data.bearing;
-					jump_bearing = sonarDataOut.bearing;
 
 					//Print to the screen
 					for (int i = 0; i < data.bins.size(); i++) {
