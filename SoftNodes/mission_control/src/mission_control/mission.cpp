@@ -3,10 +3,11 @@
 #include "std_msgs/UInt8.h"
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
+#include <custom_msg/TargetVector.h>
 #include <sensor_msgs/Joy.h>
 
 void broadcastWPs();
-void manualControl(int);
+void manualControl();
 void setStartPoint();
 void joyCallback(const sensor_msgs::Joy::ConstPtr&);
 
@@ -18,10 +19,12 @@ int x_minus_axis = 2;
 int yaw_axis = 3;
 int curwp = 0;
 
-int x_val = 0;
-int yaw_val = 0;
+float x_val = 0;
+float yaw_val = 0;
+float output_yaw = 0;
 
 tf::StampedTransform origin_tf; //Stores our origin tf
+ros::Publisher target_publisher;
 
 float constrain(float x, float min, float max)
 {
@@ -41,29 +44,31 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "mission_control");
   ros::NodeHandle n;
 
-	/* Subscribe to joystick */
-	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback);
-  
+  /* Subscribe to joystick */
+  ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback);
+  target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
+
+  ros::Rate rate(50.0);
+
   ROS_INFO("Mission Control Node Started - Subscribed to joystick");
 
-while (ros::ok()) 
-{
-  switch(state_selected)
-  {
-  	case 1 : manualControl(1);
-  		   break;
-  		   
-  	case 2 : manualControl(0);
-  		   setStartPoint();
-  		   break;
-  		   
-  	case 3 : manualControl(0);
-  		   broadcastWPs(); 
-  		   break;
-  }
-  
-  ros::spinOnce(); //Allow joystick callback
-}
+	while (ros::ok()) 
+	{
+	  switch(state_selected)
+	  {
+	  	case 1 :   manualControl();
+	  		   break;
+	  		   
+	  	case 2 :   setStartPoint();
+	  		   break;
+	  		   
+	  	case 3 :   broadcastWPs(); 
+	  		   break;
+	  }
+	  
+	  ros::spinOnce(); //Allow joystick callback
+	  rate.sleep();
+	}
   return 0;
 }
 
@@ -104,18 +109,22 @@ void broadcastWPs()
 	broadcaster.sendTransform( tf::StampedTransform( wp, ros::Time::now(), "/square_origin", oss.str() ));
 }
 
-void manualControl(int on)
+void manualControl()
 {
-	if (on)
-	{
-		//In here needs to send a message to activate manual controls
-		
-	}
-	
-	else
-	{
-		//In here needs to send a message to deactivate manual controls
-	}
+	output_yaw += yaw_val;
+	//In here needs to send a message to activate manual controls
+	custom_msg::TargetVector tv;
+	tv.set_y = false;
+	tv.set_z = false;
+	tv.set_pitch = false;
+	tv.set_roll = false;
+	tv.set_x = true;
+	tv.set_yaw = true;
+	tv.vector_x = x_val;
+	while (output_yaw > 180) output_yaw -= 360;	
+	while (output_yaw < -180) output_yaw += 360;
+	tv.vector_yaw = output_yaw;
+	target_publisher.publish(tv);	
 }
 
 void setStartPoint()
@@ -141,11 +150,13 @@ void setStartPoint()
 
 void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
 	
-  x_button = joy->buttons[2];		//X Button
+  x_button = joy->buttons[2];	//X Button
   a_button = joy->buttons[0];   //A Button
 
-  x_val = (int)((map(joy->axes[x_plus_axis], 1.0, -1.0, 0.0, 20.0)) - (map(joy->axes[x_minus_axis], 1.0, -1.0, 0.0, 20.0)));
-  yaw_val = (int)(map(joy->axes[yaw_axis], 1.0, -1.0, -180.0, 180.0));
+  x_val = ((map(joy->axes[x_plus_axis], 1.0, -1.0, 0.0, 50.0)) - (map(joy->axes[x_minus_axis], 1.0, -1.0, 0.0, 50.0)));
+  yaw_val = -(2 * joy->axes[yaw_axis]);//(map(joy->axes[yaw_axis], 1.0, -1.0, -1.0, 1.0));
+
+  //ROS_INFO("X Val: %f, Yaw: %f", x_val, yaw_val);
 
 	if(x_button && (state_selected != 3))
 	{
