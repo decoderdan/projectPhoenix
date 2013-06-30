@@ -4,10 +4,10 @@
 #include <std_msgs/Float32.h>
 #include <custom_msg/IMUData.h>
 
-std_msgs::Float32 z;      //Z axes storage
+float z;      //Z axes storage
 
 void depthCallBack(const std_msgs::Float32& depth) {
-  z.data = 0; //Ignore this for now - it needs to be fixed
+  z = depth.data; //depth data onto z
 }
 
 void imuCallBack(const custom_msg::IMUData& data) {
@@ -23,6 +23,7 @@ void imuCallBack(const custom_msg::IMUData& data) {
   
   /* Transformation declarations */
   tf::Transform imu_tr;
+  tf::Transform sonar_tr;
 
   /* For integration - 
 	dt( (pev_x_val + new_x_val) / 2 )  */
@@ -59,11 +60,18 @@ void imuCallBack(const custom_msg::IMUData& data) {
   prev_vel_y = vel_y;
 
   /* Set the imu's pose */
-  imu_tr.setOrigin( tf::Vector3(pos_x, pos_y, 0.0) );
-  imu_tr.setRotation( tf::createQuaternionFromRPY(0.0,0.0,-data.yaw*(M_PI/180)) ); //Removed pitch and roll for now
+  imu_tr.setOrigin( tf::Vector3(0.0, 0.0, -z) );
+  imu_tr.setRotation( tf::createQuaternionFromRPY(data.pitch*(M_PI/180),data.roll*(M_PI/180),-data.yaw*(M_PI/180)) ); 
 
 	/* Broadcast the imu position relative to the world */
   br.sendTransform(tf::StampedTransform(imu_tr, ros::Time::now(), "/world", "/imu"));
+
+  /* Set the sonar relative to imu pose */
+  sonar_tr.setOrigin( tf::Vector3(0.0, 0.5, -0.3) );
+  sonar_tr.setRotation( tf::createQuaternionFromRPY(0,0,0) ); 
+
+	/* Broadcast the sonar position relative to the imu*/
+  br.sendTransform(tf::StampedTransform(sonar_tr, ros::Time::now(), "/imu", "/base_laser"));
   
 }
 

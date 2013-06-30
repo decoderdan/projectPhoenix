@@ -1,0 +1,16 @@
+[General]
+yawKp=0.5
+yawKi=0.05
+yawKd=0.1
+yawTarget=90
+yawTargetSet=true
+pitchKp=1.5
+pitchKi=1
+pitchKd=0
+pitchTarget=0
+pitchTargetSet=true
+depthKp=100
+depthKi=5
+depthKd=0
+depthTarget=0.5
+depthTargetSet=true
