@@ -994,7 +994,7 @@ int main( int argc, char **argv )
 		}
 		else {
 			offline_count++;
-			if (offline_count >= 10) {
+			if (offline_count >= 2) {
 				std::cout << "Resetting sonar..." << std::endl;
 				sonar.reset();
 			offline_count = 0;
