@@ -1,0 +1,5 @@
+<launch>
+	<include file="$(find launch)/pid.launch" /> 
+	<node name="imu_transform_broadcaster" pkg="imu_transform_broadcaster" type="imu_transform_broadcaster" ></node>
+	<node name="mission_control" pkg="mission_control" type="mission_control" ></node>
+</launch>
