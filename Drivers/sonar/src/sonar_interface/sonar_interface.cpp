@@ -636,6 +636,10 @@ namespace uwe_sub {
 			public:
 				int foundCount;
 
+				void reset() {
+					writePort(createPacket(mtReBoot,NULL,0));
+				}
+
 				int initialize(std::string const& port, int baudrate=115200) {
 					foundCount = 0;
 					if (openPort(port,baudrate,true)) {
@@ -907,6 +911,8 @@ int main( int argc, char **argv )
 	    conf.angular_resolution = uwe_sub::sonar::LOW; //LOW, MEDIUM, HIGH
 	}
 
+	int offline_count = 0;
+
 	ros::Rate loop_rate(100);
 	while (ros::ok()) {
 		config_received = false;
@@ -914,6 +920,7 @@ int main( int argc, char **argv )
 		uwe_sub::sonar::sonarInterface sonar;
 		/* Open and Configure the Serial Port. */
 		if (sonar.initialize("/dev/ttyS0")) {
+			offline_count = 0;
 			std::cout << "Port open" << std::endl;
 			//uwe_sub::sonar::MicronConfig conf;
 
@@ -986,7 +993,15 @@ int main( int argc, char **argv )
 			ROS_INFO("Closed Sonar - New sonar config");
 		}
 		else {
-			std::cout << "Sonar not ready yet." << std::endl;
+			offline_count++;
+			if (offline_count >= 10) {
+				std::cout << "Resetting sonar..." << std::endl;
+				sonar.reset();
+			offline_count = 0;
+			}
+			else {
+				std::cout << "Sonar not ready yet." << std::endl;
+			}
 		}
 	}
 	return 0;
