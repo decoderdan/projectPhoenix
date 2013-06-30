@@ -643,7 +643,7 @@ namespace uwe_sub {
 				int initialize(std::string const& port, int baudrate=115200) {
 					foundCount = 0;
 					if (openPort(port,baudrate,true)) {
-						ROS_INFO("Sonar online");
+						ROS_INFO("Sonar Connected");
                                                 flushPort();
 						if (waitForPacket(mtAlive, 10000)) {
 							ROS_INFO("received mtAlive");
@@ -667,6 +667,10 @@ namespace uwe_sub {
 									return (int)d.ready;
 								}
 							}
+						}
+						else {
+							ROS_INFO("No MtAlive Received... Resetting");
+							reset();
 						}
 					}
 					return 0;
@@ -994,10 +998,11 @@ int main( int argc, char **argv )
 		}
 		else {
 			offline_count++;
-			if (offline_count >= 2) {
+			if (offline_count >= 2) 
+			{
 				std::cout << "Resetting sonar..." << std::endl;
 				sonar.reset();
-			offline_count = 0;
+				offline_count = 0;
 			}
 			else {
 				std::cout << "Sonar not ready yet." << std::endl;
