@@ -20,7 +20,7 @@ float move_x = 0;
 float move_y = 0;
 bool input_stability = true; // bit to set input stability
 
-float yaw_rate = 5; //degrees per second
+float yaw_rate = 45; //degrees per second
 float yaw_Kp = 0;
 float yaw_Ki = 0;
 float yaw_Kd = 0;
@@ -33,7 +33,7 @@ float yaw_integral = 0;
 float yaw_derivative = 0;
 
 
-float pitch_rate = 5; //degrees per second
+float pitch_rate = 3; //degrees per second
 float pitch_Kp = 0;
 float pitch_Ki = 0;
 float pitch_Kd = 0;
@@ -46,7 +46,7 @@ float pitch_integral = 0;
 float pitch_derivative = 0;
 
 
-float depth_rate = 5; //cm per second
+float depth_rate = 0.05; //m per second
 float depth_Kp = 0;
 float depth_Ki = 0;
 float depth_Kd = 0;
