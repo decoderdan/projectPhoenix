@@ -949,14 +949,15 @@ int main( int argc, char **argv )
 				uwe_sub::sonar::SonarData data;
 				if (sonar.scan(data)) {
 					//Store all the data in the new sonar message
-					static int last_bearing = 0;
+					static int last_bearing = data.bearing;
 					static int jump_diff = 0;
 					static bool first_run = true;
+					static int last_resolution = conf.resolution;
 
 					if (conf.continuous) {
 						//ROS_INFO("Data: %i, Last: %i", data.bearing, last_bearing);
-						int bearing_diff = (data.bearing+7000) - (last_bearing+7000);
-						if ((bearing_diff < 6000) && (!first_run)) {
+						int bearing_diff = (data.bearing+6400) - (last_bearing+6400);
+						if ((bearing_diff < 6399) && (!first_run) && (last_resolution != conf.resolution)) {
 						   	if ((bearing_diff > 500) || (bearing_diff < -500)) {
 								//Probably jumped a few degrees.
 								ROS_WARN("JUMPED... correcting");
@@ -966,7 +967,9 @@ int main( int argc, char **argv )
 						}
 					}
 					first_run = false;
+					last_resolution = conf.resolution;
 					sonarDataOut.bearing = data.bearing;
+					while (sonarDataOut.bearing > 6399) { sonarDataOut.bearing -= 6400; }
 					sonarDataOut.threshold = conf.threshold;
 					sonarDataOut.contrast = conf.contrast;
 					sonarDataOut.min_distance = conf.min_distance;
