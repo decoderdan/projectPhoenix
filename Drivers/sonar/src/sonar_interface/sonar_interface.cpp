@@ -636,10 +636,14 @@ namespace uwe_sub {
 			public:
 				int foundCount;
 
+				void reset() {
+					writePort(createPacket(mtReBoot,NULL,0));
+				}
+
 				int initialize(std::string const& port, int baudrate=115200) {
 					foundCount = 0;
 					if (openPort(port,baudrate,true)) {
-						ROS_INFO("Sonar online");
+						ROS_INFO("Sonar Connected");
                                                 flushPort();
 						if (waitForPacket(mtAlive, 10000)) {
 							ROS_INFO("received mtAlive");
@@ -663,6 +667,10 @@ namespace uwe_sub {
 									return (int)d.ready;
 								}
 							}
+						}
+						else {
+							ROS_INFO("No MtAlive Received... Resetting");
+							reset();
 						}
 					}
 					return 0;
@@ -786,8 +794,8 @@ namespace uwe_sub {
 					sendDataPacket();
 					if (waitForPacket(mtHeadData, 400)) {
 						ImagingHeadData h = decodeHeadData();
-						data.bearing = (float)h.bearing;
-						std::cout << "Got head data... Bearing: " << (float)Angle::fromRad(-(h.bearing/6399.0*2.0*M_PI)+M_PI).getDeg() << std::endl;
+						data.bearing = (uint16_t)h.bearing;
+						std::cout << "Got head data... Bearing: " << (float)Angle::fromRad(-((float)h.bearing/6399.0*2.0*M_PI)+M_PI).getDeg() << std::endl;
 						std::cout << "       Sampling Interval: " << ((640.0*h.ad_interval)*1e-9) << std::endl;
 						size_t lockouts = head_config.lockout_time/(10e6*((640.0*h.ad_interval)*1e-9));
 						std::cout << "Lockouts: " << lockouts;
@@ -801,10 +809,15 @@ namespace uwe_sub {
 					}
 					return 0;
 				}
+			
+				void close() {
+					closePort();
+				}
 		};
 	}
 }
-uwe_sub::sonar::sonarInterface sonar;
+bool config_received = false;
+uwe_sub::sonar::MicronConfig conf;
 
 /* Sonar Config Callback */
 void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
@@ -823,19 +836,18 @@ void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
 	std::cout << "stare " << config.stare << std::endl;
 	std::cout << "ang resolution " << config.angular_resolution << std::endl;
 
-	uwe_sub::sonar::MicronConfig conf;
 	conf.threshold = (double)config.threshold;  //0dB
 	conf.contrast = (double)config.contrast; //12dB
-	conf.gain = (double)config.gain; //40% Initial Gain
+	conf.gain = (double)config.gain/100.0; //40% Initial Gain
 	conf.resolution = (double)config.resolution; //10cm sampling
 	conf.max_distance = (double)config.max_distance; //10 meter range
 	conf.min_distance = (double)config.min_distance; //Ignore the first 0.75 meters
 	conf.left_limit = uwe_sub::sonar::Angle::fromDeg((double)config.left_limit);
 	conf.right_limit = uwe_sub::sonar::Angle::fromDeg((double)config.right_limit);
-	conf.continuous = (bool)config.continuous;
-	conf.stare = (bool)config.stare;
-	conf.angular_resolution = (int)config.angular_resolution; //LOW, MEDIUM, HIGH
-        sonar.configure(conf,3000);
+	conf.continuous = config.continuous;
+	conf.stare = config.stare;
+	conf.angular_resolution = config.angular_resolution; //LOW, MEDIUM, HIGH
+        //sonar.configure(conf,3000);
 
 	//print conf. stuff
 	std::cout << "conf." << std::endl;
@@ -849,6 +861,7 @@ void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
 	std::cout << "conf.continuous " << conf.continuous << std::endl;
 	std::cout << "conf.stare " << conf.stare << std::endl;
 	std::cout << "conf.ang resolution " << conf.angular_resolution << std::endl;
+	config_received = true;
 }
 
 /******************************************************
@@ -858,6 +871,8 @@ void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
  * ***************************************************/
 int main( int argc, char **argv )
 {
+
+	bool first_run = true;
 
 	ros::init(argc, argv, "sonar_interface");
 
@@ -870,92 +885,135 @@ int main( int argc, char **argv )
 	
 	custom_msg::SonarData sonarDataOut;
 
-	ros::Rate loop_rate(100);
-	/* Open and Configure the Serial Port. */
-	//TODO: The device needs to be pointed to the RS232 on the fitpc. What id does this have?
-	if (sonar.initialize("/dev/ttyS0")) {
-		std::cout << "Port open" << std::endl;
-		uwe_sub::sonar::MicronConfig conf;
-
-		/*NOTES ON CONFIGURATION:
-			gain:	Gain represented as a percentage. 0.0 to 1.0 (0% to 100%)
-			angular_resolution: uwe_sub::sonar::LOW, MEDIUM, or HIGH 
-												(1.8, 0.9, 0.45 degrees per step)
-			resolution: Distance between each bin in meters
-			max_distance: Max range of a scan in meters
-			min_distance: Min range of a scan in meters
-			left_limit: in radians
-			right_limit: in radians
-			continous: 360 degree scanning. If you want sector scanning, set
-					   to false and set left/right limits.
-			stare: Causes the head to stare at it's left_limit when
-				   it reaches it.
-		*/
-
-                /* Verify there have been some arguments */
-                if (argc == 12) {
-                    conf.threshold = atof(argv[1]); //Read the configuration
-                    conf.contrast = atof(argv[2]); //Read the configuration
-                    conf.gain = atof(argv[3]); //Read the configuration
-                    conf.resolution = atof(argv[4]); //Read the configuration
-                    conf.min_distance = atof(argv[5]); //Read the configuration
-                    conf.max_distance = atof(argv[6]); //Read the configuration
-                    conf.left_limit = uwe_sub::sonar::Angle::fromDeg(atof(argv[7])); //Read the configuration
-                    conf.right_limit = uwe_sub::sonar::Angle::fromDeg(atof(argv[8])); //Read the configuration
-                    conf.continuous = (atoi(argv[9]) == 1);
-                    conf.stare = (atoi(argv[10]) == 1);
-                    sscanf(argv[11], "%u", &conf.angular_resolution);
-		    std::cout << "Running with args: " << std::endl <<
-				 "Threshold: " << conf.threshold << std::endl <<
-				 "Contrast:  " << conf.contrast << std::endl;
-                }
-                else {
-                    conf.threshold = 10;  //0dB
-                    conf.contrast = 15; //12dB
-                    conf.gain = 0.3; //40% Initial Gain
-                    conf.resolution = 0.8; //10cm sampling
-                    conf.max_distance = 75.0; //10 meter range
-                    conf.min_distance = 0; //Ignore the first 0.75 meters
-                    conf.left_limit = uwe_sub::sonar::Angle::fromDeg(-45.0);
-                    conf.right_limit = uwe_sub::sonar::Angle::fromDeg(45.0);
-                    conf.continuous = true;
-                    conf.stare = false;
-                    conf.angular_resolution = uwe_sub::sonar::LOW; //LOW, MEDIUM, HIGH
-                }
-                sonar.configure(conf,3000);
-		while(ros::ok())
-		{	
-			uwe_sub::sonar::SonarData data;
-			if (sonar.scan(data)) {
-				//Store all the data in the new sonar message
-				sonarDataOut.bearing = data.bearing;
-				sonarDataOut.threshold = conf.threshold;
-				sonarDataOut.contrast = conf.contrast;
-				sonarDataOut.min_distance = conf.min_distance;
-				sonarDataOut.max_distance = conf.max_distance;
-				sonarDataOut.resolution = conf.resolution;
-				sonarDataOut.bins.data.clear();
-				for (int k = 0; k < data.bins.size(); k++)
-				{
-					sonarDataOut.bins.data.push_back(data.bins[k]);
-				}
-				//publish the data
-				sonarMsg.publish(sonarDataOut);
-
-				//Print to the screen
-				for (int i = 0; i < data.bins.size(); i++) {
-					if ((i != 0) && (i%10==0)) printf("\n");
-					printf("[%02X] ", data.bins[i]);
-				}
-				printf("\n");
-			}
-	
-			ros::spinOnce();	
-		}
+	//Setup defaults
+	/* Verify there have been some arguments */
+	if (argc == 12) {
+	    conf.threshold = atof(argv[1]); //Read the configuration
+	    conf.contrast = atof(argv[2]); //Read the configuration
+	    conf.gain = atof(argv[3]); //Read the configuration
+	    conf.resolution = atof(argv[4]); //Read the configuration
+	    conf.min_distance = atof(argv[5]); //Read the configuration
+	    conf.max_distance = atof(argv[6]); //Read the configuration
+	    conf.left_limit = uwe_sub::sonar::Angle::fromDeg(atof(argv[7])); //Read the configuration
+	    conf.right_limit = uwe_sub::sonar::Angle::fromDeg(atof(argv[8])); //Read the configuration
+	    conf.continuous = (atoi(argv[9]) == 1);
+	    conf.stare = (atoi(argv[10]) == 1);
+	    sscanf(argv[11], "%u", &conf.angular_resolution);
+	    std::cout << "Running with args: " << std::endl <<
+			 "Threshold: " << conf.threshold << std::endl <<
+			 "Contrast:  " << conf.contrast << std::endl;
 	}
 	else {
-		std::cout << "Sonar not ready yet." << std::endl;
+       	    conf.threshold = 10;  //0dB
+	    conf.contrast = 15; //12dB
+	    conf.gain = 0.3; //40% Initial Gain
+	    conf.resolution = 0.8; //10cm sampling
+	    conf.max_distance = 75.0; //10 meter range
+	    conf.min_distance = 0; //Ignore the first 0.75 meters
+	    conf.left_limit = uwe_sub::sonar::Angle::fromDeg(-45.0);
+	    conf.right_limit = uwe_sub::sonar::Angle::fromDeg(45.0);
+	    conf.continuous = true;
+	    conf.stare = false;
+	    conf.angular_resolution = uwe_sub::sonar::LOW; //LOW, MEDIUM, HIGH
 	}
 
+	int offline_count = 0;
+
+	ros::Rate loop_rate(100);
+	while (ros::ok()) {
+		config_received = false;
+		//Create a new sonar interface
+		uwe_sub::sonar::sonarInterface sonar;
+		/* Open and Configure the Serial Port. */
+		if (sonar.initialize("/dev/ttyS0")) {
+			offline_count = 0;
+			std::cout << "Port open" << std::endl;
+			//uwe_sub::sonar::MicronConfig conf;
+
+			/*NOTES ON CONFIGURATION:
+				gain:	Gain represented as a percentage. 0.0 to 1.0 (0% to 100%)
+				angular_resolution: uwe_sub::sonar::LOW, MEDIUM, or HIGH 
+													(1.8, 0.9, 0.45 degrees per step)
+				resolution: Distance between each bin in meters
+				max_distance: Max range of a scan in meters
+				min_distance: Min range of a scan in meters
+				left_limit: in radians
+				right_limit: in radians
+				continous: 360 degree scanning. If you want sector scanning, set
+						   to false and set left/right limits.
+				stare: Causes the head to stare at it's left_limit when
+					   it reaches it.
+			*/
+
+		        sonar.configure(conf,3000);
+			while(ros::ok() && (!config_received))
+			{
+				uwe_sub::sonar::SonarData data;
+				if (sonar.scan(data)) {
+					//Store all the data in the new sonar message
+					static uint16_t last_bearing = data.bearing;
+					static int jump_diff = 0;
+					static bool first_run = true;
+					
+					ROS_INFO("Data: %u, Last: %u", data.bearing, last_bearing);
+					int bearing_diff = (data.bearing+6400) - (last_bearing+6400);
+					if ((((last_bearing > 5000) && (data.bearing < 1000)) || 
+                                             ((last_bearing < 1000) && (data.bearing > 5000))) && 
+                                            (!first_run) && 
+					    (!conf.continuous)) {
+					   	if ((bearing_diff > 500) || (bearing_diff < -500)) {
+							//Probably jumped a few degrees.
+							ROS_WARN("JUMPED... correcting");
+							data.bearing = last_bearing + jump_diff;
+						}
+						else { jump_diff = bearing_diff; }
+					}
+				
+					first_run = false;
+					sonarDataOut.bearing = data.bearing;
+					while (sonarDataOut.bearing > 6399) { sonarDataOut.bearing -= 6400; }
+					sonarDataOut.threshold = conf.threshold;
+					sonarDataOut.contrast = conf.contrast;
+					sonarDataOut.min_distance = conf.min_distance;
+					sonarDataOut.max_distance = conf.max_distance;
+					sonarDataOut.resolution = conf.resolution;
+					sonarDataOut.bins.data.clear();
+					for (int k = 0; k < data.bins.size(); k++)
+					{
+						sonarDataOut.bins.data.push_back(data.bins[k]);
+					}
+					//publish the data
+					sonarMsg.publish(sonarDataOut);
+
+					//Store the last bearing.
+					last_bearing = data.bearing;
+
+					//Print to the screen
+					for (int i = 0; i < data.bins.size(); i++) {
+						if ((i != 0) && (i%10==0)) printf("\n");
+						printf("[%02X] ", data.bins[i]);
+					}
+					printf("\n");
+				}
+	
+				ros::spinOnce();	
+			}
+			sonar.close();
+			first_run = true;
+			ROS_INFO("Closed Sonar - New sonar config");
+		}
+		else {
+			offline_count++;
+			if (offline_count >= 2) 
+			{
+				std::cout << "Resetting sonar..." << std::endl;
+				sonar.reset();
+				offline_count = 0;
+			}
+			else {
+				std::cout << "Sonar not ready yet." << std::endl;
+			}
+		}
+	}
 	return 0;
 }
