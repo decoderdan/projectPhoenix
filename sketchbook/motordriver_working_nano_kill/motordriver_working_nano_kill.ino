@@ -98,7 +98,7 @@ void setup()
   lcd.setCursor(0, 0); // set the cursor to column 0, line 0
   lcd.print("  Project Phoenix   ");
   lcd.setCursor(0, 1);
-  lcd.print("   bitch please     ");
+  lcd.print("   www.uwesub.com   ");
 }
 
 void loop()
