@@ -957,7 +957,7 @@ int main( int argc, char **argv )
 					if (conf.continuous) {
 						//ROS_INFO("Data: %i, Last: %i", data.bearing, last_bearing);
 						int bearing_diff = (data.bearing+6400) - (last_bearing+6400);
-						if ((bearing_diff < 3000) && (!first_run) && (last_resolution != conf.resolution)) {
+						if ((((last_bearing > 6000) && (data.bearing < 100)) || ((last_bearing < 100) && (data.bearing > 6000)))  && (!first_run) && (last_resolution != conf.resolution)) {
 						   	if ((bearing_diff > 500) || (bearing_diff < -500)) {
 								//Probably jumped a few degrees.
 								ROS_WARN("JUMPED... correcting");
