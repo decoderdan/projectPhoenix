@@ -18,40 +18,31 @@ static std_msgs::Float32 z;
 
 float move_x = 0;
 float move_y = 0;
-bool input_stability = true; // bit to set input stability
 
-float yaw_rate = 5; //degrees per second
 float yaw_Kp = 0;
 float yaw_Ki = 0;
 float yaw_Kd = 0;
 float yaw_input = 0;
-float yaw_target_raw = 0;
 float yaw_target = 0;
 float yaw_error = 0;
 float yaw_previous_error = 0;
 float yaw_integral = 0;
 float yaw_derivative = 0;
 
-
-float pitch_rate = 5; //degrees per second
 float pitch_Kp = 0;
 float pitch_Ki = 0;
 float pitch_Kd = 0;
 float pitch_input = 0;
-float pitch_target_raw = 0;
 float pitch_target = 0;
 float pitch_error = 0;
 float pitch_previous_error = 0;
 float pitch_integral = 0;
 float pitch_derivative = 0;
 
-
-float depth_rate = 5; //cm per second
 float depth_Kp = 0;
 float depth_Ki = 0;
 float depth_Kd = 0;
 float depth_input = 0;
-float depth_target_raw = 0;
 float depth_target = 0;
 float depth_error = 0;
 float depth_previous_error = 0;
@@ -121,9 +112,9 @@ void pidGuiCallBack(const custom_msg::PIDValues& data) {
 }
 
 void vectorCallBack(const custom_msg::TargetVector& data) {
-	if (data.set_yaw == true) {yaw_target_raw = data.vector_yaw;std::cout << "Yaw target updated "  << std::endl;}
-	if (data.set_pitch == true) {pitch_target_raw = data.vector_pitch;std::cout << "Pitch target updated "  << std::endl;}
-	if (data.set_z == true) {depth_target_raw = data.vector_z;std::cout << "Depth target updated "  << std::endl;}
+	if (data.set_yaw == true) {yaw_target = data.vector_yaw;std::cout << "Yaw target updated "  << std::endl;}
+	if (data.set_pitch == true) {pitch_target = data.vector_pitch;std::cout << "Pitch target updated "  << std::endl;}
+	if (data.set_z == true) {depth_target = data.vector_z;std::cout << "Depth target updated "  << std::endl;}
 	if (data.set_x == true) {move_x = data.vector_x;}
 	if (data.set_y == true) {move_y = data.vector_y;}
 	//std::cout << "yaw target set to = " << yaw_target  << std::endl;
@@ -159,31 +150,6 @@ int main( int argc, char **argv )
 			ros::spinOnce(); //Call all waiting callbacks at this point
 			
 			if(emergency_stop == false) {
-
-				/***********/
-				/* rate control */
-				/***********/
-
-				if(input_stability == true){
-					if(yaw_target_raw >= (yaw_target + (yaw_rate*dt))){yaw_target += (yaw_rate*dt);}
-					else if(yaw_target_raw <= (yaw_target - (yaw_rate*dt))){yaw_target -= (yaw_rate*dt);}
-					else{yaw_target =yaw_target_raw;}
-
-					if(pitch_target_raw >= (pitch_target + (pitch_rate*dt))){pitch_target += (pitch_rate*dt);}
-					else if(pitch_target_raw <= (pitch_target - (pitch_rate*dt))){pitch_target -= (pitch_rate*dt);}
-					else{pitch_target =pitch_target_raw;}
-
-					if(depth_target_raw >= (depth_target + (depth_rate*dt))){depth_target += (depth_rate*dt);}
-					else if(depth_target_raw <= (depth_target - (depth_rate*dt))){depth_target -= (depth_rate*dt);}
-					else{depth_target =depth_target_raw;}
-
-					}
-				else if(input_stability == false){ 
-					yaw_target = yaw_target_raw;
-					pitch_target = pitch_target_raw;
-					depth_target = depth_target_raw;
-					}
-
 				/***********/
 				/* yaw pid */
 				/***********/
@@ -212,10 +178,10 @@ int main( int argc, char **argv )
 	  			depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
 			
 				//output to motors
-				motorCfg.front_right = int(constrain((move_x-move_y-yaw_output), -100, 100));
-				motorCfg.front_left = int(constrain((move_x+move_y+yaw_output), -100, 100));
-				motorCfg.back_right = int(constrain((-move_x-move_y+yaw_output), -100, 100));
-				motorCfg.back_left = int(constrain((-move_x+move_y-yaw_output), -100, 100));
+				motorCfg.front_right = int(constrain((move_x-yaw_output), -100, 100));
+				motorCfg.front_left = int(constrain((move_x+yaw_output), -100, 100));
+				motorCfg.back_right = int(constrain((-move_x+yaw_output), -100, 100));
+				motorCfg.back_left = int(constrain((-move_x-yaw_output), -100, 100));
 				motorCfg.front = int(constrain((-depth_output+pitch_output), -100, 100));
 				motorCfg.back = int(constrain((-depth_output-pitch_output), -100, 100));	
 				motorMsg.publish(motorCfg);
