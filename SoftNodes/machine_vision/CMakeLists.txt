@@ -29,7 +29,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-rosbuild_add_executable(record_test src/simple_test/record_test.cpp)
+rosbuild_add_executable(camera_node src/camera_node/camera_node.cpp)
 rosbuild_add_executable(object_detection src/object_detection/object_detection.cpp)
 rosbuild_add_executable(shape_detection src/object_detection/shape_detection.cpp)
 rosbuild_add_executable(circle_detection src/object_detection/circle_detection.cpp)
