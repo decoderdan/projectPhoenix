@@ -817,25 +817,15 @@ namespace uwe_sub {
 	}
 }
 bool config_received = false;
+bool first_run = true;
+uint16_t last_bearing = 0;
+uint16_t jump_diff = 0;
 uwe_sub::sonar::MicronConfig conf;
 
 /* Sonar Config Callback */
 void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
 	//This is where we receive new configuration settings.
 	ROS_INFO("Sonar Configuration settings have changed.");
-	std::cout << "Got a new sonar configuration!" << std::endl;
-	std::cout << "threshold " << config.threshold << std::endl;
-	std::cout << "contrast " << config.contrast << std::endl;
-	std::cout << "gain " << config.gain << std::endl;
-	std::cout << "resolution " << config.resolution << std::endl;
-	std::cout << "min dist " << config.min_distance << std::endl;
-	std::cout << "max dist " << config.max_distance << std::endl;
-	std::cout << "left limit " << config.left_limit << std::endl;
-	std::cout << "right limit " << config.right_limit << std::endl;
-	std::cout << "continuous " << config.continuous << std::endl;
-	std::cout << "stare " << config.stare << std::endl;
-	std::cout << "ang resolution " << config.angular_resolution << std::endl;
-
 	conf.threshold = (double)config.threshold;  //0dB
 	conf.contrast = (double)config.contrast; //12dB
 	conf.gain = (double)config.gain/100.0; //40% Initial Gain
@@ -847,21 +837,7 @@ void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
 	conf.continuous = config.continuous;
 	conf.stare = config.stare;
 	conf.angular_resolution = config.angular_resolution; //LOW, MEDIUM, HIGH
-        //sonar.configure(conf,3000);
-
-	//print conf. stuff
-	std::cout << "conf." << std::endl;
-	std::cout << "conf.threshold " << conf.threshold << std::endl;
-	std::cout << "conf.contrast " << conf.contrast << std::endl;
-	std::cout << "conf.gain " << conf.gain << std::endl;
-	std::cout << "conf.resolution " << conf.resolution << std::endl;
-	std::cout << "conf.min dist " << conf.min_distance << std::endl;
-	std::cout << "conf.max dist " << conf.max_distance << std::endl;
-	//problem printing left & right limits :(
-	std::cout << "conf.continuous " << conf.continuous << std::endl;
-	std::cout << "conf.stare " << conf.stare << std::endl;
-	std::cout << "conf.ang resolution " << conf.angular_resolution << std::endl;
-	config_received = true;
+        config_received = true;
 }
 
 /******************************************************
@@ -871,8 +847,6 @@ void sonarConfigCallBack(const custom_msg::SonarConfig& config) {
  * ***************************************************/
 int main( int argc, char **argv )
 {
-
-	bool first_run = true;
 
 	ros::init(argc, argv, "sonar_interface");
 
@@ -914,7 +888,7 @@ int main( int argc, char **argv )
 	    conf.right_limit = uwe_sub::sonar::Angle::fromDeg(45.0);
 	    conf.continuous = true;
 	    conf.stare = false;
-	    conf.angular_resolution = uwe_sub::sonar::LOW; //LOW, MEDIUM, HIGH
+	    conf.angular_resolution = uwe_sub::sonar::MEDIUM; //LOW, MEDIUM, HIGH
 	}
 
 	int offline_count = 0;
@@ -950,14 +924,31 @@ int main( int argc, char **argv )
 			{
 				uwe_sub::sonar::SonarData data;
 				if (sonar.scan(data)) {
-					//Store all the data in the new sonar message
-					static uint16_t last_bearing = data.bearing;
-					static int jump_diff = 0;
-					static bool first_run = true;
-					
-					ROS_INFO("Data: %u, Last: %u", data.bearing, last_bearing);
+					if (first_run) { last_bearing = data.bearing; }				
 					int bearing_diff = (data.bearing+6400) - (last_bearing+6400);
-					if ((((last_bearing > 5000) && (data.bearing < 1000)) || 
+					ROS_INFO("Diff %i, Conf: %i", bearing_diff, conf.angular_resolution);
+					//Detect jumps
+					if (((bearing_diff != conf.angular_resolution) || (bearing_diff != (-conf.angular_resolution))) && (!first_run))
+					{					
+						//Ignore resets when the sonar angle loops around
+						if (((bearing_diff > conf.angular_resolution) && (bearing_diff < 5000)) ||
+						    ((bearing_diff < (-conf.angular_resolution)) && (bearing_diff > -5000))) 
+						{
+							ROS_WARN("Jumped...correcting: Using %i as resolution", jump_diff);
+							data.bearing = (last_bearing + jump_diff);
+						}
+						else 
+						{
+							jump_diff = bearing_diff;
+						}
+					}
+					else
+					{
+						ROS_ERROR("Jump diff saved as %i", bearing_diff);
+						jump_diff = bearing_diff;
+					}
+					
+					/*if ((((last_bearing > 5000) && (data.bearing < 1000)) || 
                                              ((last_bearing < 1000) && (data.bearing > 5000))) && 
                                             (!first_run) && 
 					    (!conf.continuous)) {
@@ -967,7 +958,7 @@ int main( int argc, char **argv )
 							data.bearing = last_bearing + jump_diff;
 						}
 						else { jump_diff = bearing_diff; }
-					}
+					}*/
 				
 					first_run = false;
 					sonarDataOut.bearing = data.bearing;
