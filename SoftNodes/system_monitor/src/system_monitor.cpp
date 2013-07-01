@@ -30,10 +30,18 @@ int main(int argc, char **argv) {
 				string line;
 				getline(meminfo,line);
 				if(std::string::npos != line.find("MemFree:")) {
-					
-					std::string mem_free_str = line.substr(1,6);
 
-					std::cout << "free line =" << mem_free_str << '\n';
+					// std::cout << line << std::cout;
+
+					// MemFree:         2140996
+					
+					std::string mem_free_str = line.substr(17,7);
+
+					std::stringstream mem_free_ss;	// print the info
+					mem_free_ss << "mem free = " << mem_free_str <<std::endl;
+					ROS_INFO(mem_free_ss.str().c_str());
+
+				//	std::cout << "free line =" << mem_free_str << '\n';
 					std::istringstream iss (line);
 					int val;
 					iss >> val;

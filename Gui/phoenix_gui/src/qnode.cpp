@@ -165,7 +165,7 @@ void QNode::resurface(){
 	ROS_INFO("Target depth set to 0 meters");
 }
 
-void QNode::pubConfig_PID(double yawKp_val, double yawKi_val, double yawKd_val, double yawTarget_val, bool yawTarget_set, double pitchKp_val, double pitchKi_val, double pitchKd_val, double pitchTarget_val, bool pitchTarget_set, double depthKp_val, double depthKi_val, double depthKd_val, double depthTarget_val, bool depthTarget_set) {
+void QNode::pubConfig_PID(bool sendPID, double yawKp_val, double yawKi_val, double yawKd_val, double yawTarget_val, bool yawTarget_set, double pitchKp_val, double pitchKi_val, double pitchKd_val, double pitchTarget_val, bool pitchTarget_set, double depthKp_val, double depthKi_val, double depthKd_val, double depthTarget_val, bool depthTarget_set) {
 
 	custom_msg::PIDValues curPIDConfig;
 	custom_msg::TargetVector curTargets;	
@@ -204,7 +204,11 @@ void QNode::pubConfig_PID(double yawKp_val, double yawKi_val, double yawKd_val, 
 	curTargets.set_y = false;
 		
 
-	pid_config_publisher.publish(curPIDConfig);
+	// if send pid is ticked
+	if(sendPID == true) {
+		pid_config_publisher.publish(curPIDConfig);
+	}
+
 	target_publisher.publish(curTargets);
 
 }

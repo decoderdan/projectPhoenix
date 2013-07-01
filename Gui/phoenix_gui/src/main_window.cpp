@@ -169,6 +169,8 @@ void MainWindow::on_checkbox_use_environment_stateChanged(int state) {
 *********************************************************/
 
 void MainWindow::on_pushButton_applyConfig_PID_clicked() {
+	bool sendPID;
+
 	double yawKp_val;
 	double yawKi_val;
 	double yawKd_val;
@@ -203,6 +205,12 @@ void MainWindow::on_pushButton_applyConfig_PID_clicked() {
 	pitchTarget_val = ui.spinBox_pitchTarget->value();
 	depthTarget_val = ui.spinBox_depthTarget->value();
 	
+	if(ui.checkBox_sendPID->isChecked()) {
+		sendPID = true; 
+	} else {
+		sendPID = false; 
+	}
+
 	if(ui.checkBox_yaw->isChecked()) {
 		yawTarget_set = true; 
 	} else {
@@ -219,7 +227,7 @@ void MainWindow::on_pushButton_applyConfig_PID_clicked() {
 		depthTarget_set = false; 
 	}
 	
-	qnode.pubConfig_PID(yawKp_val, yawKi_val, yawKd_val, yawTarget_val, yawTarget_set, pitchKp_val, pitchKi_val, pitchKd_val, pitchTarget_val, pitchTarget_set, depthKp_val, depthKi_val, depthKd_val, depthTarget_val, depthTarget_set);
+	qnode.pubConfig_PID(sendPID, yawKp_val, yawKi_val, yawKd_val, yawTarget_val, yawTarget_set, pitchKp_val, pitchKi_val, pitchKd_val, pitchTarget_val, pitchTarget_set, depthKp_val, depthKi_val, depthKd_val, depthTarget_val, depthTarget_set);
 }
 
 void MainWindow::on_pushButton_saveConfig_PID_clicked() {
@@ -707,7 +715,7 @@ void MainWindow::showSystemBatt(float value)
         ui.progressBar_systemBatt->setValue(percentage);
 		ui.progressBar_systemBatt->setFormat(QString::number(value)+"v");
 
-		if(percentage < 5) {
+		if(percentage <= 5) {
 			if(system_alarm_delay_counter >= 30) {
 				system("aplay -q projectPhoenix/Gui/phoenix_gui/AIR_RAID.WAV ");
 				QMessageBox msgBox;
@@ -716,7 +724,7 @@ void MainWindow::showSystemBatt(float value)
 			} else {
 				system_alarm_delay_counter ++;
 			}
-		} else if(percentage < 10) {
+		} else if(percentage <= 10) {
 			if(system_alarm_delay_counter >= 120) {
 				system("aplay -q projectPhoenix/Gui/phoenix_gui/AIR_RAID.WAV ");
 				QMessageBox msgBox;
@@ -736,6 +744,7 @@ void MainWindow::showMotorBatt(float value)
         ui.progressBar_motorBatt->setValue(percentage);
 		ui.progressBar_motorBatt->setFormat(QString::number(value)+"v");
 
+		// if (not reed_cutoff) {
 		if(percentage < 10) {
 			if(motor_alarm_delay_counter >= 120) {
 				system("aplay -q projectPhoenix/Gui/phoenix_gui/AIR_RAID.WAV ");

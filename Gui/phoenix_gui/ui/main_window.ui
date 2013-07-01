@@ -736,6 +736,13 @@
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_4">
                  <item>
+                  <widget class="QCheckBox" name="checkBox_sendPID">
+                   <property name="text">
+                    <string>Send PID ?</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <widget class="QPushButton" name="pushButton_applyConfig_PID">
                    <property name="text">
                     <string>Apply Config</string>
