@@ -16,10 +16,13 @@ int x_button = 0;
 int a_button = 0;
 int x_plus_axis = 5;
 int x_minus_axis = 2;
+int x_axis = 1;
+int y_axis = 0;
 int yaw_axis = 3;
 int curwp = 0;
 
 float x_val = 0;
+float y_val = 0;
 float yaw_val = 0;
 float output_yaw = 0;
 
@@ -114,15 +117,16 @@ void manualControl()
 	output_yaw += yaw_val;
 	//In here needs to send a message to activate manual controls
 	custom_msg::TargetVector tv;
-	tv.set_y = false;
+	tv.set_y = true;
 	tv.set_z = false;
 	tv.set_pitch = false;
 	tv.set_roll = false;
 	tv.set_x = true;
 	tv.set_yaw = true;
 	tv.vector_x = x_val;
-	while (output_yaw > 180) output_yaw -= 360;	
-	while (output_yaw < -180) output_yaw += 360;
+	tv.vector_y = y_val;
+	while (output_yaw > 360) output_yaw -= 360;	
+	while (output_yaw < -360) output_yaw += 360;
 	tv.vector_yaw = output_yaw;
 	target_publisher.publish(tv);	
 }
@@ -153,19 +157,25 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
   x_button = joy->buttons[2];	//X Button
   a_button = joy->buttons[0];   //A Button
 
-  x_val = ((map(joy->axes[x_plus_axis], 1.0, -1.0, 0.0, 50.0)) - (map(joy->axes[x_minus_axis], 1.0, -1.0, 0.0, 50.0)));
+  //x_val = ((map(joy->axes[x_plus_axis], 1.0, -1.0, 0.0, 50.0)) - (map(joy->axes[x_minus_axis], 1.0, -1.0, 0.0, 50.0)));
   //yaw_val = -(2 * joy->axes[yaw_axis]);//(map(joy->axes[yaw_axis], 1.0, -1.0, -1.0, 1.0));
+  float tempyaw = -(joy->axes[yaw_axis]);
+  float tempx = -(joy->axes[x_axis]);
+  float tempy = -(joy->axes[y_axis]);
 
-  float tempyaw = joy->axes[yaw_axis];
-  if (tempyaw >=0.2) {
-	yaw_val = (map(joy->axes[yaw_axis], 0.2, 1.0, 0.0, 1.0));
-  }	
-  else if (tempyaw <= -0.2) {
-	yaw_val = (map(joy->axes[yaw_axis], -0.2, -1.0, 0.0, -1.0));
-  }
-  else {
-	yaw_val = 0;
-  }
+  if (tempyaw >=0.2) {yaw_val = (map(joy->axes[yaw_axis], 0.2, 1.0, 0.0, 0.2));}	
+  else if (tempyaw <= -0.2) {yaw_val = (map(joy->axes[yaw_axis], -0.2, -1.0, 0.0, -0.2));}
+  else {yaw_val = 0;}
+
+  if (tempx >=0.2) {x_val = (map(joy->axes[x_axis], 0.2, 1.0, 0.0, 80));}	
+  else if (tempx <= -0.2) {x_val = (map(joy->axes[x_axis], -0.2, -1.0, 0.0,-80));}
+  else {x_val = 0;}
+
+  if (tempy >=0.2) {y_val = (map(joy->axes[y_axis], 0.2, 1.0, 0.0, -80));}	
+  else if (tempy <= -0.2) {y_val = (map(joy->axes[y_axis], -0.2, -1.0, 0.0, 80));}
+  else {y_val = 0;}
+
+
   //ROS_INFO("X Val: %f, Yaw: %f", x_val, yaw_val);
 
 	if(x_button && (state_selected != 3))
