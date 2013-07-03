@@ -715,17 +715,8 @@ void MainWindow::showSystemBatt(float value)
         ui.progressBar_systemBatt->setValue(percentage);
 		ui.progressBar_systemBatt->setFormat(QString::number(value)+"v");
 
-		if(percentage <= 5) {
-			if(system_alarm_delay_counter >= 30) {
-				system("aplay -q projectPhoenix/Gui/phoenix_gui/AIR_RAID.WAV ");
-				QMessageBox msgBox;
-				msgBox.setText("Warning, system battery below 5%");
-				system_alarm_delay_counter = 0;
-			} else {
-				system_alarm_delay_counter ++;
-			}
-		} else if(percentage <= 10) {
-			if(system_alarm_delay_counter >= 120) {
+		if(percentage < 10) {
+			if(motor_alarm_delay_counter >= 120) {
 				system("aplay -q projectPhoenix/Gui/phoenix_gui/AIR_RAID.WAV ");
 				QMessageBox msgBox;
 				msgBox.setText("Warning, system battery below 10%");

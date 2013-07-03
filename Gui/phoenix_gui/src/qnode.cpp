@@ -32,6 +32,10 @@ namespace phoenix_gui {
 std::string global_master_url;
 std::string global_host_url;
 
+float global_current_yaw;
+
+ros::Time start_time;
+
 /*****************************************************************************
 ** Implementation
 *****************************************************************************/
@@ -253,15 +257,16 @@ void QNode::depthCallBack(const std_msgs::Float32& depth) {
 
 
 void QNode::imuCallBack(const custom_msg::IMUData& data) {
-	std::cout << "imu callback" << std::endl;
+	// std::cout << "imu callback" << std::endl;
 	
         float yaw_input = data.yaw;
-        
-        std::cout << "yaw = " << yaw_input << std::endl;
+        global_current_yaw = data.yaw;
+
+     //   std::cout << "yaw = " << yaw_input << std::endl;
         
         float pitch_input = data.pitch;
         
-        std::cout << "pitch = " << pitch_input << std::endl;
+     //   std::cout << "pitch = " << pitch_input << std::endl;
         
         emit yawActualUpdated(yaw_input);
         emit pitchActualUpdated(pitch_input);
@@ -281,31 +286,118 @@ void QNode::motorBatteryCallBack(const std_msgs::Float32& voltage) {
 
 void QNode::startCalibration() {
 	// std::cout << "stating the 5 second velocity calibration run" << std::endl;
-	ROS_INFO("Starting the 5 second velocity calibration run");
+	ROS_INFO("Starting the validation run");
 	custom_msg::TargetVector tv;
 	
-	// set only the x target
+	// get the current yaw & hold & dive
+
+	float start_yaw = global_current_yaw;
+
+    tv.vector_yaw = start_yaw;
+	tv.vector_z = 0.6;
+
+    tv.set_x = false;
+	tv.set_y = false;
+	tv.set_z = true;
+	tv.set_yaw = true;
+    tv.set_pitch = false;
+    tv.set_roll = false;
+
+    target_publisher.publish(tv);
+    ROS_INFO("HOLDING YAW (%f) & diving", tv.vector_yaw);
+
+// wait 15 seconds
+    start_time = ros::Time::now();
+	while(ros::Time::now().toSec() < (start_time.toSec() + 15)) {}
+
+// send a forward 80% command
+	tv.vector_x = 80; //80% speed
+
 	tv.set_x = true;
 	tv.set_y = false;
 	tv.set_z = false;
-	tv.set_yaw = false;
-        tv.set_pitch = false;
-        tv.set_roll = false;
-	
-	// send a forward 20% command
-	tv.vector_x = 20; //20% speed
-	target_publisher.publish(tv);
-	ROS_INFO("Motors to 20");
-	
-	// wait 5 seconds
-	ros::Time start_time = ros::Time::now();
-	while(ros::Time::now().toSec() < (start_time.toSec() + 5.00)) {}
-	
+	tv.set_yaw = true;
+    tv.set_pitch = false;
+    tv.set_roll = false;
 
-	// send a stop command
+	target_publisher.publish(tv);
+	ROS_INFO("Motors to 80, for 30 secs");
+	
+// wait 36 seconds
+    start_time = ros::Time::now();
+	while(ros::Time::now().toSec() < (start_time.toSec() + 30)) {}
+
+// send a stop command
+	tv.set_x = true;
+	tv.set_y = false;
+	tv.set_z = false;
+	tv.set_yaw = true;
+    tv.set_pitch = false;
+    tv.set_roll = false;
+
 	tv.vector_x = 0; //0% speed
 	target_publisher.publish(tv);
 	ROS_INFO("Motors to 0");
+
+// wait 5 seconds
+    start_time = ros::Time::now();
+	while(ros::Time::now().toSec() < (start_time.toSec() + 5)) {}
+
+// get the start yaw & + 90 
+    tv.vector_yaw = start_yaw + 90.0;
+
+    tv.set_x = false;
+	tv.set_y = false;
+	tv.set_z = false;
+	tv.set_yaw = true;
+    tv.set_pitch = false;
+    tv.set_roll = false;
+
+    target_publisher.publish(tv);
+    ROS_INFO("adding 90 to YAW, setting to %f", tv.vector_yaw);
+
+// wait 5 secs
+    start_time = ros::Time::now();
+	while(ros::Time::now().toSec() < (start_time.toSec() + 10)) {}
+
+// go forward for 25 seconds
+
+	tv.vector_x = 80; //80% speed
+
+	tv.set_x = true;
+	tv.set_y = false;
+	tv.set_z = false;
+	tv.set_yaw = true;
+    tv.set_pitch = false;
+    tv.set_roll = false;
+
+	target_publisher.publish(tv);
+	ROS_INFO("Motors to 80 for 25 seconds");
+	
+// wait 25 seconds
+    start_time = ros::Time::now();
+	while(ros::Time::now().toSec() < (start_time.toSec() + 25)) {}
+
+// send a stop command
+	tv.vector_x = 0; //0% speed
+	target_publisher.publish(tv);
+	ROS_INFO("Motors to 0");
+
+	ROS_INFO("Have we made it yet?");
+
+// resurface 
+
+	tv.vector_z = 0.25;
+
+    tv.set_x = false;
+	tv.set_y = false;
+	tv.set_z = true;
+	tv.set_yaw = false;
+    tv.set_pitch = false;
+    tv.set_roll = false;
+
+    target_publisher.publish(tv);
+    ROS_INFO("Resurfaced");
 }
 
 void QNode::pubEstVelocity(float vel) {
