@@ -22,7 +22,6 @@
 #define MAX_DATE 12
 
 void imageCallback(const sensor_msgs::ImageConstPtr&);
-void processImgTimerCallback(const ros::TimerEvent&);
 
 IplImage* filter_colour(void);
 void detect_circles(IplImage*);
@@ -34,13 +33,16 @@ void sendMyImage(image_transport::Publisher);
 
 CvMemStorage* storage;
 
-IplImage* frame;
+IplImage* frame = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
 IplImage* frame_org;// = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);;
 IplImage* frame_recived = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
+IplImage* frame_sent;
+sensor_msgs::CvBridge bridge_;
 
 int process_flag = 1, last_flag =0;
 float focal_length = 150;
 float actual_radius = 0.1, buoy_dist;
+IplImage* cv_input_ = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
 
 int main(int argc, char **argv)
 {	
@@ -58,25 +60,22 @@ int main(int argc, char **argv)
 	image_transport::Subscriber imgsub = it.subscribe("camera/image", 1, imageCallback);
 	
 	//timers	
-	ros::Timer processImgTimer = n.createTimer(ros::Duration(0.5), processImgTimerCallback);	//create timer to set a flag to start processing
+//	ros::Timer processImgTimer = n.createTimer(ros::Duration(0.5), processImgTimerCallback);	//create timer to set a flag to start processing
   	
 
 	
 	storage = cvCreateMemStorage(0);	//storage for circles
 	
-	  
-	//cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 320);
-	//cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 240);
+  
+	cvNamedWindow("Video");     
+	cvNamedWindow("HSV_img");
+      cvNamedWindow("Filtered_image");
+	cvNamedWindow("Edge_detection");
 	
-	//cvNamedWindow("Video");     
-	//cvNamedWindow("HSV_img");
-//      cvNamedWindow("Filtered_image");
-//	cvNamedWindow("Edge_detection");
-	
-//	cvMoveWindow("video", 0, 400); 
-//	cvMoveWindow("HSV_img",320,400);  
-//     cvMoveWindow("Filtered_image",640,400);
-//      cvMoveWindow("Edge_detection",980,400);
+	cvMoveWindow("video", 0, 400); 
+	cvMoveWindow("HSV_img",320,400);  
+      cvMoveWindow("Filtered_image",640,400);
+      cvMoveWindow("Edge_detection",980,400);
 
 	//ros::Rate loop_rate(1);  //loop every 1hz
 
@@ -84,7 +83,7 @@ int main(int argc, char **argv)
 	while(ros::ok())
 	{
 		
-     		if ( !frame_recived)
+     		if ( !cv_input_)
      		{
        		fprintf( stderr, "ERROR: frame is null...\n" );
        		last_flag = process_flag;	//if no images dont run prosessing
@@ -92,18 +91,16 @@ int main(int argc, char **argv)
 
 		if(process_flag != last_flag)
 		{
-			//try
-			//{
+		
 				last_flag = process_flag;
 				IplImage* imgThresh = filter_colour();
-				//detect_circles(imgThresh);
+				detect_circles(imgThresh);
 		
-				//sendMyImage(pub);
+				sendMyImage(pub);
 			
-				//cvReleaseImage(&imgThresh);
-			//} catch (exception ex) { }
-		}	
- 		
+				cvReleaseImage(&imgThresh);
+		
+ 		}
  		
      		// Do not release the frame!
      	      //If ESC key pressed, Key=0x10001B under OpenCV 0.9.7(linux version),
@@ -122,25 +119,19 @@ return 0;
 
 
 void sendMyImage(image_transport::Publisher pub)
-{	
-	ROS_INFO("point 1");
-	
-	IplImage* frame_sent = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
-	frame_sent = frame_org;	//needs changing
-	cv::WImageBuffer3_b image(frame_sent);
- 	sensor_msgs::ImagePtr sentmsg = sensor_msgs::CvBridge::cvToImgMsg(image.Ipl(), "rgb8");
-	pub.publish(sentmsg);
-	ROS_INFO("point 1");
-}
+{		
 
-void processImgTimerCallback(const ros::TimerEvent&)
-{
-	process_flag = ~process_flag;
+	//cv::WImageBuffer3_b image(frame_sent);
+ 	//sensor_msgs::ImagePtr sentmsg = sensor_msgs::CvBridge::cvToImgMsg(image.Ipl(), "rgb8");
+	//pub.publish(sentmsg);
+	//cvReleaseImage(&frame_sent);
 }
 
 IplImage* filter_colour(void)
 {
-	frame=cvCloneImage(frame_recived); 
+	
+	frame=cvCloneImage(cv_input_);	 
+	
       cvSmooth(frame, frame, CV_GAUSSIAN,3,3); //smooth the original image using Gaussian kernel
 
       IplImage* imgHSV = cvCreateImage(cvGetSize(frame), IPL_DEPTH_8U, 3);
@@ -156,15 +147,17 @@ IplImage* filter_colour(void)
       cvReleaseImage(&imgHSV);            
       
       return(imgThresh);
+
 }
 
 IplImage* GetThresholdedImage(IplImage* imgHSV)
 {       
        IplImage* imgThresh=cvCreateImage(cvGetSize(imgHSV),IPL_DEPTH_8U, 1);
        IplImage* imgThresh2=cvCreateImage(cvGetSize(imgHSV),IPL_DEPTH_8U, 1);
-       cvInRangeS(imgHSV, cvScalar(0, 50, 30), cvScalar(10, 256, 256), imgThresh);		//(170,160,60) (180,256,256)
-       cvInRangeS(imgHSV, cvScalar(170, 50, 30), cvScalar(256, 256, 256), imgThresh2);
-       cvOr(imgThresh,imgThresh2,imgThresh);
+       //cvInRangeS(imgHSV, cvScalar(0, 50, 30), cvScalar(10, 256, 256), imgThresh);		//(170,160,60) (180,256,256)
+       //cvInRangeS(imgHSV, cvScalar(170, 50, 30), cvScalar(256, 256, 256), imgThresh2);
+       //cvOr(imgThresh,imgThresh2,imgThresh);
+       cvInRangeS(imgHSV, cvScalar(5, 20, 20), cvScalar(70, 256, 256), imgThresh);
        cvReleaseImage(&imgThresh2);
        return imgThresh;
 } 
@@ -176,7 +169,7 @@ void detect_circles(IplImage* imgThresh)
 	cvCanny(imgThresh, canny, 50, 100, 3);	
 	cvShowImage("Edge_detection", canny);           
       
-      CvSeq* circles = cvHoughCircles(canny, storage, CV_HOUGH_GRADIENT, 1, 50.0, 100, 40,20,320);  //1, 40.0, 100, 100,0,0);
+      CvSeq* circles = cvHoughCircles(canny, storage, CV_HOUGH_GRADIENT, 1, 50.0, 100, 25,15,320);  //1, 40.0, 100, 100,0,0);
 															  //dp, min dist, high thresh of canny,accumulator(small val more false circles,min rad, max rad)
 	
 	
@@ -197,6 +190,8 @@ void detect_circles(IplImage* imgThresh)
 
 	     ROS_INFO("x: %d y: %d r: %d buoy distance: %f\n",center.x,center.y, radius, buoy_dist);
 	}
+		
+	//frame_sent = cvCloneImage(frame);
 	
 	cvShowImage("Video", frame);
 	
@@ -214,11 +209,12 @@ void circleSizeCallback(const std_msgs::Float32& target_circle)
 
 void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
-  sensor_msgs::CvBridge bridge;
   try
-  {
-    frame_recived = bridge.imgMsgToCv(msg, "bgr8");
-    cvShowImage("view", frame_recived);
+  { 
+    cv_input_ = bridge_.imgMsgToCv(msg, "bgr8"); 
+    //cv::imshow("recived image", cv_input_->image);      
+    
+    process_flag = ~process_flag;
   }
   catch (sensor_msgs::CvBridgeException& e)
   {

@@ -13,14 +13,16 @@
 
 void processImgTimerCallback(const ros::TimerEvent&);
 
-void circleSizeCallback(const std_msgs::Float32&);
+void captureRateCallback(const std_msgs::Float32&);
 
 void sendMyImage(image_transport::Publisher);
 
 CvCapture* capture = 0;
 IplImage* frame = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);;
 
-int process_flag = 1, last_flag =0;
+int process_flag = 1, last_flag = 0;
+int capture_rate_flag = 0, last_capture_rate_flag = 0;
+float capture_rate_ = 0.5;
 
 int main(int argc, char **argv)
 {	
@@ -33,9 +35,9 @@ int main(int argc, char **argv)
 	//pubsished messages
 
 	//subscribed messages
-	//ros::Subscriber sub = n.subscribe("MV_target_circle", 1000, circleSizeCallback);
+	ros::Subscriber sub = n.subscribe("capture_rate", 1000, captureRateCallback);
 	//timers	
-	ros::Timer processImgTimer = n.createTimer(ros::Duration(0.5), processImgTimerCallback);	//create timer to set a flag to start processing
+	ros::Timer processImgTimer = n.createTimer(ros::Duration(capture_rate_), processImgTimerCallback);	//create timer to set a flag to start processing
 	
 	//publish ros images
 	
@@ -74,8 +76,13 @@ int main(int argc, char **argv)
 		
 			sendMyImage(pub);
 		}	
- 		
- 		
+		
+		if(capture_rate_flag != last_capture_rate_flag)
+		{
+			last_capture_rate_flag = capture_rate_flag;
+			processImgTimer.setPeriod(ros::Duration(capture_rate_)); 
+		}			
+	 		
      		// Do not release the frame!
      	      //If ESC key pressed, Key=0x10001B under OpenCV 0.9.7(linux version),
       	//remove higher bits using AND operator
@@ -107,3 +114,9 @@ void processImgTimerCallback(const ros::TimerEvent&)
 	process_flag = ~process_flag;
 }
 
+void captureRateCallback(const std_msgs::Float32& captureRate)
+{
+	capture_rate_flag = ~capture_rate_flag; 
+	
+	capture_rate_ = captureRate.data;
+}
