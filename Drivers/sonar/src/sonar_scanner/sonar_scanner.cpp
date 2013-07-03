@@ -24,9 +24,16 @@
 
 #define PI 3.14159265
 
+#define THRESHOLD 207
 
-				float thresholdTmp = 0.0; //12dB Threshold = 0
-				float contrastTmp = 12.0; //12dB Range = 38.25
+float bins;
+float bearing;
+int binsArr[90];
+int binsArr2[90];
+int binsCount;
+
+float thresholdTmp = 0.0; //12dB Threshold = 0
+float contrastTmp = 12.0; //12dB Range = 38.25
 
 int imageArray[HEIGHT][WIDTH];
 int imgx = 0, imgy = 0;
@@ -143,8 +150,7 @@ void pixelPlace( float theta, unsigned int distance, unsigned int depth )
 {
 
 	float x, y;
-	if( theta > 0 && theta < 90 )
-	{
+	if( (theta > 0 && theta < 90) || (theta > 181 && theta < 270) )	{
 
 		theta = 90.0 - theta;
 		//printf("< 90\n");
@@ -155,30 +161,7 @@ void pixelPlace( float theta, unsigned int distance, unsigned int depth )
 		imgy = (y * -1)+ ( (float) HEIGHT / 2.0);
 
 	}
-	else if( theta > 91 && theta < 180 )
-	{
-		//printf("> 90 && < 180\n");
-		y = (float)distance * cos(theta *PI/180);
-		x = (float)distance * sin(theta *PI/180);
-		//printf("%f = %f -- %f\n",theta, x, y);
-		imgx = x + (WIDTH / 2);
-		imgy = (y * -1) + (HEIGHT / 2);		
-
-	}
-	else if( theta > 181 && theta < 270 )
-	{
-
-		theta = 90.0 - theta;
-		//printf("> 181 && < 270\n");
-		x = (float)distance * cos(theta *PI/180);
-		y = (float)distance * sin(theta *PI/180);		
-		//printf("%f = %f -- %f\n",theta, x, y);
-		imgx = x + ((float)WIDTH / 2);
-		imgy = (y * -1) + ((float)HEIGHT / 2);
-
-	}
-	else
-	{
+	else {
 		//printf("> 271 && < 360\n");
 		y = (float)distance * cos(theta *PI/180);
 		x = (float)distance * sin(theta *PI/180);		
