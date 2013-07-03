@@ -154,8 +154,18 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
   a_button = joy->buttons[0];   //A Button
 
   x_val = ((map(joy->axes[x_plus_axis], 1.0, -1.0, 0.0, 50.0)) - (map(joy->axes[x_minus_axis], 1.0, -1.0, 0.0, 50.0)));
-  yaw_val = -(2 * joy->axes[yaw_axis]);//(map(joy->axes[yaw_axis], 1.0, -1.0, -1.0, 1.0));
+  //yaw_val = -(2 * joy->axes[yaw_axis]);//(map(joy->axes[yaw_axis], 1.0, -1.0, -1.0, 1.0));
 
+  float tempyaw = joy->axes[yaw_axis];
+  if (tempyaw >=0.2) {
+	yaw_val = (map(joy->axes[yaw_axis], 0.2, 1.0, 0.0, 1.0));
+  }	
+  else if (tempyaw <= -0.2) {
+	yaw_val = (map(joy->axes[yaw_axis], -0.2, -1.0, 0.0, -1.0));
+  }
+  else {
+	yaw_val = 0;
+  }
   //ROS_INFO("X Val: %f, Yaw: %f", x_val, yaw_val);
 
 	if(x_button && (state_selected != 3))
