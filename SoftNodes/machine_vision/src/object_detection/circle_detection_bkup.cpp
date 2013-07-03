@@ -17,12 +17,13 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <std_msgs/Float32.h>
-#include <unistd.h>
 
 #define MAX_DATE 12
 
-void imageCallback(const sensor_msgs::ImageConstPtr&);
-
+void saveImgTimerCallback(const ros::TimerEvent&);
+void processImgTimerCallback(const ros::TimerEvent&);
+std::string get_date(void);
+std::string get_time(void);
 IplImage* filter_colour(void);
 void detect_circles(IplImage*);
 IplImage* GetThresholdedImage(IplImage*);
@@ -33,74 +34,85 @@ void sendMyImage(image_transport::Publisher);
 
 CvMemStorage* storage;
 
-IplImage* frame = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
+CvCapture* capture = 0;
+IplImage* frame;
 IplImage* frame_org;// = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);;
-IplImage* frame_recived = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
-IplImage* frame_sent;
-sensor_msgs::CvBridge bridge_;
 
 int process_flag = 1, last_flag =0;
 float focal_length = 150;
 float actual_radius = 0.1, buoy_dist;
-IplImage* cv_input_ = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
 
 int main(int argc, char **argv)
 {	
 	
-	ros::init(argc, argv, "circle_dectection");
+	ros::init(argc, argv, "ros_image_capture");
+
 
 	ros::NodeHandle n;
 
-	image_transport::ImageTransport it(n);
-	
-	//pubsished messages	
-	image_transport::Publisher pub = it.advertise("circle/image", 1);
+	//pubsished messages
+
 	//subscribed messages
 	ros::Subscriber sub = n.subscribe("MV_target_circle", 1000, circleSizeCallback);
-	image_transport::Subscriber imgsub = it.subscribe("camera/image", 1, imageCallback);
-	
 	//timers	
-//	ros::Timer processImgTimer = n.createTimer(ros::Duration(0.5), processImgTimerCallback);	//create timer to set a flag to start processing
-  	
+	ros::Timer saveImgTimer = n.createTimer(ros::Duration(5), saveImgTimerCallback);	//create timer for saving images every 5sec (300s = 5m)
+	ros::Timer processImgTimer = n.createTimer(ros::Duration(0.5), processImgTimerCallback);	//create timer to set a flag to start processing
+	
+	//publish ros images
+	
+		
+	image_transport::ImageTransport it(n);
+  	image_transport::Publisher pub = it.advertise("camera/image", 1);
 
 	
 	storage = cvCreateMemStorage(0);	//storage for circles
 	
-  
-	cvNamedWindow("Video");     
-	cvNamedWindow("HSV_img");
-      cvNamedWindow("Filtered_image");
-	cvNamedWindow("Edge_detection");
+	capture = cvCaptureFromCAM(-1);
+		if ( !capture ) 
+		{
+	      	fprintf( stderr, "ERROR: capture is NULL \n" );
+	      	getchar();
+	      	return -1;
+	   	}
+	  
+	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 320);
+	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 240);
 	
-	cvMoveWindow("video", 0, 400); 
-	cvMoveWindow("HSV_img",320,400);  
-      cvMoveWindow("Filtered_image",640,400);
-      cvMoveWindow("Edge_detection",980,400);
+	//cvNamedWindow("Video");     
+	//cvNamedWindow("HSV_img");
+//      cvNamedWindow("Filtered_image");
+//	cvNamedWindow("Edge_detection");
+	
+//	cvMoveWindow("video", 0, 400); 
+	//cvMoveWindow("HSV_img",320,400);  
+//      cvMoveWindow("Filtered_image",640,400);
+//      cvMoveWindow("Edge_detection",980,400);
 
 	//ros::Rate loop_rate(1);  //loop every 1hz
 
  
 	while(ros::ok())
 	{
-		
-     		if ( !cv_input_)
+		frame = cvQueryFrame( capture );
+		frame_org = frame;
+     		if ( !frame ) 
      		{
        		fprintf( stderr, "ERROR: frame is null...\n" );
-       		last_flag = process_flag;	//if no images dont run prosessing
+       		getchar();
+       		break;
       	}
 
 		if(process_flag != last_flag)
 		{
+			last_flag = process_flag;
+			IplImage* imgThresh = filter_colour();
+			detect_circles(imgThresh);
 		
-				last_flag = process_flag;
-				IplImage* imgThresh = filter_colour();
-				detect_circles(imgThresh);
-		
-				sendMyImage(pub);
+			sendMyImage(pub);
 			
-				cvReleaseImage(&imgThresh);
-		
- 		}
+			cvReleaseImage(&imgThresh);
+		}	
+ 		
  		
      		// Do not release the frame!
      	      //If ESC key pressed, Key=0x10001B under OpenCV 0.9.7(linux version),
@@ -117,21 +129,49 @@ int main(int argc, char **argv)
 return 0;
 }
 
-
 void sendMyImage(image_transport::Publisher pub)
-{		
+{	
+	ROS_INFO("point 1");
+	
+	IplImage* frame_ros = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
+	frame_ros = frame_org;
+	cv::WImageBuffer3_b image(frame_ros);
+ 	sensor_msgs::ImagePtr msg = sensor_msgs::CvBridge::cvToImgMsg(image.Ipl(), "rgb8");
+	pub.publish(msg);
+	ROS_INFO("point 1");
+}
+void saveImgTimerCallback(const ros::TimerEvent&)
+{
+	 struct passwd *pw = getpwuid(getuid());
+	 const char *homedir = pw->pw_dir;
+	 
+	 std::string filename_str;
+	 
+	 //filename_str.append(homedir);
+	 
+	 //filename_str.append("/projectPheonix/camera/saved_images/");
+	 
+	 filename_str.append(get_date());
+	 
+	 filename_str.append(get_time());
+	 
+	 filename_str.append(".jpeg");
+	 
+	 const char * filename_chr = filename_str.c_str();
+	 
+	 ROS_INFO("saved an image called %s", filename_chr);
 
-	//cv::WImageBuffer3_b image(frame_sent);
- 	//sensor_msgs::ImagePtr sentmsg = sensor_msgs::CvBridge::cvToImgMsg(image.Ipl(), "rgb8");
-	//pub.publish(sentmsg);
-	//cvReleaseImage(&frame_sent);
+	 cvSaveImage(filename_chr, frame_org);
+}
+
+void processImgTimerCallback(const ros::TimerEvent&)
+{
+	process_flag = ~process_flag;
 }
 
 IplImage* filter_colour(void)
 {
-	
-	frame=cvCloneImage(cv_input_);	 
-	
+	frame=cvCloneImage(frame); 
       cvSmooth(frame, frame, CV_GAUSSIAN,3,3); //smooth the original image using Gaussian kernel
 
       IplImage* imgHSV = cvCreateImage(cvGetSize(frame), IPL_DEPTH_8U, 3);
@@ -147,17 +187,15 @@ IplImage* filter_colour(void)
       cvReleaseImage(&imgHSV);            
       
       return(imgThresh);
-
 }
 
 IplImage* GetThresholdedImage(IplImage* imgHSV)
 {       
        IplImage* imgThresh=cvCreateImage(cvGetSize(imgHSV),IPL_DEPTH_8U, 1);
        IplImage* imgThresh2=cvCreateImage(cvGetSize(imgHSV),IPL_DEPTH_8U, 1);
-       //cvInRangeS(imgHSV, cvScalar(0, 50, 30), cvScalar(10, 256, 256), imgThresh);		//(170,160,60) (180,256,256)
-       //cvInRangeS(imgHSV, cvScalar(170, 50, 30), cvScalar(256, 256, 256), imgThresh2);
-       //cvOr(imgThresh,imgThresh2,imgThresh);
-       cvInRangeS(imgHSV, cvScalar(5, 20, 20), cvScalar(70, 256, 256), imgThresh);
+       cvInRangeS(imgHSV, cvScalar(0, 50, 30), cvScalar(10, 256, 256), imgThresh);		//(170,160,60) (180,256,256)
+       cvInRangeS(imgHSV, cvScalar(170, 50, 30), cvScalar(256, 256, 256), imgThresh2);
+       cvOr(imgThresh,imgThresh2,imgThresh);
        cvReleaseImage(&imgThresh2);
        return imgThresh;
 } 
@@ -169,7 +207,7 @@ void detect_circles(IplImage* imgThresh)
 	cvCanny(imgThresh, canny, 50, 100, 3);	
 	cvShowImage("Edge_detection", canny);           
       
-      CvSeq* circles = cvHoughCircles(canny, storage, CV_HOUGH_GRADIENT, 1, 50.0, 100, 25,15,320);  //1, 40.0, 100, 100,0,0);
+      CvSeq* circles = cvHoughCircles(canny, storage, CV_HOUGH_GRADIENT, 1, 50.0, 100, 40,20,320);  //1, 40.0, 100, 100,0,0);
 															  //dp, min dist, high thresh of canny,accumulator(small val more false circles,min rad, max rad)
 	
 	
@@ -190,8 +228,6 @@ void detect_circles(IplImage* imgThresh)
 
 	     ROS_INFO("x: %d y: %d r: %d buoy distance: %f\n",center.x,center.y, radius, buoy_dist);
 	}
-		
-	//frame_sent = cvCloneImage(frame);
 	
 	cvShowImage("Video", frame);
 	
@@ -200,24 +236,41 @@ void detect_circles(IplImage* imgThresh)
       cvReleaseImage(&frame);	      	
 }
 
+std::string get_time(void)
+{
+   time_t now;
+   char the_date[MAX_DATE];
+
+   the_date[0] = '\0';
+
+   now = time(NULL);
+
+   if (now != -1)
+   {
+      strftime(the_date, MAX_DATE, "%H_%M_%S", gmtime(&now));
+   }
+
+   return std::string(the_date);
+}
+
+std::string get_date(void)
+{
+   time_t now;
+   char the_date[MAX_DATE];
+
+   the_date[0] = '\0';
+
+   now = time(NULL);
+
+   if (now != -1)
+   {
+      strftime(the_date, MAX_DATE, "%d_%m_%y_", gmtime(&now));
+   }
+
+   return std::string(the_date);
+}
 
 void circleSizeCallback(const std_msgs::Float32& target_circle)
 {
 	actual_radius = target_circle.data;
-}
-
-
-void imageCallback(const sensor_msgs::ImageConstPtr& msg)
-{
-  try
-  { 
-    cv_input_ = bridge_.imgMsgToCv(msg, "bgr8"); 
-    //cv::imshow("recived image", cv_input_->image);      
-    
-    process_flag = ~process_flag;
-  }
-  catch (sensor_msgs::CvBridgeException& e)
-  {
-    ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
-  }
 }
