@@ -61,5 +61,5 @@ int main(int argc, char **argv) {
 void depthCallBack(const std_msgs::Float32& depth) {
 	global_depth = depth.data;
 
-	ROS_INFO("got depth %f", depth.data)
+	ROS_INFO("got depth %f", depth.data);
 }
