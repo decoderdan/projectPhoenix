@@ -12,14 +12,17 @@
 
 float global_depth;
 
-void depthCallback(const std_msgs::Float32& depth);
+void depthCallBack(const std_msgs::Float32& depth);
+//void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
 
 int main(int argc, char **argv) {
 
 	ros::init(argc, argv, "the_killer");	
 
 	ros::NodeHandle n;
-	ros::Subscriber depth_sub = n.subscribe<std_msgs::Float32>("depth", 10, depthCallback);
+	ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);
+
+//	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback);
 
 	std_msgs::Float32 svs_depth;
 
@@ -56,6 +59,5 @@ int main(int argc, char **argv) {
 }
 
 void depthCallBack(const std_msgs::Float32& depth) {
-	
 	global_depth = depth.data;
 }
