@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 	ros::init(argc, argv, "the_killer");	
 
 	ros::NodeHandle n;
-	ros::Publisher svs_depth_msg = n.advertise<std_msgs::Float32>("depth", 100); 
+	ros::Subscriber depth_sub = n.subscribe<std_msgs::Float32>("depth", 10, depthCallback);
 
 	std_msgs::Float32 svs_depth;
 
