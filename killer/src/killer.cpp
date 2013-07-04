@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
 		} else if (global_depth > 0.5) {	// if not under surface
 			if (!already_dived) {			// if not already 'dived'
 				// set the dive time
-				ROS_INFO("killer: sub has dived - will kill in %d seconds if not surfaced", ( dive_time.toSec() + killer_timeout - ros::Time::now().toSec()  )
+				ROS_INFO("killer: sub has dived - will kill in %d seconds if not surfaced", killer_timeout);
 				dive_time = ros::Time::now();
 				already_dived = true;
 			} 
@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
 
 		} else if (already_dived) {
 			already_dived = false;
-			ROS_INFO("killer: sub has not dived yet")
+			ROS_INFO("killer: sub has not dived yet");
 		}
 	}
 }
