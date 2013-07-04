@@ -31,24 +31,26 @@ int main(int argc, char **argv) {
 	while (ros::ok()) {
 
 		if (global_depth > 3.0) {			// if under too far
-			ROS_ERROR("ERROR: SUB BELOW 3 METERS!, killing pid.launch");
+			ROS_ERROR("error: sub below 3 meters!, killing pid.launch");
 			system("killall python /opt/ros/electric/ros/bin/roslaunch launch pid.launch");
 
 		} else if (global_depth > 0.5) {	// if not under surface
 			if (!already_dived) {			// if not already 'dived'
 				// set the dive time
+				ROS_INFO("killer: sub has dived - will kill in %d seconds if not surfaced", ( dive_time.toSec() + killer_timeout - ros::Time::now().toSec()  )
 				dive_time = ros::Time::now();
 				already_dived = true;
 			} 
 
 			if(ros::Time::now().toSec() < (dive_time.toSec() + killer_timeout)) { 
 			// if timeout && no depth callback recieved
-				ROS_ERROR("ERROR: HAS BEEN DOWN MORE THAN %d, killing pid.launch", killer_timeout);
+				ROS_ERROR("killer: error: has been down more than %d, killing pid.launch", killer_timeout);
 				system("killall python /opt/ros/electric/ros/bin/roslaunch launch pid.launch");
 			}
 
 		} else if (already_dived) {
 			already_dived = false;
+			ROS_INFO("killer: sub has not dived yet")
 		}
 	}
 }
