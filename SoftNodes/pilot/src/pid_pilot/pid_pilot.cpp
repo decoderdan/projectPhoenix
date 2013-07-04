@@ -166,7 +166,7 @@ int main( int argc, char **argv )
 				/* rate control */
 				/***********/
 
-				if(pid_set == false && depth_target >= 0.25){
+				if((pid_set == false) && (depth_target >= 0.25))){
 					pid_set = true;
 					yaw_Kp = 2.0;
 					yaw_Ki = 0.05;
@@ -190,7 +190,7 @@ int main( int argc, char **argv )
 					depth_integral = 0;
 					depth_derivative = 0;
 					}
-				if(pid_set == true && depth_target < 0.25){
+				if((pid_set == true) && (depth_target < 0.25)){
 					pid_set = false;
 					yaw_Kp = 0.0;
 					yaw_Ki = 0.0;
