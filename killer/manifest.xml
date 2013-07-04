@@ -1,0 +1,15 @@
+<package>
+  <description brief="killer">
+
+     killer
+
+  </description>
+  <author>chris</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/killer</url>
+  <depend package="roscpp"/>
+
+</package>
+
+
