@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 	strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&now));
 	//printf("%s\n", buff);
 
-	ofstream logFile ("/home/kaya/projectPhoenix/Logs/log.txt");
+	ofstream logFile ("/home/phoenix/projectPhoenix/Logs/log.txt");
 
 	ros::spinOnce();
 
@@ -126,6 +126,7 @@ void imuCallBack(const custom_msg::IMUData& imu)
 
 void depthCallBack(const std_msgs::Float32& depth)
 {
+	ROS_INFO("got depth");
 	depth_input = depth.data;
      
 	return;
