@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 				already_dived = true;
 			} 
 
-			if(ros::Time::now().toSec() < (dive_time.toSec() + killer_timeout)) { 
+			if(ros::Time::now().toSec() < (dive_time.toSec() + 10)) { 
 			// if timeout && no depth callback recieved
 				ROS_ERROR("killer: error: has been down more than %d, killing pid.launch", killer_timeout);
 				system("killall python /opt/ros/electric/ros/bin/roslaunch launch pid.launch");
