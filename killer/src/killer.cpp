@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 	ros::init(argc, argv, "the_killer");	
 
 	ros::NodeHandle n;
-	ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);
+	ros::Subscriber depthSub = n.subscribe("depth", 10, depthCallBack);
 
 //	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback);
 
@@ -31,7 +31,11 @@ int main(int argc, char **argv) {
 
 	ros::Rate r(1);
 
+	ROS_INFO("starting the killer");
+
 	while (ros::ok()) {
+
+		ros::spinOnce(); //Call all waiting callbacks at this point
 
 		if (global_depth > 3.0) {			// if under too far
 			ROS_ERROR("error: sub below 3 meters!, killing pid.launch");
@@ -55,6 +59,7 @@ int main(int argc, char **argv) {
 			already_dived = false;
 			ROS_INFO("killer: sub has not dived yet");
 		}
+		r.sleep(); //Sleep for a little while
 	}
 }
 

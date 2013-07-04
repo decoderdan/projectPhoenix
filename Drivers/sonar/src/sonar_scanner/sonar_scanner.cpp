@@ -24,13 +24,6 @@
 
 #define PI 3.14159265
 
-#define THRESHOLD 207
-
-float bins;
-float bearing;
-int binsArr[90];
-int binsArr2[90];
-int binsCount;
 
 float thresholdTmp = 0.0; //12dB Threshold = 0
 float contrastTmp = 12.0; //12dB Range = 38.25
@@ -150,7 +143,8 @@ void pixelPlace( float theta, unsigned int distance, unsigned int depth )
 {
 
 	float x, y;
-	if( (theta > 0 && theta < 90) || (theta > 181 && theta < 270) )	{
+	if( (theta > 0 && theta < 90) || (theta > 181 && theta < 270) )
+	{
 
 		theta = 90.0 - theta;
 		//printf("< 90\n");
