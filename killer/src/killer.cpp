@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 	ros::init(argc, argv, "the_killer");	
 
 	ros::NodeHandle n;
-	ros::Subscriber depthSub = n.subscribe("depth", 10, depthCallBack);
+	ros::Subscriber depthSub = n.subscribe("depth", 1, depthCallBack);
 
 //	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback);
 
