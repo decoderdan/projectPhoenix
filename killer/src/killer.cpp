@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 }
 
 void depthCallBack(const std_msgs::Float32& depth) {
-	std_msgs::Float32 z;
+	std_msgs::Float32 depth;
 
-	global_depth = z.data;
+	global_depth = depth.data;
 }
