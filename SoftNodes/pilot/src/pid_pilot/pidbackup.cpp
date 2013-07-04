@@ -16,8 +16,6 @@ custom_msg::MotorConfig motorCfg;
 
 static std_msgs::Float32 z;
 
-bool pid_set = 0;
-
 float move_x = 0;
 float move_y = 0;
 bool input_stability = true; // bit to set input stability
@@ -35,7 +33,7 @@ float yaw_integral = 0;
 float yaw_derivative = 0;
 
 
-float pitch_rate = 5; //degrees per second
+float pitch_rate = 3; //degrees per second
 float pitch_Kp = 0;
 float pitch_Ki = 0;
 float pitch_Kd = 0;
@@ -166,55 +164,6 @@ int main( int argc, char **argv )
 				/* rate control */
 				/***********/
 
-				if(pid_set == false && depth_target >= 0.25){
-					pid_set = true;
-					yaw_Kp = 2.0;
-					yaw_Ki = 0.05;
-					yaw_Kd = 0.1;
-					pitch_Kp = 2.0;
-					pitch_Ki = 1.0;
-					pitch_Kd = 0.0;
-					depth_Kp = 400.0;
-					depth_Ki = 1.0;
-					depth_Kd = 0.0;
-					yaw_error = 0;
-					yaw_previous_error = 0;
-					yaw_integral = 0;
-					yaw_derivative = 0;
-					pitch_error = 0;
-					pitch_previous_error = 0;
-					pitch_integral = 0;
-					pitch_derivative = 0;
-					depth_error = 0;
-					depth_previous_error = 0;
-					depth_integral = 0;
-					depth_derivative = 0;
-					}
-				if(pid_set == true && depth_target < 0.25){
-					pid_set = false;
-					yaw_Kp = 0.0;
-					yaw_Ki = 0.0;
-					yaw_Kd = 0.0;
-					pitch_Kp = 0.0;
-					pitch_Ki = 0.0;
-					pitch_Kd = 0.0;
-					depth_Kp = 0.0;
-					depth_Ki = 0.0;
-					depth_Kd = 0.0;
-					yaw_error = 0;
-					yaw_previous_error = 0;
-					yaw_integral = 0;
-					yaw_derivative = 0;
-					pitch_error = 0;
-					pitch_previous_error = 0;
-					pitch_integral = 0;
-					pitch_derivative = 0;
-					depth_error = 0;
-					depth_previous_error = 0;
-					depth_integral = 0;
-					depth_derivative = 0;
-					}
-
 				if(input_stability == true){
 					if(yaw_target_raw >= (yaw_target + (yaw_rate*dt))){yaw_target += (yaw_rate*dt);}
 					else if(yaw_target_raw <= (yaw_target - (yaw_rate*dt))){yaw_target -= (yaw_rate*dt);}
@@ -227,8 +176,8 @@ int main( int argc, char **argv )
 					if(depth_target_raw >= (depth_target + (depth_rate*dt))){depth_target += (depth_rate*dt);}
 					else if(depth_target_raw <= (depth_target - (depth_rate*dt))){depth_target -= (depth_rate*dt);}
 					else{depth_target =depth_target_raw;}
-					}
 
+					}
 				else if(input_stability == false){ 
 					yaw_target = yaw_target_raw;
 					pitch_target = pitch_target_raw;
