@@ -13,7 +13,7 @@
 
 void processImgTimerCallback(const ros::TimerEvent&);
 
-void captureRateCallback(const std_msgs::Float32&);
+void captureRateCallback(const std_msgs::Float32& captureRate);
 
 void sendMyImage(image_transport::Publisher);
 
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 	//pubsished messages
 
 	//subscribed messages
-	ros::Subscriber sub = n.subscribe("capture_rate", 1000, captureRateCallback);
+	ros::Subscriber sub = n.subscribe("capture_rate", 1, captureRateCallback);
 	//timers	
 	ros::Timer processImgTimer = n.createTimer(ros::Duration(capture_rate_), processImgTimerCallback);	//create timer to set a flag to start processing
 	
@@ -119,4 +119,6 @@ void captureRateCallback(const std_msgs::Float32& captureRate)
 	capture_rate_flag = ~capture_rate_flag; 
 	
 	capture_rate_ = captureRate.data;
+
+	ROS_INFO("recieved capture rate %f", capture_rate_);
 }

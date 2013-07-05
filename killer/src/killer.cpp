@@ -31,14 +31,14 @@ int main(int argc, char **argv) {
 
 	ros::Rate r(1);
 
-	ROS_INFO("starting the killer");
+	ROS_INFO("killer: starting the killer");
 
 	while (ros::ok()) {
 
 		ros::spinOnce(); //Call all waiting callbacks at this point
 
 		if (global_depth > 3.0) {			// if under too far
-			ROS_ERROR("error: sub below 3 meters!, killing pid.launch");
+			ROS_ERROR("killer: error: sub below 3 meters!, killing pid.launch");
 			system("killall python /opt/ros/electric/ros/bin/roslaunch launch pid.launch");
 
 		} else if (global_depth > 0.5) {	// if not under surface
@@ -49,15 +49,15 @@ int main(int argc, char **argv) {
 				already_dived = true;
 			} 
 
-			if(ros::Time::now().toSec() > (dive_time.toSec() + killer_timeout)) { 
-			// if timeout && no depth callback recieved
+			if(ros::Time::now().toSec() > (dive_time.toSec() + killer_timeout) && already_dived == true) { 
+			// if timeout && already dived
 				ROS_ERROR("killer: error: has been down more than %d, killing pid.launch", killer_timeout);
 				system("killall python /opt/ros/electric/ros/bin/roslaunch launch pid.launch");
 			}
 
 		} else if (already_dived) {
 			already_dived = false;
-			ROS_INFO("killer: sub has not dived yet");
+			ROS_INFO("killer: sub has resurfaced");
 		}
 		r.sleep(); //Sleep for a little while
 	}
@@ -66,5 +66,5 @@ int main(int argc, char **argv) {
 void depthCallBack(const std_msgs::Float32& depth) {
 	global_depth = depth.data;
 
-	ROS_INFO("got depth %f", depth.data);
+	ROS_INFO("killer: got depth %f", depth.data);
 }
