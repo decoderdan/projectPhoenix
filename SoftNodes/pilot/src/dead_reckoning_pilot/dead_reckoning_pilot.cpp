@@ -16,7 +16,7 @@ bool got_yaw = false;
 float _current_yaw = 0;
 ros::Time start_time;
 ros::Publisher pid_config_publisher;
-	
+
 void imuCallBack(const custom_msg::IMUData& data) {
     _current_yaw = data.yaw;
     got_yaw = true;
@@ -32,7 +32,7 @@ int main(int argc, char** argv){
 
     int state = GRABBING_YAW;
 
-    if (argc != 6) {
+    if (argc != 7) {
         //Print help
         printf("\nArguments are all floats, and should be passed in this order:\n\nDIVE_TIME\nTO_CENTER_TIME\nSTOP_TIME\nROTATE_TIME\nTHROUGH_GATE_TIME\n\n");
         return 0;
@@ -70,11 +70,12 @@ int main(int argc, char** argv){
 
 				tv.vector_yaw = start_yaw;
 				tv.vector_z = TARGET_DEPTH; //Set depth
+				tv.vector_pitch = 0.0;
 				tv.set_x = false;
 				tv.set_y = false;
 				tv.set_z = true;
 				tv.set_yaw = true;
-				tv.set_pitch = false;
+				tv.set_pitch = true;
 				tv.set_roll = false;
 
 				//Publish out target vector and target yaw.
@@ -107,11 +108,6 @@ int main(int argc, char** argv){
 
 				tv.vector_x = 80; //80% speed
 				tv.set_x = true;
-				tv.set_y = false;
-				tv.set_z = false;
-				tv.set_yaw = true;
-				tv.set_pitch = false;
-				tv.set_roll = false;
 				target_publisher.publish(tv);
 
 				start_time = ros::Time::now();
@@ -123,11 +119,6 @@ int main(int argc, char** argv){
 			if (ros::Time::now().toSec() >= (start_time.toSec() + to_center_time)) {
 				ROS_INFO("Stopping within %f seconds", stop_time);				
 				tv.set_x = true;
-				tv.set_y = false;
-				tv.set_z = false;
-				tv.set_yaw = true;
-				tv.set_pitch = false;
-				tv.set_roll = false;
 				tv.vector_x = 0; //0% speed
 				target_publisher.publish(tv);
 
@@ -140,12 +131,7 @@ int main(int argc, char** argv){
 			if (ros::Time::now().toSec() >= (start_time.toSec() + stop_time)) {
 				ROS_INFO("Turning to %f", (start_yaw + 90.0));
 				tv.vector_yaw = start_yaw + 90.0;
-				tv.set_x = false;
-				tv.set_y = false;
-				tv.set_z = false;
 				tv.set_yaw = true;
-				tv.set_pitch = false;
-				tv.set_roll = false;
 				target_publisher.publish(tv);
 
 				start_time = ros::Time::now();
@@ -158,11 +144,6 @@ int main(int argc, char** argv){
 				ROS_INFO("Validating");
 				tv.vector_x = 80; //80% speed
 				tv.set_x = true;
-				tv.set_y = false;
-				tv.set_z = false;
-				tv.set_yaw = true;
-				tv.set_pitch = false;
-				tv.set_roll = false;
 				target_publisher.publish(tv);
 
 				start_time = ros::Time::now();
@@ -174,14 +155,9 @@ int main(int argc, char** argv){
 			if (ros::Time::now().toSec() >= (start_time.toSec() + through_gate_time)) {
 				ROS_INFO("Surfacing");
 				tv.vector_x = 0; //0% speed
-				tv.vector_z = 0.10;
+				tv.vector_z = 0.20;
 				tv.set_x = true;
-				tv.set_y = false;
 				tv.set_z = true;
-				tv.set_yaw = false;
-				tv.set_pitch = false;
-				tv.set_roll = false;
-
 				target_publisher.publish(tv);
 		    		
 				state = FINISHED;
