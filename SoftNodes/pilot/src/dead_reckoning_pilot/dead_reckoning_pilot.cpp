@@ -12,8 +12,6 @@
 #define SURFACING 6
 #define FINISHED 7
 
-#define TARGET_DEPTH 1.6
-
 bool got_yaw = false;
 float _current_yaw = 0;
 ros::Time start_time;
@@ -30,6 +28,7 @@ int main(int argc, char** argv){
     float stop_time = 5;
     float rotate_time = 10;
     float through_gate_time = 25;
+    float TARGET_DEPTH = 1.6;
 
     int state = GRABBING_YAW;
 
@@ -38,12 +37,13 @@ int main(int argc, char** argv){
         printf("\nArguments are all floats, and should be passed in this order:\n\nDIVE_TIME\nTO_CENTER_TIME\nSTOP_TIME\nROTATE_TIME\nTHROUGH_GATE_TIME\n\n");
         return 0;
     }
-    else if (argc == 6) {
-	dive_time = atof(argv[1]);
-	to_center_time = atof(argv[2]);
-	stop_time = atof(argv[3]);
-	rotate_time = atof(argv[4]);
-        through_gate_time = atof(argv[5]);
+    else if (argc == 7) {
+	TARGET_DEPTH = atof(argv[1]);
+	dive_time = atof(argv[2]);
+	to_center_time = atof(argv[3]);
+	stop_time = atof(argv[4]);
+	rotate_time = atof(argv[5]);
+        through_gate_time = atof(argv[6]);
     }
 
     ros::init(argc, argv, "dead_reckoning_pilot");
@@ -52,7 +52,7 @@ int main(int argc, char** argv){
     ros::Publisher target_publisher = n.advertise<custom_msg::TargetVector>("vector", 1000);
     pid_config_publisher = n.advertise<custom_msg::PIDValues>("pidGui", 1000);    
 
-    ROS_INFO("Dive:    %fs\nForward: %fs\nStop:    %fs\nRotate:  %fs\nForward: %fs", dive_time, to_center_time, stop_time, rotate_time, through_gate_time);
+    ROS_INFO("Depth:  %f\nDive:    %fs\nForward: %fs\nStop:    %fs\nRotate:  %fs\nForward: %fs", TARGET_DEPTH, dive_time, to_center_time, stop_time, rotate_time, through_gate_time);
 
     while (ros::ok()) {
 
