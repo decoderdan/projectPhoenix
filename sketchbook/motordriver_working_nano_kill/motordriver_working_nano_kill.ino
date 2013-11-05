@@ -34,13 +34,15 @@ Servo back;
 
 LiquidCrystal lcd(12, 8, A0, A1, A2, A3); // the lcd
 
-void motorConfigCallBack( const custom_msg::MotorConfig& msg){
+void motorConfigCallBack( const custom_msg::MotorConfig& msg)
+{
   mapped_front_left = map(int(msg.front_left),-100,100,25,155);
   mapped_front_right = map(int(msg.front_right),-100,100,25,155);
   mapped_back_left = map(int(msg.back_left),-100,100,25,155);
   mapped_back_right = map(int(msg.back_right),-100,100,25,155);
   mapped_front = map(int(msg.front),-100,100,25,155);
   mapped_back = map(int(msg.back),-100,100,25,155);
+
   front_left.write(mapped_front_left);
   front_right.write(mapped_front_right);
   back_left.write(mapped_back_left);
@@ -50,7 +52,9 @@ void motorConfigCallBack( const custom_msg::MotorConfig& msg){
   digitalWrite(13, HIGH-digitalRead(13));   // blink the led
   host_timeout = 0;
 }
-void motors_off(void){
+
+void motors_off(void)
+{
   front_left.write(90);
   front_right.write(90);
   back_left.write(90);
@@ -60,12 +64,14 @@ void motors_off(void){
   science = 0;
 }
 
-void lcdLine1CallBack( const std_msgs::String& msg){
+void lcdLine1CallBack( const std_msgs::String& msg)
+{
   lcd.setCursor(0, 0); // set the cursor to column 0, line 0
   lcd.print(msg.data);
 }
 
-void lcdLine2CallBack( const std_msgs::String& msg){
+void lcdLine2CallBack( const std_msgs::String& msg)
+{
   lcd.setCursor(0, 1); // set the cursor to column 0, line 1
   lcd.print(msg.data);
 }
@@ -84,6 +90,7 @@ void setup()
   nh.subscribe(sub);
   nh.advertise(m);
   nh.advertise(s);
+
   front_left.attach(3); //attach it to pin 9
   front_right.attach(5); //attach it to pin 9
   back_left.attach(6); //attach it to pin 9
@@ -103,46 +110,60 @@ void setup()
 
 void loop()
 {
-  for (int i = 0; i < 1000; i++)  {
+  for (int i = 0; i < 1000; i++)  
+   {
     nh.spinOnce();
-    if(active_state==0){
-      if(emergency_kill==0){
-        host_timeout++;
-        delay(1);
-        if(host_timeout<=10 & science ==0){
-          lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-          lcd.print(" !!! STAND BACK !!! ");
-          lcd.setCursor(0, 1);
-          lcd.print("SCIENCE IS HAPPENING");
-          science = 1;
-        }
-        if(host_timeout>=1000){
-          motors_off();
-          lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-          lcd.print("  Motors disabled   ");
-          lcd.setCursor(0, 1);
-          lcd.print(" No data from host  ");
-        }
-        if(digitalRead(kill_switch)==0){
-          delay(500);
-          emergency_kill = 1;
-          lcd.begin(20, 2);
-          lcd.setCursor(0, 0); // set the cursor to column 0, line 0
-          lcd.print("  Motors disabled   ");
-          lcd.setCursor(0, 1);
-          lcd.print("  Killed by switch  ");
-        }
+    
+     if(active_state==0)
+     {
+      
+      if(emergency_kill==0)
+       {
+         host_timeout++;
+         delay(1);
+        
+          if(host_timeout<=10 & science ==0)
+ 	   {
+            lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+            lcd.print(" CAUTION ");
+            lcd.setCursor(0, 1);
+            lcd.print("Q IS A PENIS");
+            science = 1;
+           }
+        
+  	  if(host_timeout>=1000)
+           {
+            motors_off();
+            lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+            lcd.print("  Motors disabled   ");
+            lcd.setCursor(0, 1);
+            lcd.print(" No data from host  ");
+           }
+        
+          if(digitalRead(kill_switch)==0)
+	  {
+            delay(500);
+            emergency_kill = 1;
+            lcd.begin(20, 2);
+            lcd.setCursor(0, 0); // set the cursor to column 0, line 0
+            lcd.print("  Motors disabled   ");
+            lcd.setCursor(0, 1);
+            lcd.print("  Killed by switch  ");
+          }
       }
       else if (emergency_kill=1){
-        motors_off();
-        if(digitalRead(kill_switch)==1){
+      motors_off();
+      
+      if(digitalRead(kill_switch)==1)
+	{
           //active_state = 1;
           emergency_kill=0;
         }
-      }
-    }
+     }
+   }
     /*
-    else if(active_state==1){
+    else if(active_state==1)
+    {
       lcd.setCursor(0, 0); // set the cursor to column 0, line 0
       lcd.print("arm sequence started");
       lcd.setCursor(0, 1);
@@ -151,7 +172,9 @@ void loop()
       if(digitalRead(kill_switch)==1){active_state = 2;}
       if(digitalRead(kill_switch)==0){active_state = 10;}
     }
-    else if(active_state==2){
+    
+    else if(active_state==2)
+    {
       lcd.setCursor(0, 0); // set the cursor to column 0, line 0
       lcd.print("arm sequence started");
       lcd.setCursor(0, 1);
@@ -160,7 +183,9 @@ void loop()
       if(digitalRead(kill_switch)==1){active_state = 3;}
       if(digitalRead(kill_switch)==0){active_state = 10;}
     }
-    else if(active_state==3){
+    
+    else if(active_state==3)
+    {
       lcd.setCursor(0, 0); // set the cursor to column 0, line 0
       lcd.print("arm sequence started");
       lcd.setCursor(0, 1);
@@ -169,7 +194,9 @@ void loop()
       if(digitalRead(kill_switch)==1){active_state = 4;}
       if(digitalRead(kill_switch)==0){active_state = 10;}
     }
-    else if(active_state==4){
+    
+    else if(active_state==4)
+    {
       lcd.begin(20, 2);
       lcd.setCursor(0, 0); // set the cursor to column 0, line 0
       lcd.print("arm sequence started");
@@ -179,7 +206,9 @@ void loop()
       if(digitalRead(kill_switch)==0){active_state = 5;}
       if(digitalRead(kill_switch)==1){active_state = 10;}
     }
-    else if(active_state==5){
+   
+   else if(active_state==5)
+    {
       lcd.setCursor(0, 0); // set the cursor to column 0, line 0
       lcd.print("arm sequence started");
       lcd.setCursor(0, 1);
@@ -188,7 +217,9 @@ void loop()
       if(digitalRead(kill_switch)==0){active_state = 6;}
       if(digitalRead(kill_switch)==1){active_state = 10;}
     }
-    else if(active_state==6){
+    
+   else if(active_state==6)
+    {
       lcd.setCursor(0, 0); // set the cursor to column 0, line 0
       lcd.print("arm sequence started");
       lcd.setCursor(0, 1);
@@ -197,7 +228,9 @@ void loop()
       if(digitalRead(kill_switch)==0){active_state = 10;}
       if(digitalRead(kill_switch)==1){active_state = 7;}
     }
-    else if(active_state==7){
+    
+   else if(active_state==7)
+    {
       lcd.setCursor(0, 0); // set the cursor to column 0, line 0
       lcd.print("  arming complete   ");
       lcd.setCursor(0, 1);
@@ -206,7 +239,9 @@ void loop()
       active_state = 0;
       emergency_kill = 0;
     }
-    else if(active_state==10){
+    
+   else if(active_state==10)
+    {
       lcd.setCursor(0, 0); // set the cursor to column 0, line 0
       lcd.print("   arming failed    ");
       lcd.setCursor(0, 1);
@@ -228,7 +263,8 @@ void loop()
   s.publish(&batteryStatusSystem);
 }
 
-int averageAnalog(int pin){
+int averageAnalog(int pin)
+{
   int v=0;
   for(int i=0; i<4; i++) v+= analogRead(pin);
   return v/4;

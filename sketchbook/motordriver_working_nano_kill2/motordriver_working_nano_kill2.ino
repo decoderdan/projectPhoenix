@@ -2,6 +2,7 @@
  * rosserial Subscriber Example
  * Blinks an LED on callback
  */
+
 //#include <WProgram.h>
 #include <Arduino.h>
 #include <Servo.h>
@@ -30,13 +31,15 @@ Servo back;
 
 LiquidCrystal lcd(12, 8, A0, A1, A2, A3); // the lcd
 
-void motorConfigCallBack( const custom_msg::MotorConfig& msg){
+void motorConfigCallBack( const custom_msg::MotorConfig& msg)
+{
   mapped_front_left = map(int(msg.front_left),-100,100,25,155);
   mapped_front_right = map(int(msg.front_right),-100,100,25,155);
   mapped_back_left = map(int(msg.back_left),-100,100,25,155);
   mapped_back_right = map(int(msg.back_right),-100,100,25,155);
   mapped_front = map(int(msg.front),-100,100,25,155);
   mapped_back = map(int(msg.back),-100,100,25,155);
+  
   front_left.write(mapped_front_left);
   front_right.write(mapped_front_right);
   back_left.write(mapped_back_left);
@@ -46,12 +49,14 @@ void motorConfigCallBack( const custom_msg::MotorConfig& msg){
   digitalWrite(13, HIGH-digitalRead(13));   // blink the led
 }
 
-void lcdLine1CallBack( const std_msgs::String& msg){
+void lcdLine1CallBack( const std_msgs::String& msg)
+{
   lcd.setCursor(0, 0); // set the cursor to column 0, line 0
   lcd.print(msg.data);
 }
 
-void lcdLine2CallBack( const std_msgs::String& msg){
+void lcdLine2CallBack( const std_msgs::String& msg)
+{
   lcd.setCursor(0, 1); // set the cursor to column 0, line 1
   lcd.print(msg.data);
 }
@@ -88,7 +93,8 @@ void setup()
 
 void loop()
 {
-  for (int thisPin = 0; thisPin < 1000; thisPin++)  {
+  for (int thisPin = 0; thisPin < 1000; thisPin++) 
+  {
     nh.spinOnce();
     delay(1);      
   }
@@ -102,7 +108,8 @@ void loop()
   s.publish(&batteryStatusSystem);
 }
 
-int averageAnalog(int pin){
+int averageAnalog(int pin)
+{
   int v=0;
   for(int i=0; i<4; i++) v+= analogRead(pin);
   return v/4;
