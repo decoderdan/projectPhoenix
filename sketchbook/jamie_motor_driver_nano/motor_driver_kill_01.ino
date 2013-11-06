@@ -66,7 +66,6 @@ void motors_off(void)		//function sets all the motor speeds to 0.
   back_right.write(90);
   front.write(90);
   back.write(90);
-  science = 0;
  }
 
 
