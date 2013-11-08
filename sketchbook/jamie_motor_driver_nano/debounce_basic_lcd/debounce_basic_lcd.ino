@@ -16,7 +16,7 @@
 
   int kill_switch = 2;			//emergency switch, 1= turned on,0 = turned off.
   int k_switch = 0;
-  int safe = 0;
+  int safe = 1;
 
   // Variables will change:
   int ledState = HIGH;         // the current state of the output pin
@@ -50,6 +50,16 @@ int averageAnalog(int pin)				//function is used for calculating battery voltage
   return v/4;
  }
  
+
+ ros::Subscriber<custom_msg::MotorConfig> sub("motor_config", &motorConfigCallBack ); 	//subscribes to the motor config input.
+ ros::Publisher m("batteryStatusMotor", &batteryStatusMotor);				//publishes the motor battery status.
+ ros::Publisher s("batteryStatusSystem", &batteryStatusSystem);				//publiches the system battery status.
+ ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string from the host.
+ ros::Subscriber<std_msgs::String> sub2("lcd_line_2", &lcdLine2CallBack );
+ 
+ ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );
+
+
 void setup()
   {
     Serial.begin(9600);
@@ -108,9 +118,19 @@ void loop()
   // save the reading.  Next time through the loop,
   // it'll be the lastButtonState:
     lastButtonState = reading;
+	if(emergency_kill == 1)
+	  {
+      	    motors_off();
+    	    lcd.setCursor(0, 0); 
+            lcd.print("  Emergency Kill  ");
+    	    lcd.setCursor(0, 1);
+            lcd.print("  Motors Dissabled ");
+            safe = 0;
+  	  }
 
-    if(ledState == 0)
-      {
+
+    	if(ledState == 0)
+     	 {
         if(k_switch == 0)
           {
 	    lcd.setCursor(0, 0);			//sets line and position of the LCD
@@ -126,7 +146,7 @@ void loop()
 
     if(safe == 0)
       {
-        if (ledState == 1)
+        if ((ledState == 1)&&(emergency_kill == 0))
            {
                lcd.clear();
                lcd.setCursor(0, 0); 			//sets line and position of the LCD
