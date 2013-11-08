@@ -15,7 +15,7 @@
   const int buttonPin = 2;    // the number of the pushbutton pin
   const int ledPin = 13;      // the number of the LED pin
 
-//int emergency_kill = 0;
+  int emergencyKill = 0;
   int kill_switch = 2;			//emergency switch, 1= turned on,0 = turned off.
   int k_switch = 0;
   int safe = 1;
@@ -90,9 +90,21 @@ void lcdLine2CallBack( const std_msgs::String& msg)	//sets up the second line of
  }
 int averageAnalog(int pin)				//function is used for calculating battery voltage.
  {
-  int v=0;
-  for(int i=0; i<4; i++) v+= analogRead(pin);
-  return v/4;
+   int v=0;
+   for(int i=0; i<4; i++) v+= analogRead(pin);
+   return v/4;
+ }
+
+void guiEmergencyCallBack( const std_msgs::Bool& eFlag)
+ {
+   if (eFlag.data)
+     {
+       emergencyKill = TRUE;
+     }
+   if(!eflag.data)
+     {
+       emergencyKill = FALSE;
+     }
  }
  
 
@@ -175,7 +187,7 @@ void loop()
   // save the reading.  Next time through the loop,
   // it'll be the lastButtonState:
     lastButtonState = reading;
-	if(emergency == 1)
+	if(emergencyKill == TRUE)
 	  {
       	    motors_off();
     	    lcd.setCursor(0, 0); 
@@ -204,7 +216,7 @@ void loop()
 
     if(safe == 0)
       {
-        if ((ledState == 1)&&(emergency == 0))
+        if ((ledState == 1)&&(emergencyKill == FALSE))
            {
                lcd.clear();
                lcd.setCursor(0, 0); 			//sets line and position of the LCD
