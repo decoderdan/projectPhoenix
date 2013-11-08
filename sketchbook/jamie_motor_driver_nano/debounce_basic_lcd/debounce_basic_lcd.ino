@@ -5,6 +5,7 @@
  #include <custom_msg/MotorConfig.h>
  #include <std_msgs/Float32.h>
  #include <std_msgs/String.h>
+ #include <std_msgs/Bool.h>
 
  ros::NodeHandle nh;
  std_msgs::Float32 batteryStatusMotor;
@@ -14,7 +15,7 @@
   const int buttonPin = 2;    // the number of the pushbutton pin
   const int ledPin = 13;      // the number of the LED pin
 
-  int emergency_kill = 0;
+//int emergency_kill = 0;
   int kill_switch = 2;			//emergency switch, 1= turned on,0 = turned off.
   int k_switch = 0;
   int safe = 1;
@@ -174,7 +175,7 @@ void loop()
   // save the reading.  Next time through the loop,
   // it'll be the lastButtonState:
     lastButtonState = reading;
-	if(emergency_kill == 1)
+	if(emergency == 1)
 	  {
       	    motors_off();
     	    lcd.setCursor(0, 0); 
@@ -203,7 +204,7 @@ void loop()
 
     if(safe == 0)
       {
-        if ((ledState == 1)&&(emergency_kill == 0))
+        if ((ledState == 1)&&(emergency == 0))
            {
                lcd.clear();
                lcd.setCursor(0, 0); 			//sets line and position of the LCD
