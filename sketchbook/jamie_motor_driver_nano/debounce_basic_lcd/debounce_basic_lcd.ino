@@ -14,6 +14,7 @@
   const int buttonPin = 2;    // the number of the pushbutton pin
   const int ledPin = 13;      // the number of the LED pin
 
+  int emergency_kill = 0;
   int kill_switch = 2;			//emergency switch, 1= turned on,0 = turned off.
   int k_switch = 0;
   int safe = 1;
@@ -29,8 +30,51 @@
   long debounceDelay = 100;    // the debounce time; increase if the output flickers
 
 
+  int mapped_front_left = 90;		//Mapped motors set to off position.
+  int mapped_front_right = 90;
+  int mapped_back_left = 90;
+  int mapped_back_right = 90;
+  int mapped_front = 90;
+  int mapped_back = 90;
+
+  Servo front_left;
+  Servo front_right;
+  Servo back_left;
+  Servo back_right;
+  Servo front;
+  Servo back;
+
+
  LiquidCrystal lcd(12, 8, A0, A1, A2, A3); // setup for the lcd
 
+ void motorConfigCallBack( const custom_msg::MotorConfig& msg) //Function sets up the arduino to accomodate the motor values.
+  {
+   mapped_front_left = map(int(msg.front_left),-100,100,25,155);		//Sets motor min,max and arduino min,max.
+   mapped_front_right = map(int(msg.front_right),-100,100,25,155);
+   mapped_back_left = map(int(msg.back_left),-100,100,25,155);
+   mapped_back_right = map(int(msg.back_right),-100,100,25,155);
+   mapped_front = map(int(msg.front),-100,100,25,155);
+   mapped_back = map(int(msg.back),-100,100,25,155);
+
+   front_left.write(mapped_front_left);		//assignes motor values to the corresponding motors.
+   front_right.write(mapped_front_right);
+   back_left.write(mapped_back_left);
+   back_right.write(mapped_back_right);
+   front.write(mapped_front);
+   back.write(mapped_back);
+   digitalWrite(13, HIGH-digitalRead(13));   // blink the led
+  }
+
+
+ void motors_off(void)		//function sets all the motor speeds to 0.
+  {
+   front_left.write(90);
+   front_right.write(90);
+   back_left.write(90);
+   back_right.write(90);
+   front.write(90);
+   back.write(90);
+  }
 
 void lcdLine1CallBack( const std_msgs::String& msg)	//sets up the first line of the LCD?
   {
@@ -71,6 +115,18 @@ void setup()
   
     Serial.println("begin");
     
+    nh.initNode();
+    nh.subscribe(sub);
+    nh.advertise(m);
+    nh.advertise(s);
+
+    front_left.attach(3); 	//attach Front left motor to pin 3
+    front_right.attach(5); 	//attach Front right to pin 5
+    back_left.attach(6); 		//attach Back left to pin 6
+    back_right.attach(9); 	//attach Back right to pin 9
+    front.attach(10); 		//attach Front to pin 10
+    back.attach(11); 		//attach Back to pin 11
+
     lcd.begin(20, 2);		//set up the LCD's number of columns and rows:
     lcd.setCursor(0, 0); 		// set the cursor to column 0, line 0
     lcd.print("  Project Phoenix   ");
@@ -133,6 +189,7 @@ void loop()
      	 {
         if(k_switch == 0)
           {
+	    motors_off();
 	    lcd.setCursor(0, 0);			//sets line and position of the LCD
 	    lcd.print("    Kill Switch    ");
 	    lcd.setCursor(0, 1);
