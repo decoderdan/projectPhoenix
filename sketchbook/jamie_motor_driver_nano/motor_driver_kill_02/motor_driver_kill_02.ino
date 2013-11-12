@@ -117,7 +117,7 @@ void guiEmergencyCallBack( const std_msgs::Bool& eFlag)
  ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string from the host.
  ros::Subscriber<std_msgs::String> sub2("lcd_line_2", &lcdLine2CallBack );
  
- ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );
+// ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );
 
 
 void setup() {
