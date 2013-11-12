@@ -105,7 +105,7 @@ void guiEmergencyCallBack( const std_msgs::Bool& eFlag)
      {
        emergencyKill = true;
      }
-   if(!eflag.data)
+   if(!eFlag.data)
      {
        emergencyKill = false;
      }
