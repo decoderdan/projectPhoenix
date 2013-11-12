@@ -5,6 +5,7 @@
  #include <custom_msg/MotorConfig.h>
  #include <std_msgs/Float32.h>
  #include <std_msgs/String.h>
+ #include <std_msgs/Bool.h>
 
  ros::NodeHandle nh;
  std_msgs::Float32 batteryStatusMotor;
@@ -14,9 +15,8 @@
 const int buttonPin = 2;    // the number of the pushbutton pin
 const int ledPin = 13;      // the number of the LED pin
 
- int emergency_kill = 0;		//kills motors
+ int emergencyKill = 0;		//kills motors
  int kill_switch = 2;			//emergency switch, 1= turned on,0 = turned off.
- int kill = 0;
  int k_switch = 0;
  int safe = 0;
 
@@ -98,26 +98,36 @@ int averageAnalog(int pin)				//function is used for calculating battery voltage
   return v/4;
  }
 
+
+void guiEmergencyCallBack( const std_msgs::Bool& eFlag)
+ {
+   if (eFlag.data)
+     {
+       emergencyKill = TRUE;
+     }
+   if(!eflag.data)
+     {
+       emergencyKill = FALSE;
+     }
+ }
+ 
  ros::Subscriber<custom_msg::MotorConfig> sub("motor_config", &motorConfigCallBack ); 	//subscribes to the motor config input.
  ros::Publisher m("batteryStatusMotor", &batteryStatusMotor);				//publishes the motor battery status.
  ros::Publisher s("batteryStatusSystem", &batteryStatusSystem);				//publiches the system battery status.
  ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string from the host.
  ros::Subscriber<std_msgs::String> sub2("lcd_line_2", &lcdLine2CallBack );
  
- //ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );
+ ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );
 
 
 void setup() {
-  Serial.begin(9600);
   pinMode(buttonPin, INPUT);
   pinMode(ledPin, OUTPUT);
 
   // set initial LED state
   digitalWrite(ledPin, ledState);
-  
-  Serial.println("begin");
-  
-   nh.initNode();
+    
+  nh.initNode();
   nh.subscribe(sub);
   nh.advertise(m);
   nh.advertise(s);
@@ -144,11 +154,7 @@ void loop() {
 	  nh.spinOnce();
 
   // read the state of the switch into a local variable:
-  int reading = digitalRead(buttonPin);
-
-  // check to see if you just pressed the button 
-  // (i.e. the input went from LOW to HIGH),  and you've waited 
-  // long enough since the last press to ignore any noise:  
+  int reading = digitalRead(buttonPin); 
 
   // If the switch changed, due to noise or pressing:
   if (reading != lastButtonState) {
@@ -173,18 +179,12 @@ void loop() {
   
   // set the LED:
   digitalWrite(ledPin, ledState);
-  
-  if(ledState) {
-    Serial.println("HIGH");
-  } else {
-    Serial.println("LOW");
-  }
 
   // save the reading.  Next time through the loop,
   // it'll be the lastButtonState:
   lastButtonState = reading;
 
-		if(emergency_kill == 1)
+		if(emergencyKill == 1)
 			 {
       			    motors_off();
     			    lcd.setCursor(0, 0); 
@@ -217,7 +217,7 @@ void loop() {
 
             if(safe == 0)
              {
-                  if ((emergency_kill == 0)&&(ledState == 1))                       {
+                  if ((emergencyKill == 0)&&(ledState == 1))                       {
                         {
                               lcd.clear();
                               lcd.setCursor(0, 0); 			//sets line and position of the LCD
