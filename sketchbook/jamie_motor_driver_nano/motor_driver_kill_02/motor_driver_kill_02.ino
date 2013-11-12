@@ -103,11 +103,11 @@ void guiEmergencyCallBack( const std_msgs::Bool& eFlag)
  {
    if (eFlag.data)
      {
-       emergencyKill = TRUE;
+       emergencyKill = true;
      }
    if(!eflag.data)
      {
-       emergencyKill = FALSE;
+       emergencyKill = false;
      }
  }
  
@@ -184,7 +184,7 @@ void loop() {
   // it'll be the lastButtonState:
   lastButtonState = reading;
 
-		if(emergencyKill == 1)
+		if(emergencyKill == true)
 			 {
       			    motors_off();
     			    lcd.setCursor(0, 0); 
@@ -217,7 +217,7 @@ void loop() {
 
             if(safe == 0)
              {
-                  if ((emergencyKill == 0)&&(ledState == 1))                       {
+                  if ((emergencyKill == false)&&(ledState == 1))                       {
                         {
                               lcd.clear();
                               lcd.setCursor(0, 0); 			//sets line and position of the LCD
