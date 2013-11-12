@@ -21,9 +21,9 @@ const int ledPin = 13;      // the number of the LED pin
  int safe = 0;
 
 // Variables will change:
-int ledState = HIGH;         // the current state of the output pin
+int ledState = 2;         // the current state of the output pin
 int buttonState;             // the current reading from the input pin
-int lastButtonState = LOW;   // the previous reading from the input pin
+int lastButtonState = 0;   // the previous reading from the input pin
 
 // the following variables are long's because the time, measured in miliseconds,
 // will quickly become a bigger number than can be stored in an int.
