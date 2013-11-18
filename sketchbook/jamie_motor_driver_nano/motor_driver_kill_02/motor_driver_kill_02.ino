@@ -111,13 +111,13 @@ void guiEmergencyCallBack( const std_msgs::Bool& eFlag)
      }
  }
  
- ros::Subscriber<custom_msg::MotorConfig> sub("motor_config", &motorConfigCallBack ); 	//subscribes to the motor config input.
  ros::Publisher m("batteryStatusMotor", &batteryStatusMotor);				//publishes the motor battery status.
  ros::Publisher s("batteryStatusSystem", &batteryStatusSystem);				//publiches the system battery status.
+ 
+ ros::Subscriber<custom_msg::MotorConfig> sub("motor_config", &motorConfigCallBack ); 	//subscribes to the motor config input.
  ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string from the host.
  ros::Subscriber<std_msgs::String> sub2("lcd_line_2", &lcdLine2CallBack );
- 
-// ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );
+ ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );
 
 
 void setup() {
@@ -128,9 +128,15 @@ void setup() {
   digitalWrite(ledPin, ledState);
     
   nh.initNode();
+  
   nh.subscribe(sub);
+  nh.subscribe(sub1);
+  nh.subscribe(sub2);
+  nh.subscribe(emergency);
+  
   nh.advertise(m);
   nh.advertise(s);
+  
 
   front_left.attach(3); 	//attach Front left motor to pin 3
   front_right.attach(5); 	//attach Front right to pin 5
