@@ -90,14 +90,14 @@ void lcdLine2CallBack( const std_msgs::String& msg)	//sets up the second line of
   lcd.setCursor(0, 1);					// set the cursor to column 0, line 1.
   lcd.print(msg.data);
  }
-
+*/
 int averageAnalog(int pin)				//function is used for calculating battery voltage.
  {
   int v=0;
   for(int i=0; i<4; i++) v+= analogRead(pin);
   return v/4;
  }
-*/
+
 
 void guiEmergencyCallBack( const std_msgs::Bool& eFlag)
  {
@@ -115,8 +115,8 @@ void guiEmergencyCallBack( const std_msgs::Bool& eFlag)
  ros::Publisher s("batteryStatusSystem", &batteryStatusSystem);				//publiches the system battery status.
  
  ros::Subscriber<custom_msg::MotorConfig> sub("motor_config", &motorConfigCallBack ); 	//subscribes to the motor config input.
- //ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string from the host.
- //ros::Subscriber<std_msgs::String> sub2("lcd_line_2", &lcdLine2CallBack );
+ ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string from the host.
+ ros::Subscriber<std_msgs::String> sub2("lcd_line_2", &lcdLine2CallBack );
  ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );
 
 
@@ -129,10 +129,10 @@ void setup() {
     
   nh.initNode();
   
-  nh.subscribe(sub);
+//  nh.subscribe(sub);
 //  nh.subscribe(sub1);
 //  nh.subscribe(sub2);
-  nh.subscribe(emergency);
+//  nh.subscribe(emergency);
   
   nh.advertise(m);
   nh.advertise(s);
@@ -192,7 +192,10 @@ void loop() {
 
 		if(emergencyKill == true)
 			 {
-				ledPin = 1;
+				while (1)
+					{
+						ledState =~ ledState;
+					}
       			   /* motors_off();
     			    lcd.setCursor(0, 0); 
                             delay(1000);			//sets line and position of the LCD
