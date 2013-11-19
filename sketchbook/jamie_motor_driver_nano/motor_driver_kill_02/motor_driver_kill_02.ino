@@ -4,12 +4,13 @@
  #include <ros.h>
  #include <custom_msg/MotorConfig.h>
  #include <std_msgs/Float32.h>
+ #include <std_msgs/Int.h>
  #include <std_msgs/String.h>
  #include <std_msgs/Bool.h>
 
  ros::NodeHandle nh;
- std_msgs::Float32 batteryStatusMotor;
- std_msgs::Float32 batteryStatusSystem;
+ std_msgs::Int batteryStatusMotor;
+ std_msgs::Int batteryStatusSystem;
  
  const int buttonPin = 2;   // the number of the pushbutton pin
  const int ledPin = 13;     // the number of the LED pin
@@ -112,8 +113,8 @@ void guiEmergencyCallBack( const std_msgs::Bool& eFlag) //function checks for a 
  
  ros::Subscriber<custom_msg::MotorConfig> sub("motor_config", &motorConfigCallBack ); 	//subscribes to the motor config input.
  
- ros::Subscriber<std_msgs::Char> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string for the LCD.
- ros::Subscriber<std_msgs::Char> sub2("lcd_line_2", &lcdLine2CallBack );
+ ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string for the LCD.
+ ros::Subscriber<std_msgs::String> sub2("lcd_line_2", &lcdLine2CallBack );
  
  ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );//subscribes to recieve a boolian value for the emergency kill.
 
