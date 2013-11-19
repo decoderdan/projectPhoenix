@@ -4,13 +4,13 @@
  #include <ros.h>
  #include <custom_msg/MotorConfig.h>
  #include <std_msgs/Float32.h>
- #include <std_msgs/Int.h>
  #include <std_msgs/String.h>
  #include <std_msgs/Bool.h>
+ #include <std_msgs/Char.h>
 
  ros::NodeHandle nh;
- std_msgs::Int batteryStatusMotor;
- std_msgs::Int batteryStatusSystem;
+ std_msgs::Float32 batteryStatusMotor;
+ std_msgs::Float32 batteryStatusSystem;
  
  const int buttonPin = 2;   // the number of the pushbutton pin
  const int ledPin = 13;     // the number of the LED pin
@@ -76,13 +76,13 @@ void motors_off(void)		//function sets all the motor speeds to 0.
  }
 
 
-void lcdLine1CallBack( const std_msgs::String& msg)	//sets up the first line of the LCD?
+void lcdLine1CallBack( const std_msgs::Char& msg)	//sets up the first line of the LCD?
  {
   lcd.setCursor(0, 0); 					// set the cursor to column 0, line 0.
   lcd.print(msg.data);
  }
 
-void lcdLine2CallBack( const std_msgs::String& msg)	//sets up the second line of the LCD?
+void lcdLine2CallBack( const std_msgs::Char& msg)	//sets up the second line of the LCD?
  {
   lcd.setCursor(0, 1);					// set the cursor to column 0, line 1.
   lcd.print(msg.data);
@@ -113,8 +113,8 @@ void guiEmergencyCallBack( const std_msgs::Bool& eFlag) //function checks for a 
  
  ros::Subscriber<custom_msg::MotorConfig> sub("motor_config", &motorConfigCallBack ); 	//subscribes to the motor config input.
  
- ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string for the LCD.
- ros::Subscriber<std_msgs::String> sub2("lcd_line_2", &lcdLine2CallBack );
+ ros::Subscriber<std_msgs::Char> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string for the LCD.
+ ros::Subscriber<std_msgs::Char> sub2("lcd_line_2", &lcdLine2CallBack );
  
  ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );//subscribes to recieve a boolian value for the emergency kill.
 
