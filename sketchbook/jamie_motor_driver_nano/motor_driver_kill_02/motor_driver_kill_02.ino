@@ -95,7 +95,7 @@ int averageAnalog(int pin)				//function is used for calculating battery voltage
  }
 
 
-/*void guiEmergencyCallBack( const std_msgs::Bool& eFlag) //function checks for a change of the emergency kill flag.
+void guiEmergencyCallBack( const std_msgs::Bool& eFlag) //function checks for a change of the emergency kill flag.
  {
    if (eFlag.data) //if flag is set to 1
      {
@@ -106,7 +106,7 @@ int averageAnalog(int pin)				//function is used for calculating battery voltage
        emergencyKill = false; //emergeny kill not triggered.
      }
  }
- */
+
  ros::Publisher m("batteryStatusMotor", &batteryStatusMotor);				//publishes the motor battery status.
  ros::Publisher s("batteryStatusSystem", &batteryStatusSystem);				//publiches the system battery status.
  
@@ -115,7 +115,7 @@ int averageAnalog(int pin)				//function is used for calculating battery voltage
  ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string for the LCD.
  ros::Subscriber<std_msgs::String> sub2("lcd_line_2", &lcdLine2CallBack );
  
- //ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );//subscribes to recieve a boolian value for the emergency kill.
+ ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );//subscribes to recieve a boolian value for the emergency kill.
 
 
 void setup() 
@@ -130,7 +130,7 @@ void setup()
    nh.subscribe(sub); //sets the node handles for the subscribers
    nh.subscribe(sub1);
    nh.subscribe(sub2);
-  // nh.subscribe(emergency);
+   nh.subscribe(emergency);
   
    nh.advertise(m);  //sets the node handles for the publishers.
    nh.advertise(s);
@@ -153,8 +153,8 @@ void setup()
 
 void loop() 
  { 
-   for (int i = 0; i < 1000; i++)	//used to only send the battery voltages once a second.
-    {  
+////   for (int i = 0; i < 1000; i++)	//used to only send the battery voltages once a second.
+////    {  
       nh.spinOnce();
 
       int reading = digitalRead(buttonPin);   // read the state of the switch into a local variable:
@@ -178,11 +178,11 @@ void loop()
 
 	  if(emergencyKill == true) //if the emergency kill command has been called.
 	   {
-         while (1) //just used to test to see if the emergency kill is working.
-		  {
-		    ledState =~ ledState; //flicker the LED
-		    delay (1000);
-		  }
+////         while (1) //just used to test to see if the emergency kill is working.
+////		  {
+////		    ledState =~ ledState; //flicker the LED
+////		    delay (1000);
+////		  }
      /*  motors_off();
     	 lcd.setCursor(0, 0); 
          delay(1000);			//sets line and position of the LCD
@@ -191,6 +191,10 @@ void loop()
          delay(1000);
     	 lcd.print("  Motors Dissabled ");
          safe = 0;*/
+////
+////
+		batteryStatusMotor.data = 666.6; //saves that value to the publisher variable.
+   		m.publish(&batteryStatusMotor);        //publishes motor battery voltage
   	   }
   
       if(ledState == 0) //is the kill switch has been activated
@@ -222,7 +226,7 @@ void loop()
             safe = 1;	  //prevent this message from being displayed again until the switch has become active.
           }
        }
-    }
+////    }
 
    float batVoltage = averageAnalog(5);   //reads motor battery value from pin 5
    batVoltage = (batVoltage/1024)*26;     //converts that value into a voltage
@@ -233,5 +237,7 @@ void loop()
    sysVoltage = (sysVoltage/1024)*26;      //converts value to a voltage
    batteryStatusSystem.data =  sysVoltage; //saves that to the publisher variable.
    s.publish(&batteryStatusSystem);        //publishes the system battery voltage.
+
+   delay(1000);
  }
 
