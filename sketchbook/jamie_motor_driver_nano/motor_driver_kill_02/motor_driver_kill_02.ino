@@ -112,8 +112,8 @@ void guiEmergencyCallBack( const std_msgs::Bool& eFlag) //function checks for a 
  
  ros::Subscriber<custom_msg::MotorConfig> sub("motor_config", &motorConfigCallBack ); 	//subscribes to the motor config input.
  
- ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string for the LCD.
- ros::Subscriber<std_msgs::String> sub2("lcd_line_2", &lcdLine2CallBack );
+ ros::Subscriber<std_msgs::Char> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string for the LCD.
+ ros::Subscriber<std_msgs::Char> sub2("lcd_line_2", &lcdLine2CallBack );
  
  ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );//subscribes to recieve a boolian value for the emergency kill.
 
