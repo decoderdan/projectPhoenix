@@ -153,8 +153,7 @@ void loop()
  { 
    for (int i = 0; i < 1000; i++)	//used to only send the battery voltages once a second.
     {  
-    //nh.spinOnce();
- 	  nh.spin(); //could potentially fix problem cos it goes through all the call backs before it moves on.
+      nh.spinOnce();
 
       int reading = digitalRead(buttonPin);   // read the state of the switch into a local variable:
   
