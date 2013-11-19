@@ -77,14 +77,14 @@ void motors_off(void)		//function sets all the motor speeds to 0.
 
 void lcdLine1CallBack( const std_msgs::String& msg)	//sets up the first line of the LCD?
  {
-  lcd.setCursor(0, 0); 					// set the cursor to column 0, line 0.
-  lcd.print(msg.data);
+  //lcd.setCursor(0, 0); 					// set the cursor to column 0, line 0.
+  //lcd.print(msg.data);
  }
 
 void lcdLine2CallBack( const std_msgs::String& msg)	//sets up the second line of the LCD?
  {
-  lcd.setCursor(0, 1);					// set the cursor to column 0, line 1.
-  lcd.print(msg.data);
+ // lcd.setCursor(0, 1);					// set the cursor to column 0, line 1.
+ // lcd.print(msg.data);
  }
 
 int averageAnalog(int pin)				//function is used for calculating battery voltage.
@@ -95,18 +95,18 @@ int averageAnalog(int pin)				//function is used for calculating battery voltage
  }
 
 
-/*void guiEmergencyCallBack( const std_msgs::Bool& eFlag) //function checks for a change of the emergency kill flag.
+void guiEmergencyCallBack( const std_msgs::Bool& eFlag) //function checks for a change of the emergency kill flag.
  {
-   if (eFlag.data) //if flag is set to 1
+ /*  if (eFlag.data) //if flag is set to 1
      {
        emergencyKill = true; //emergency kill triggered.
      }
    if(!eFlag.data) //if flag is set to 0
      {
        emergencyKill = false; //emergeny kill not triggered.
-     }
+     }*/
  }
- */
+ 
  ros::Publisher m("batteryStatusMotor", &batteryStatusMotor);				//publishes the motor battery status.
  ros::Publisher s("batteryStatusSystem", &batteryStatusSystem);				//publiches the system battery status.
  
