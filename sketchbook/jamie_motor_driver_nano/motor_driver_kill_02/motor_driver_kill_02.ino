@@ -1,4 +1,4 @@
-#include <Arduino.h>
+ #include <Arduino.h>
  #include <Servo.h>
  #include <LiquidCrystal.h>
  #include <ros.h>
@@ -10,25 +10,21 @@
  ros::NodeHandle nh;
  std_msgs::Float32 batteryStatusMotor;
  std_msgs::Float32 batteryStatusSystem;
-// constants won't change. They're used here to 
-// set pin numbers:
-const int buttonPin = 2;    // the number of the pushbutton pin
-const int ledPin = 13;      // the number of the LED pin
+ 
+ const int buttonPin = 2;   // the number of the pushbutton pin
+ const int ledPin = 13;     // the number of the LED pin
 
  int emergencyKill = 0;		//kills motors
- int kill_switch = 2;			//emergency switch, 1= turned on,0 = turned off.
- int k_switch = 0;
- int safe = 0;
+ int kill_switch = 2;		//emergency switch, 1= turned on,0 = turned off.
+ int k_switch = 0;			//used to prevent the LCD from being spammed when the kill switch is active.
+ int safe = 0;				//used to prevent the LCD from being spammed when the system is fine.
 
-// Variables will change:
-int ledState = 2;         // the current state of the output pin
-int buttonState;             // the current reading from the input pin
-int lastButtonState = 0;   // the previous reading from the input pin
+ int ledState = 2;           // the current state of the kill switch
+ int buttonState;            // the current reading from the input pin
+ int lastButtonState = 0;    // the previous reading from the kill switch
 
-// the following variables are long's because the time, measured in miliseconds,
-// will quickly become a bigger number than can be stored in an int.
-long lastDebounceTime = 0;  // the last time the output pin was toggled
-long debounceDelay = 100;    // the debounce time; increase if the output flickers
+ long lastDebounceTime = 0;  // the last time the output pin was toggled
+ long debounceDelay = 100;   // the debounce time; increase if the output flickers
 
 
 
@@ -46,7 +42,7 @@ long debounceDelay = 100;    // the debounce time; increase if the output flicke
  Servo front;
  Servo back;
 
- LiquidCrystal lcd(12, 8, A0, A1, A2, A3); // setup for the lcd
+ LiquidCrystal lcd(12, 8, A0, A1, A2, A3); // setup for the lcd pins on the arduino
 
 void motorConfigCallBack( const custom_msg::MotorConfig& msg) //Function sets up the arduino to accomodate the motor values.
  {
@@ -79,7 +75,7 @@ void motors_off(void)		//function sets all the motor speeds to 0.
  }
 
 
-/*void lcdLine1CallBack( const std_msgs::String& msg)	//sets up the first line of the LCD?
+void lcdLine1CallBack( const std_msgs::String& msg)	//sets up the first line of the LCD?
  {
   lcd.setCursor(0, 0); 					// set the cursor to column 0, line 0.
   lcd.print(msg.data);
@@ -90,24 +86,24 @@ void lcdLine2CallBack( const std_msgs::String& msg)	//sets up the second line of
   lcd.setCursor(0, 1);					// set the cursor to column 0, line 1.
   lcd.print(msg.data);
  }
-*/
+
 int averageAnalog(int pin)				//function is used for calculating battery voltage.
  {
   int v=0;
-  for(int i=0; i<4; i++) v+= analogRead(pin);
+  for(int i=0; i<4; i++) v+= analogRead(pin); //read from analog pin.
   return v/4;
  }
 
 
-void guiEmergencyCallBack( const std_msgs::Bool& eFlag)
+void guiEmergencyCallBack( const std_msgs::Bool& eFlag) //function checks for a change of the emergency kill flag.
  {
-   if (eFlag.data)
+   if (eFlag.data) //if flag is set to 1
      {
-       emergencyKill = true;
+       emergencyKill = true; //emergency kill triggered.
      }
-   if(!eFlag.data)
+   if(!eFlag.data) //if flag is set to 0
      {
-       emergencyKill = false;
+       emergencyKill = false; //emergeny kill not triggered.
      }
  }
  
@@ -115,144 +111,126 @@ void guiEmergencyCallBack( const std_msgs::Bool& eFlag)
  ros::Publisher s("batteryStatusSystem", &batteryStatusSystem);				//publiches the system battery status.
  
  ros::Subscriber<custom_msg::MotorConfig> sub("motor_config", &motorConfigCallBack ); 	//subscribes to the motor config input.
- ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string from the host.
+ ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string for the LCD.
  ros::Subscriber<std_msgs::String> sub2("lcd_line_2", &lcdLine2CallBack );
- ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );
+ ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );//subscribes to recieve a boolian value for the emergency kill.
 
 
-void setup() {
-  pinMode(buttonPin, INPUT);
-  pinMode(ledPin, OUTPUT);
+void setup() 
+ {
+   pinMode(buttonPin, INPUT);
+   pinMode(ledPin, OUTPUT);
 
-  // set initial LED state
-  digitalWrite(ledPin, ledState);
+   digitalWrite(ledPin, ledState);  // set initial LED state
     
-  nh.initNode();
+   nh.initNode(); //initialises the node handle
   
-//  nh.subscribe(sub);
-//  nh.subscribe(sub1);
-//  nh.subscribe(sub2);
-//  nh.subscribe(emergency);
+   nh.subscribe(sub); //sets the node handles for the subscribers
+   nh.subscribe(sub1);
+   nh.subscribe(sub2);
+   nh.subscribe(emergency);
   
-  nh.advertise(m);
-  nh.advertise(s);
+   nh.advertise(m);  //sets the node handles for the publishers.
+   nh.advertise(s);
   
 
-  front_left.attach(3); 	//attach Front left motor to pin 3
-  front_right.attach(5); 	//attach Front right to pin 5
-  back_left.attach(6); 		//attach Back left to pin 6
-  back_right.attach(9); 	//attach Back right to pin 9
-  front.attach(10); 		//attach Front to pin 10
-  back.attach(11); 		//attach Back to pin 11
- 
- lcd.begin(20, 2);		//set up the LCD's number of columns and rows:
- lcd.setCursor(0, 0); 		// set the cursor to column 0, line 0
- lcd.print("  Project Phoenix   ");
- lcd.setCursor(0, 1);
- lcd.print("   www.uwesub.com   ");
+   front_left.attach(3); 	//attaches the motors to there corresponding pins
+   front_right.attach(5); 	
+   back_left.attach(6); 	
+   back_right.attach(9); 	
+   front.attach(10); 		
+   back.attach(11); 		
+  
+   lcd.begin(20, 2);		//set up the LCD's number of columns and rows:
+   lcd.setCursor(0, 0); 		// set the cursor to column 0, line 0
+   lcd.print("  Project Phoenix   ");
+   lcd.setCursor(0, 1);
+   lcd.print("   www.uwesub.com   ");
  }
 
 
-void loop() {
+void loop() 
+ { 
+   for (int i = 0; i < 1000; i++)	//used to only send the battery voltages once a second.
+    {  
+    //nh.spinOnce();
+ 	  nh.spin(); //could potentially fix problem cos it goes through all the call backs before it moves on.
+
+      int reading = digitalRead(buttonPin);   // read the state of the switch into a local variable:
   
-  	for (int i = 0; i < 1000; i++)	//used to only send the battery voltages once a second.
-	 {  
-	  nh.spinOnce();
-
-  // read the state of the switch into a local variable:
-  int reading = digitalRead(buttonPin); 
-
-  // If the switch changed, due to noise or pressing:
-  if (reading != lastButtonState) {
-    // reset the debouncing timer
-    lastDebounceTime = millis();
-  } 
+      if (reading != lastButtonState)  // If the switch changed, due to noise or pressing:
+       {
+         lastDebounceTime = millis();  // reset the debouncing timer
+       } 
   
-  if ((millis() - lastDebounceTime) > debounceDelay) {
-    // whatever the reading is at, it's been there for longer
-    // than the debounce delay, so take it as the actual current state:
+      if ((millis() - lastDebounceTime) > debounceDelay) 
+       {
+         if (reading != buttonState)  // if the button state has changed: 
+          {
+            buttonState = reading;
+            ledState = !ledState;  // toggle the ledState if the new button state changes
+          }
+       }
+  
+      digitalWrite(ledPin, ledState);
+      lastButtonState = reading;  //reading from switch is saved for comparrison.
 
-    // if the button state has changed:
-    if (reading != buttonState) {
-      buttonState = reading;
+	  if(emergencyKill == true) //if the emergency kill command has been called.
+	   {
+         while (1) //just used to test to see if the emergency kill is working.
+		  {
+		    ledState =~ ledState; //flicker the LED
+		    delay (1000);
+		  }
+     /*  motors_off();
+    	 lcd.setCursor(0, 0); 
+         delay(1000);			//sets line and position of the LCD
+    	 lcd.print("  Emergency Kill  ");
+    	 lcd.setCursor(0, 1);
+         delay(1000);
+    	 lcd.print("  Motors Dissabled ");
+         safe = 0;*/
+  	   }
+  
+      if(ledState == 0) //is the kill switch has been activated
+       {
+         motors_off(); //turn off motors
+	
+         if(k_switch == 0)
+          {
+	        lcd.setCursor(0, 0);  //sets line and position of the LCD
+		    lcd.print("    Kill Switch    "); //print message
+		    lcd.setCursor(0, 1);
+            lcd.print("  Motors Dissabled ");
+            k_switch = 1; //prevents this message from being sent again until the switch has been deactivated.
+            safe = 0; //reset so the "no kill" message can be displayed.
+          }
+			 
+       }
 
-      // toggle the ledState if the new button state changes
- 
-        ledState = !ledState;
 
+      if(safe == 0) //has the kill switch been activated during this program?
+       {
+         if ((emergencyKill == false)&&(ledState == 1)) //if none of the kill switches/commands are active.                      
+          {
+            lcd.setCursor(0, 0); 			//sets line and position of the LCD
+            lcd.print("          NO       "); //display message
+            lcd.setCursor(0, 1);
+            lcd.print("         KILL      ");
+            k_switch = 0; //reset k_switch
+            safe = 1;	  //prevent this message from being displayed again until the switch has become active.
+          }
+       }
     }
-  }
-  
-  // set the LED:
-  digitalWrite(ledPin, ledState);
 
-  // save the reading.  Next time through the loop,
-  // it'll be the lastButtonState:
-  lastButtonState = reading;
+   float batVoltage = averageAnalog(5);   //reads motor battery value from pin 5
+   batVoltage = (batVoltage/1024)*26;     //converts that value into a voltage
+   batteryStatusMotor.data =  batVoltage; //saves that value to the publisher variable.
+   m.publish(&batteryStatusMotor);        //publishes motor battery voltage
 
-		if(emergencyKill == true)
-			 {
-				while (1)
-					{
-						ledState =~ ledState;
-					}
-      			   /* motors_off();
-    			    lcd.setCursor(0, 0); 
-                            delay(1000);			//sets line and position of the LCD
-    		    	    lcd.print("  Emergency Kill  ");
-    		      	    lcd.setCursor(0, 1);
-                            delay(1000);
-    		    	    lcd.print("  Motors Dissabled ");
-                            safe = 0;*/
-  			 }
-  
-                       if(ledState == 0)
-                       {
-                            motors_off();
-			 
-                            if(k_switch == 0)
-                              {
-	 		        lcd.setCursor(0, 0);
-                                delay(1000);			//sets line and position of the LCD
-			        lcd.print("    Kill Switch    ");
-		      	        lcd.setCursor(0, 1);
-                                delay(1000);
-		    	        lcd.print("  Motors Dissabled ");
-                                k_switch = 1;
-                                safe = 0;
-                              }
-			 
-                       }
-
-
-            if(safe == 0)
-             {
-                  if ((emergencyKill == false)&&(ledState == 1))                       {
-                        {
-                              lcd.clear();
-                              lcd.setCursor(0, 0); 			//sets line and position of the LCD
-                              lcd.print("          NO       ");
-                              lcd.setCursor(0, 1);
-                              lcd.print("         KILL      ");
-                              k_switch = 0;
-                              safe = 1;
-                             
-                        }
-              }
-  }
-}
-  float batVoltage = averageAnalog(5);
-  batVoltage = (batVoltage/1024)*26;
-  batteryStatusMotor.data =  batVoltage;
-  m.publish(&batteryStatusMotor);
-  float sysVoltage = averageAnalog(6);
-  sysVoltage = (sysVoltage/1024)*26;
-  batteryStatusSystem.data =  sysVoltage;
-  s.publish(&batteryStatusSystem);
+   float sysVoltage = averageAnalog(6);    //reads system battery value from pin 6
+   sysVoltage = (sysVoltage/1024)*26;      //converts value to a voltage
+   batteryStatusSystem.data =  sysVoltage; //saves that to the publisher variable.
+   s.publish(&batteryStatusSystem);        //publishes the system battery voltage.
  }
-
-
-
-  
-
 
