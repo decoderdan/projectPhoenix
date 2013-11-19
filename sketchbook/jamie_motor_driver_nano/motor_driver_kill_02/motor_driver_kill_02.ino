@@ -95,7 +95,7 @@ int averageAnalog(int pin)				//function is used for calculating battery voltage
  }
 
 
-void guiEmergencyCallBack( const std_msgs::Bool& eFlag) //function checks for a change of the emergency kill flag.
+/*void guiEmergencyCallBack( const std_msgs::Bool& eFlag) //function checks for a change of the emergency kill flag.
  {
    if (eFlag.data) //if flag is set to 1
      {
@@ -106,7 +106,7 @@ void guiEmergencyCallBack( const std_msgs::Bool& eFlag) //function checks for a 
        emergencyKill = false; //emergeny kill not triggered.
      }
  }
- 
+ */
  ros::Publisher m("batteryStatusMotor", &batteryStatusMotor);				//publishes the motor battery status.
  ros::Publisher s("batteryStatusSystem", &batteryStatusSystem);				//publiches the system battery status.
  
