@@ -6,7 +6,6 @@
  #include <std_msgs/Float32.h>
  #include <std_msgs/String.h>
  #include <std_msgs/Bool.h>
- #include <std_msgs/Char.h>
 
  ros::NodeHandle nh;
  std_msgs::Float32 batteryStatusMotor;
@@ -76,25 +75,25 @@ void motors_off(void)		//function sets all the motor speeds to 0.
  }
 
 
-void lcdLine1CallBack( const std_msgs::Char& msg)	//sets up the first line of the LCD?
+void lcdLine1CallBack( const std_msgs::String& msg)	//sets up the first line of the LCD?
  {
   lcd.setCursor(0, 0); 					// set the cursor to column 0, line 0.
   lcd.print(msg.data);
  }
 
-void lcdLine2CallBack( const std_msgs::Char& msg)	//sets up the second line of the LCD?
+void lcdLine2CallBack( const std_msgs::String& msg)	//sets up the second line of the LCD?
  {
   lcd.setCursor(0, 1);					// set the cursor to column 0, line 1.
   lcd.print(msg.data);
  }
 
-int averageAnalog(int pin)				//function is used for calculating battery voltage.
+/*int averageAnalog(int pin)				//function is used for calculating battery voltage.
  {
   int v=0;
   for(int i=0; i<4; i++) v+= analogRead(pin); //read from analog pin.
   return v/4;
  }
-
+*/
 
 void guiEmergencyCallBack( const std_msgs::Bool& eFlag) //function checks for a change of the emergency kill flag.
  {
@@ -107,14 +106,14 @@ void guiEmergencyCallBack( const std_msgs::Bool& eFlag) //function checks for a 
        emergencyKill = false; //emergeny kill not triggered.
      }
  }
-
+/*
  ros::Publisher m("batteryStatusMotor", &batteryStatusMotor);				//publishes the motor battery status.
  ros::Publisher s("batteryStatusSystem", &batteryStatusSystem);				//publiches the system battery status.
- 
+ */
  ros::Subscriber<custom_msg::MotorConfig> sub("motor_config", &motorConfigCallBack ); 	//subscribes to the motor config input.
  
- ros::Subscriber<std_msgs::Char> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string for the LCD.
- ros::Subscriber<std_msgs::Char> sub2("lcd_line_2", &lcdLine2CallBack );
+ ros::Subscriber<std_msgs::String> sub1("lcd_line_1", &lcdLine1CallBack );		//subscribes to recieve a string for the LCD.
+ ros::Subscriber<std_msgs::String> sub2("lcd_line_2", &lcdLine2CallBack );
  
  ros::Subscriber<std_msgs::Bool> emergency("emergency", &guiEmergencyCallBack );//subscribes to recieve a boolian value for the emergency kill.
 
@@ -229,7 +228,7 @@ void loop()
        }
 ////    }
 
-   float batVoltage = averageAnalog(5);   //reads motor battery value from pin 5
+/*   float batVoltage = averageAnalog(5);   //reads motor battery value from pin 5
    batVoltage = (batVoltage/1024)*26;     //converts that value into a voltage
    batteryStatusMotor.data =  batVoltage; //saves that value to the publisher variable.
    m.publish(&batteryStatusMotor);        //publishes motor battery voltage
@@ -238,7 +237,7 @@ void loop()
    sysVoltage = (sysVoltage/1024)*26;      //converts value to a voltage
    batteryStatusSystem.data =  sysVoltage; //saves that to the publisher variable.
    s.publish(&batteryStatusSystem);        //publishes the system battery voltage.
-
+*/
    delay(1000);
  }
 
