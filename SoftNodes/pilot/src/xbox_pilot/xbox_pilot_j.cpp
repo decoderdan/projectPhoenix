@@ -147,14 +147,14 @@
 
 	//Depth control, reads from the right ([5]) and left ([2]) triggers and outputs target vector values.
 
-    if((joy->axes[5] > 0) && (joy->axes[2] == 0)) //if right trigger is down and left trigger is up.
+    if((joy->axes[5] < 1) && (joy->axes[2] == 1)) //if right trigger is down and left trigger is up.
      {
 	   
 	   rise = (1 * ((joy->axes[5] + 1.0)/2.0)); //sets the right trigger to control rise
        depthChange = (rise / 10); //sets the maximum velocity to 0.1 m/s
      }
 
-    else if((joy->axes[5] == 0) && (joy->axes[2] > 0)) //if right trigger is up and left trigger is down
+    else if((joy->axes[5] == 1) && (joy->axes[2] < 1)) //if right trigger is up and left trigger is down
      {	
 	   dive = (-1 * ((joy->axes[2] + 1.0)/2.0)); //sets the left trigger to control dive
        depthChange = (dive / 10); //sets maximum velocity to 0.1 m/s		
@@ -175,7 +175,6 @@
     set_roll = false;
 
 	targetMsg.publish(TargetVector); //publish the target vector.
-	motorMsg.publish(motorCfg); //publish the motor values.
   }
 
 /* *********************************************************************************************************************** */
@@ -235,12 +234,11 @@
     motorCfg.back_right = constrain(motorCfg.back_right, -100, 100);
     motorCfg.back_left = constrain(motorCfg.back_left, -100, 100);
 
-    motorMsg.publish(motorCfg); //publish the motor values.
-
+   
   }
 /* *********************************************************************************************************************** */
 /* *********************************************************************************************************************** */
 /* *********************************************************************************************************************** */
 /* *********************************************************************************************************************** */
-
+motorMsg.publish(motorCfg); //publish the motor values.
   }
