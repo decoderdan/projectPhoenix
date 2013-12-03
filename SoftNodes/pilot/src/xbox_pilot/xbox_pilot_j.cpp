@@ -20,6 +20,7 @@
  void joyCallback(const sensor_msgs::Joy::ConstPtr&); //declaration of call back functions
  float map(float, float, float, float, float);
  float depth_target_raw;
+ ros::Publisher motorMsg;	//global declaration of the publisher "motorMsg"
  custom_msg::MotorConfig motorCfg;
 
  int strafe_test = 0; // used to activate experimental code
@@ -54,7 +55,7 @@
 	ros::init(argc, argv, "xbox_pilot");
 	ros::NodeHandle n;
 
-	ros::Publisher motorMsg = n.advertise<custom_msg::MotorConfig>("motor_config", 100); //Publisher for the motor configuration
+	motorMsg = n.advertise<custom_msg::MotorConfig>("motor_config", 100); //Publisher for the motor configuration
 	ros::Publisher targetMsg = n.advertise<custom_msg::TargetVector>("vector",100); // publish new target vector
 
 	ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack); // subscriber for depth target vector 		
@@ -175,6 +176,7 @@
     set_roll = false;
 
 	targetMsg.publish(TargetVector); //publish the target vector.
+	motorMsg.publish(motorCfg); //publish the motor values.
   }
 
 /* *********************************************************************************************************************** */
@@ -234,11 +236,12 @@
     motorCfg.back_right = constrain(motorCfg.back_right, -100, 100);
     motorCfg.back_left = constrain(motorCfg.back_left, -100, 100);
 
-   
+    motorMsg.publish(motorCfg); //publish the motor values.
+
   }
 /* *********************************************************************************************************************** */
 /* *********************************************************************************************************************** */
 /* *********************************************************************************************************************** */
 /* *********************************************************************************************************************** */
-motorMsg.publish(motorCfg); //publish the motor values.
+
   }
