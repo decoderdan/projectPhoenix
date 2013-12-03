@@ -149,13 +149,14 @@
 
     if((joy->axes[5] > 0) && (joy->axes[2] == 0)) //if right trigger is down and left trigger is up.
      {
-	   rise = (1 * joy->axes[5]); //sets the right trigger to control rise
+	   
+	   rise = (1 * ((joy->axes[5] + 1.0)/2.0)); //sets the right trigger to control rise
        depthChange = (rise / 10); //sets the maximum velocity to 0.1 m/s
      }
 
     else if((joy->axes[5] == 0) && (joy->axes[2] > 0)) //if right trigger is up and left trigger is down
      {	
-	   dive = (-1 * joy->axes[2]); //sets the left trigger to control dive
+	   dive = (-1 * ((joy->axes[2] + 1.0)/2.0)); //sets the left trigger to control dive
        depthChange = (dive / 10); //sets maximum velocity to 0.1 m/s		
      }
 
