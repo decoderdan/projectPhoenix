@@ -1,0 +1,8 @@
+<launch>
+	<node name="serial_node"	pkg="rosserial_python" 			type="serial_node.py" ></node>
+	<node name="xbox_pilot_j" 	pkg="xbox_pilot" 				type="xbox_pilot_j.cpp" ></node>
+	<node name="pid_pilot_j" 	pkg="pid_pilot"					type="pid_pilot_j.cpp" ></node>
+	<node name="arduino_node" 	pkg="jamie_motor_driver_nano" 	type=arduino_node.ino" ></node>
+</launch
+
+	<node name="name_of_executable" pkg="name_of_package" 		type="name_of_packge" output="screen"/>
