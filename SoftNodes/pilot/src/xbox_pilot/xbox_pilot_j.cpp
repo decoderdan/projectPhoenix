@@ -17,6 +17,9 @@
  #include <sensor_msgs/Joy.h>
  #include <custom_msg/TargetVector.h>
 
+ #include <custom_msg/PIDValues.h>
+ #include <custom_msg/IMUData.h>
+
  void joyCallback(const sensor_msgs::Joy::ConstPtr&); //declaration of call back functions
  float map(float, float, float, float, float);
  float depth_target_raw;
@@ -172,12 +175,12 @@
 
 	TargetVector.vector_z = (depth_target_raw + depthChange); //depth target vector = the input target value + change in depth form controller.
 
-	set_z = true; // PID_pilot will only look for a change in depth.
-    set_y = false;
-	set_x = false;
-    set_yaw = false;
-    set_pitch = false;
-   // set_roll = false;
+	TargetVector.set_z = true; // PID_pilot will only look for a change in depth.
+    TargetVector.set_y = false;
+	TargetVector.set_x = false;
+    TargetVector.set_yaw = false;
+    TargetVector.set_pitch = false;
+    TargetVector.set_roll = false;
 
 	targetMsg.publish(TargetVector); //publish the target vector.
 	motorMsg.publish(motorCfg); //publish the motor values.
