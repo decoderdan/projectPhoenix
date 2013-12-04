@@ -116,7 +116,7 @@
     
  if((joy->buttons[0] == 1)&&(button_a == 0)) //if button A has been pressed and released.
   {
-    strafe_test ~= strafe_test;  //toggle strafe test
+    strafe_test = ~strafe_test;  //toggle strafe test
     button_a = 1;				 //prevent the program from toggling strafe_test until the button is released
   }
  
