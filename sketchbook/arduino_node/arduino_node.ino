@@ -199,7 +199,7 @@
   
     if(killSwitch == 0) //is the kill switch has been activated
      {
-       motors_off(); //turn off motors
+     //  motors_off(); //turn off motors
      }
 
     float batVoltage = averageAnalog(5);   //reads motor battery value from pin 5
@@ -212,6 +212,5 @@
     batteryStatusSystem.data =  sysVoltage; //saves that to the publisher variable.
     s.publish(&batteryStatusSystem);        //publishes the system battery voltage.
 
-    delay(1000);
   }
 
