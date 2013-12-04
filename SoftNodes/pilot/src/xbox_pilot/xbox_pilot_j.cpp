@@ -177,7 +177,7 @@
 	set_x = false;
     set_yaw = false;
     set_pitch = false;
-    set_roll = false;
+   // set_roll = false;
 
 	targetMsg.publish(TargetVector); //publish the target vector.
 	motorMsg.publish(motorCfg); //publish the motor values.
