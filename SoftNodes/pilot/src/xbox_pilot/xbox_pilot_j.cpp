@@ -30,7 +30,7 @@
  ros::Publisher targetMsg;
  custom_msg::TargetVector TargetVector;
 
- int strafe_test = 0; // used to activate experimental code
+ bool strafe_test = false; // used to activate experimental code
  int button_a = 0; //used to toggle the button
 
  /** *********************************************** **/
