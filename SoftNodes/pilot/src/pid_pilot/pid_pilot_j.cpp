@@ -71,7 +71,6 @@
  float depth_derivative = 0;
 
  bool emergency_stop;			//variable that stops program if an emergency message is recieved
- int vectorFlag = 0;
  /** *********************************************** **/
  /** Name: emergencyCallBack                         **/
  /**                                                 **/
@@ -200,8 +199,8 @@
 
  void vectorCallBack(const custom_msg::TargetVector& data) 
   {
-    if (data.set_yaw == true) {yaw_target_raw = data.vector_yaw;vectorFlag = 1;std::cout << "Yaw target updated "  << std::endl;}	//if the yaw has changed, read in the new value.
-	if (data.set_pitch == true) {pitch_target_raw = data.vector_pitch;vectorFlag = 1;std::cout << "Pitch target updated "  << std::endl;}	////if the pitch has changed, read in the new value.
+    if (data.set_yaw == true) {yaw_target_raw = data.vector_yaw;std::cout << "Yaw target updated "  << std::endl;}	//if the yaw has changed, read in the new value.
+	if (data.set_pitch == true) {pitch_target_raw = data.vector_pitch;std::cout << "Pitch target updated "  << std::endl;}	////if the pitch has changed, read in the new value.
 	if (data.set_z == true) {depth_target_raw = data.vector_z;std::cout << "Depth target updated "  << std::endl;} //if the depth has changed, read in the new value.
 	if (data.set_x == true) {move_x = data.vector_x;} //if x axis (strafe) has been changed, read this value.
 	if (data.set_y == true) {move_y = data.vector_y;} //if Y axis has been changed, read this value.
@@ -288,14 +287,11 @@
 	      depth_previous_error = depth_error;
 	  	  depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
 		
-	   if(vectorFlag == 1)
-		{
-		  //output to motors
+	     //output to motors
 		  motorCfg.front_right = int(constrain((move_x-move_y-yaw_output), -100, 100)); //motor values are constrained to -100 and 100.
 		  motorCfg.front_left = int(constrain((move_x+move_y+yaw_output), -100, 100));
 		  motorCfg.back_right = int(constrain((-move_x-move_y+yaw_output), -100, 100));
-		  motorCfg.back_left = int(constrain((-move_x+move_y-yaw_output), -100, 100));
-		}		 
+		  motorCfg.back_left = int(constrain((-move_x+move_y-yaw_output), -100, 100));		 
 		  motorCfg.front = int(constrain((-depth_output+pitch_output), -100, 100));
 		  motorCfg.back = int(constrain((-depth_output-pitch_output), -100, 100));	
 		  motorMsg.publish(motorCfg); //publish motor values.

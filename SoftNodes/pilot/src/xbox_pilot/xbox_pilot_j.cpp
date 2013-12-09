@@ -22,7 +22,7 @@
 
  void joyCallback(const sensor_msgs::Joy::ConstPtr&); //declaration of call back functions
  float map(float, float, float, float, float);
- float depth_target_raw;
+ //float depth_target_raw;
  
  ros::Publisher motorMsg;	//global declaration of the publisher "motorMsg"
  custom_msg::MotorConfig motorCfg;
@@ -32,6 +32,20 @@
 
  bool strafe_test = false; // used to activate experimental code
  int button_a = 0; //used to toggle the button
+
+////
+ float depth_rate = 0.05; 		//m per second
+ float depth_Kp = 0;			//3 variables for depth PID
+ float depth_Ki = 0;
+ float depth_Kd = 0;
+ float depth_input = 0;			//depth value recieved from the SVP
+ float depth_target_raw = 0;	
+ float depth_target = 0;		//desired depth value
+ float depth_error = 0;			//difference between desired and actual values.
+ float depth_previous_error = 0;
+ float depth_integral = 0;
+ float depth_derivative = 0;
+////
 
  /** *********************************************** **/
  /** Name: vectorCallBack                            **/
@@ -50,6 +64,20 @@
 	
   }
 
+////
+ /** *********************************************** **/
+ /** Name: depthCallBack                             **/
+ /**                                                 **/
+ /** Function: To recieve depth data and set the     **/
+ /** value of "depth_input" to this value.            **/
+ /** *********************************************** **/
+
+ void depthCallBack(const std_msgs::Float32& depth) 
+  {
+    depth_input = depth.data; //set the value of depth_input to the measured depth value 
+  }
+////
+
  /** *********************************************** **/
  /** Name: main                                      **/
  /**                                                 **/
@@ -67,7 +95,20 @@
 
 	ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack); // subscriber for depth target vector 		
 	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
+    ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
 
+////  
+    if(depth_target_raw >= (depth_target + (depth_rate*dt))){depth_target += (depth_rate*dt);} // if the raw target depth value is greater than the depth target, add the target with the rate.
+	else if(depth_target_raw <= (depth_target - (depth_rate*dt))){depth_target -= (depth_rate*dt);} // if the raw target depth value is less than the depth target, take the rate away from the target.
+	else{depth_target =depth_target_raw;}
+
+//depth PID calculations
+	depth_error = depth_target - depth_input;
+	depth_integral = depth_integral + (depth_error*dt);
+	depth_derivative = (depth_error - depth_previous_error)/dt;
+	depth_previous_error = depth_error;
+	depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
+////
 	ros::spin();
 
 	return 0;
@@ -208,18 +249,18 @@
 
     if(joy->axes[0] >= 0) //if the x axis is posative (right)
      {
-       motorCfg.front_right = (joy->axes[0] * -25);	//-  strafe right
-       motorCfg.front_left  = (joy->axes[0] * 25);  //+
-       motorCfg.back_right  = (joy->axes[0] * -25); //-
-       motorCfg.back_left   = (joy->axes[0] * 25);  //+
+       motorCfg.front_right = (joy->axes[0] * -50);	//-  strafe right
+       motorCfg.front_left  = (joy->axes[0] * 50);  //+  multiplied by 2x y value cos of thruster orientation not being 45 degrees
+       motorCfg.back_right  = (joy->axes[0] * -50); //-
+       motorCfg.back_left   = (joy->axes[0] * 50);  //+
      }
 
     if(joy->axes[0] < 0) //if the x axis is negative (left)
      {
-       motorCfg.front_right = (joy->axes[0] * 25);	//+ strafe left
-       motorCfg.front_left  = (joy->axes[0] * -25); //-
-       motorCfg.back_right  = (joy->axes[0] * 25);  //+
-       motorCfg.back_left   = (joy->axes[0] * -25); //-
+       motorCfg.front_right = (joy->axes[0] * 50);	//+ strafe left
+       motorCfg.front_left  = (joy->axes[0] * -50); //-
+       motorCfg.back_right  = (joy->axes[0] * 50);  //+
+       motorCfg.back_left   = (joy->axes[0] * -50); //-
      }
 
     if(joy->axes[1] >= 0) //if the y axis is posative (up)
