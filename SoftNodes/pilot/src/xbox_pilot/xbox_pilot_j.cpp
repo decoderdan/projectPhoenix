@@ -30,10 +30,13 @@
  ros::Publisher targetMsg;
  custom_msg::TargetVector TargetVector;
 
+ static std_msgs::Float32 z; 
+
  bool strafe_test = false; // used to activate experimental code
  int button_a = 0; //used to toggle the button
 
 ////
+ float dt = 0.02;
  float depth_rate = 0.05; 		//m per second
  float depth_Kp = 0;			//3 variables for depth PID
  float depth_Ki = 0;
