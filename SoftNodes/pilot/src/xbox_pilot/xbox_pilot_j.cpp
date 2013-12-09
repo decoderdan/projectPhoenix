@@ -35,7 +35,6 @@
  int button_a = 0; //used to toggle the button
 
 ////
- float dt = 0.02;
  float depth_rate = 0.05; 		//m per second
  float depth_Kp = 0;			//3 variables for depth PID
  float depth_Ki = 0;
@@ -89,6 +88,10 @@
 
  int main( int argc, char **argv )
   {
+    float yaw_output = 0; //initialise values for yaw, pitch, depth.
+	float pitch_output = 0;
+	float depth_output = 0;
+	float dt = 0.02;
     while (1)
      {
 	   ros::init(argc, argv, "xbox_pilot");
