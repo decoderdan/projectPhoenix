@@ -9,7 +9,7 @@
  /** Author: Unknown, edited by James Killick        **/
  /**                                                 **/
  /** Last Date Modified: 02/12/2013                  **/
- /** *********************************************** **/
+ /**  *********************************************** **/
 
  #include <stdio.h>
  #include "ros/ros.h"
@@ -35,6 +35,12 @@
  int button_a = 0; //used to toggle the button
 
 ////
+
+    float yaw_output = 0; //initialise values for yaw, pitch, depth.
+	float pitch_output = 0;
+	float depth_output = 0;
+	float dt = 0.02;
+
  float depth_rate = 0.05; 		//m per second
  float depth_Kp = 0;			//3 variables for depth PID
  float depth_Ki = 0;
@@ -88,36 +94,19 @@
 
  int main( int argc, char **argv )
   {
-    float yaw_output = 0; //initialise values for yaw, pitch, depth.
-	float pitch_output = 0;
-	float depth_output = 0;
-	float dt = 0.02;
-    while (1)
-     {
-	   ros::init(argc, argv, "xbox_pilot");
-	   ros::NodeHandle n;
+    
+    ros::init(argc, argv, "xbox_pilot");
+    ros::NodeHandle n;
 
-	   motorMsg = n.advertise<custom_msg::MotorConfig>("motor_config", 100); //Publisher for the motor configuration
-	   targetMsg = n.advertise<custom_msg::TargetVector>("vector",100); // publish new target vector
+	motorMsg = n.advertise<custom_msg::MotorConfig>("motor_config", 100); //Publisher for the motor configuration
+	targetMsg = n.advertise<custom_msg::TargetVector>("vector",100); // publish new target vector
 
-   	   ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack); // subscriber for depth target vector 		
-	   ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
-       ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
+   	ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack); // subscriber for depth target vector 		
+	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
+    ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
 
-////  
-       if(depth_target_raw >= (depth_target + (depth_rate*dt))){depth_target += (depth_rate*dt);} // if the raw target depth value is greater than the depth target, add the target with the rate.
-	   else if(depth_target_raw <= (depth_target - (depth_rate*dt))){depth_target -= (depth_rate*dt);} // if the raw target depth value is less than the depth target, take the rate away from the target.
-	   else{depth_target =depth_target_raw;}
-
-//depth PID calculations
-	   depth_error = depth_target - depth_input;
-	   depth_integral = depth_integral + (depth_error*dt);
-	   depth_derivative = (depth_error - depth_previous_error)/dt;
-	   depth_previous_error = depth_error;
-	   depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
-////
-	   ros::spin();
-     }
+	ros::spin();
+     
     return 0;
   }
 
@@ -200,6 +189,18 @@
 	   motorCfg.back_right = constrain(motorCfg.back_right, -100, 100);
 	   motorCfg.back_left = constrain(motorCfg.back_left, -100, 100);
 
+
+       if(depth_target_raw >= (depth_target + (depth_rate*dt))){depth_target += (depth_rate*dt);} // if the raw target depth value is 																				greater than the depth target, add the target with the rate.
+	   else if(depth_target_raw <= (depth_target - (depth_rate*dt))){depth_target -= (depth_rate*dt);} // if the raw target depth value is 																				less than the depth target, take the rate away from the target.
+	   else{depth_target =depth_target_raw;}
+
+//depth PID calculations
+	   depth_error = depth_target - depth_input;
+	   depth_integral = depth_integral + (depth_error*dt);
+	   depth_derivative = (depth_error - depth_previous_error)/dt;
+	   depth_previous_error = depth_error;
+	   depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
+////
 
 	   //Depth control, reads from the right ([5]) and left ([2]) triggers and outputs target vector values.
 
