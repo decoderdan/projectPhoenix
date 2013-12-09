@@ -60,7 +60,7 @@
  /** Function: To recieve yaw, pitch and depth data  **/
  /** when the valut of the target vector changes.    **/
  /** *********************************************** **/
-
+/*
  void vectorCallBack(const custom_msg::TargetVector& data) 
   {
     if (data.set_z == true) //if depth value has changed.
@@ -70,7 +70,7 @@
 	 } 
 	
   }
-
+*/
 ////
  /** *********************************************** **/
  /** Name: depthCallBack                             **/
@@ -99,7 +99,7 @@
     ros::NodeHandle n;
 
 	motorMsg = n.advertise<custom_msg::MotorConfig>("motor_config", 100); //Publisher for the motor configuration
-	targetMsg = n.advertise<custom_msg::TargetVector>("vector",100); // publish new target vector
+	//targetMsg = n.advertise<custom_msg::TargetVector>("vector",100); // publish new target vector
 
    	ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack); // subscriber for depth target vector 		
 	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
@@ -221,16 +221,17 @@
 	      depthChange = 0;
         }   
 
-	   TargetVector.vector_z = (depth_target_raw + depthChange); //depth target vector = the input target value + change in depth form controller.
-
+	   depth_target_raw = (depth_target_raw + depthChange); //depth target vector = the input target value + change in depth
+	   
+/*
 	   TargetVector.set_z = true; // PID_pilot will only look for a change in depth.
        TargetVector.set_y = false;
 	   TargetVector.set_x = false;
        TargetVector.set_yaw = false;
        TargetVector.set_pitch = false;
        TargetVector.set_roll = false;
-
-	   targetMsg.publish(TargetVector); //publish the target vector.
+*/
+	//   targetMsg.publish(TargetVector); //publish the target vector.
 	   motorMsg.publish(motorCfg); //publish the motor values.
      }
 
