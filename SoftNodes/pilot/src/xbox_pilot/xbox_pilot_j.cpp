@@ -34,12 +34,12 @@
  bool strafe_test = false; // used to activate experimental code
  int button_a = 0; //used to toggle the button
 
-////
 
-    float yaw_output = 0; //initialise values for yaw, pitch, depth.
-	float pitch_output = 0;
-	float depth_output = 0;
-	float dt = 0.02;
+
+ float yaw_output = 0; //initialise values for yaw, pitch, depth.
+ float pitch_output = 0;
+ float depth_output = 0;
+ float dt = 0.02;
 
  float depth_rate = 0.05; 		//m per second
  float depth_Kp = 400;			//3 variables for depth PID
@@ -52,27 +52,7 @@
  float depth_previous_error = 0;
  float depth_integral = 0;
  float depth_derivative = 0;
-////
 
-
- /** *********************************************** **/
- /** Name: vectorCallBack                            **/
- /**                                                 **/
- /** Function: To recieve yaw, pitch and depth data  **/
- /** when the valut of the target vector changes.    **/
- /** *********************************************** **/
-/*
- void vectorCallBack(const custom_msg::TargetVector& data) 
-  {
-    if (data.set_z == true) //if depth value has changed.
-	 {
-	   depth_target_raw = data.vector_z; //depth variable = new input value.
-	   std::cout << "Depth target updated "  << std::endl;
-	 } 
-	
-  }
-*/
-////
  /** *********************************************** **/
  /** Name: depthCallBack                             **/
  /**                                                 **/
@@ -84,7 +64,6 @@
   {
     depth_input = depth.data; //set the value of depth_input to the measured depth value 
   }
-////
 
  /** *********************************************** **/
  /** Name: main                                      **/
@@ -100,9 +79,6 @@
     ros::NodeHandle n;
 
 	motorMsg = n.advertise<custom_msg::MotorConfig>("motor_config", 100); //Publisher for the motor configuration
-	//targetMsg = n.advertise<custom_msg::TargetVector>("vector",100); // publish new target vector
-
-   	//ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack); // subscriber for depth target vector 		
 	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
     ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
 
@@ -227,38 +203,13 @@
 	   depth_previous_error = depth_error;
 	   depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
 
-	   motorCfg.front = depthChange;
-       //motorCfg.front = (int8_t)(constrain((depth_output), -25, 25));
-	   motorCfg.back = (int8_t)(constrain((depth_output), -25, 25));	
+   //    motorCfg.front = (int8_t)(constrain((depth_output), -25, 25));
+   //    motorCfg.back = (int8_t)(constrain((depth_output), -25, 25));	
 	
-if(depth_output > 0)
-{
-std::cout << "move"  << std::endl;
-}
-if(depth_output == 0)
-{
-std::cout << "no signal"  << std::endl;
-}
-if(depth_output < 0)
-{
-std::cout << "reverse"  << std::endl;
-}
-
 	   motorMsg.publish(motorCfg); //publish motor values.
 	   
 /* ****************************************************************************************************** */
 
-
-/*
-	   TargetVector.set_z = true; // PID_pilot will only look for a change in depth.
-       TargetVector.set_y = false;
-	   TargetVector.set_x = false;
-       TargetVector.set_yaw = false;
-       TargetVector.set_pitch = false;
-       TargetVector.set_roll = false;
-*/
-     //targetMsg.publish(TargetVector); //publish the target vector.
-	 //motorMsg.publish(motorCfg); //publish the motor values.
      }
 
 /* *********************************************************************************************************************** */
