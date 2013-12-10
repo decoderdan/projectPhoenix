@@ -230,7 +230,7 @@
 	   motorCfg.back = int(constrain((depth_output), -100, 100));	
 	
 	   motorMsg.publish(motorCfg); //publish motor values.
-	   delay(100);
+	   
 /* ****************************************************************************************************** */
 
 
