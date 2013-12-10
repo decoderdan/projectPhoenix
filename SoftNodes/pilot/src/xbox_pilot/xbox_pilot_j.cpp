@@ -207,7 +207,7 @@
        motorCfg.back = (int8_t)(constrain((depth_output), -25, 25));	
 	
 	   motorMsg.publish(motorCfg); //publish motor values.
-	   
+	   std::cout << "depth_target: " << depth_target  << std::endl;
 /* ****************************************************************************************************** */
 
      }
