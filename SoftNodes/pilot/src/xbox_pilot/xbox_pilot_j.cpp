@@ -196,14 +196,14 @@
         {
 		  std::cout << "Rise"  << std::endl;
   	      rise = (1 * ((joy->axes[5] + 1.0)/2.0)); //sets the right trigger to control rise
-          depthChange = (rise * 100); //sets the maximum velocity to 0.1 m/s
+          depthChange = (rise * 10); //sets the maximum velocity to 0.1 m/s
         }
 
        else if((joy->axes[5] == 1) && (joy->axes[2] < 1)) //if right trigger is up and left trigger is down
         { 	
 		  std::cout << "Dive"  << std::endl;
 	      dive = (-1 * ((joy->axes[2] + 1.0)/2.0)); //sets the left trigger to control dive
-          depthChange = (dive * 100); //sets maximum velocity to 0.1 m/s		
+          depthChange = (dive * 10); //sets maximum velocity to 0.1 m/s		
         }
 
        else //if none or both of the trigers are held down do not change the depth.
@@ -216,7 +216,7 @@
 	   
 /* ************************************ new PID calculations and setup ********************************** */
 
-       if(depth_target_raw >= (depth_target + (depth_rate*dt))){depth_target += (depth_rate*dt);} // if the raw target depth value is 																				greater than the depth target, add the target with the rate.
+     /*  if(depth_target_raw >= (depth_target + (depth_rate*dt))){depth_target += (depth_rate*dt);} // if the raw target depth value is 																				greater than the depth target, add the target with the rate.
 	   else if(depth_target_raw <= (depth_target - (depth_rate*dt))){depth_target -= (depth_rate*dt);} // if the raw target depth value is 																				less than the depth target, take the rate away from the target.
 	   else{depth_target =depth_target_raw;}
 
@@ -229,7 +229,8 @@
 
        motorCfg.front = (int8_t)(constrain((depth_output), -100, 100));
 	   motorCfg.back = (int8_t)(constrain((depth_output), -100, 100));	
-	if(depth_output > 0)
+	*/
+if(depth_output > 0)
 {
 std::cout << "move"  << std::endl;
 }
@@ -241,6 +242,7 @@ if(depth_output < 0)
 {
 std::cout << "reverse"  << std::endl;
 }
+
 	   motorMsg.publish(motorCfg); //publish motor values.
 	   
 /* ****************************************************************************************************** */
