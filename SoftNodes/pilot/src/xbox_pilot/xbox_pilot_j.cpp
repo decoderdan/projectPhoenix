@@ -101,7 +101,7 @@
 	motorMsg = n.advertise<custom_msg::MotorConfig>("motor_config", 100); //Publisher for the motor configuration
 	//targetMsg = n.advertise<custom_msg::TargetVector>("vector",100); // publish new target vector
 
-   	ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack); // subscriber for depth target vector 		
+   	//ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack); // subscriber for depth target vector 		
 	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
     ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
 
@@ -189,19 +189,6 @@
 	   motorCfg.back_right = constrain(motorCfg.back_right, -100, 100);
 	   motorCfg.back_left = constrain(motorCfg.back_left, -100, 100);
 
-
-       if(depth_target_raw >= (depth_target + (depth_rate*dt))){depth_target += (depth_rate*dt);} // if the raw target depth value is 																				greater than the depth target, add the target with the rate.
-	   else if(depth_target_raw <= (depth_target - (depth_rate*dt))){depth_target -= (depth_rate*dt);} // if the raw target depth value is 																				less than the depth target, take the rate away from the target.
-	   else{depth_target =depth_target_raw;}
-
-//depth PID calculations
-	   depth_error = depth_target - depth_input;
-	   depth_integral = depth_integral + (depth_error*dt);
-	   depth_derivative = (depth_error - depth_previous_error)/dt;
-	   depth_previous_error = depth_error;
-	   depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
-////
-
 	   //Depth control, reads from the right ([5]) and left ([2]) triggers and outputs target vector values.
 
        if((joy->axes[5] < 1) && (joy->axes[2] == 1)) //if right trigger is down and left trigger is up.
@@ -223,6 +210,26 @@
 
 	   depth_target_raw = (depth_target_raw + depthChange); //depth target vector = the input target value + change in depth
 	   
+/* ************************************ new PID calculations and setup ********************************** */
+
+       if(depth_target_raw >= (depth_target + (depth_rate*dt))){depth_target += (depth_rate*dt);} // if the raw target depth value is 																				greater than the depth target, add the target with the rate.
+	   else if(depth_target_raw <= (depth_target - (depth_rate*dt))){depth_target -= (depth_rate*dt);} // if the raw target depth value is 																				less than the depth target, take the rate away from the target.
+	   else{depth_target =depth_target_raw;}
+
+//depth PID calculations
+	   depth_error = depth_target - depth_input;
+	   depth_integral = depth_integral + (depth_error*dt);
+	   depth_derivative = (depth_error - depth_previous_error)/dt;
+	   depth_previous_error = depth_error;
+	   depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
+
+       motorCfg.front = int(constrain((depth_output), -100, 100));
+	   motorCfg.back = int(constrain((depth_output), -100, 100));	
+	   motorMsg.publish(motorCfg); //publish motor values.
+
+/* ****************************************************************************************************** */
+
+
 /*
 	   TargetVector.set_z = true; // PID_pilot will only look for a change in depth.
        TargetVector.set_y = false;
@@ -231,8 +238,8 @@
        TargetVector.set_pitch = false;
        TargetVector.set_roll = false;
 */
-	//   targetMsg.publish(TargetVector); //publish the target vector.
-	   motorMsg.publish(motorCfg); //publish the motor values.
+     //targetMsg.publish(TargetVector); //publish the target vector.
+	 //motorMsg.publish(motorCfg); //publish the motor values.
      }
 
 /* *********************************************************************************************************************** */
@@ -255,7 +262,7 @@
           motorCfg.back_right  = 0;
         }
 
-       if(joy->axes[0] >= 0) //if the x axis is posative (right)
+       if(joy->axes[0] > 0) //if the x axis is posative (right)
         {
           motorCfg.front_right = (joy->axes[0] * -50);	//-  strafe right
           motorCfg.front_left  = (joy->axes[0] * 50);  //+  multiplied by 2x y value cos of thruster orientation not being 45 degrees
@@ -265,13 +272,13 @@
 
        if(joy->axes[0] < 0) //if the x axis is negative (left)
         {
-          motorCfg.front_right = (joy->axes[0] * 50);	//+ strafe left
-          motorCfg.front_left  = (joy->axes[0] * -50); //-
-          motorCfg.back_right  = (joy->axes[0] * 50);  //+
-          motorCfg.back_left   = (joy->axes[0] * -50); //-
+          motorCfg.front_right = (joy->axes[0] * -50);	//+ strafe left
+          motorCfg.front_left  = (joy->axes[0] * 50); //- orientation is reversed because joy->axes[0] is negative
+          motorCfg.back_right  = (joy->axes[0] * -50);  //+
+          motorCfg.back_left   = (joy->axes[0] * 50); //-
         }
 
-       if(joy->axes[1] >= 0) //if the y axis is posative (up)
+       if(joy->axes[1] > 0) //if the y axis is posative (up)
         {
           motorCfg.front_right += (joy->axes[1] * 25);	 //+ move forward (also adding this to the x motor values)
           motorCfg.front_left  += (joy->axes[1] * 25);  //+
@@ -281,10 +288,10 @@
 
        if(joy->axes[1] < 0) //if the y axis is negative (down)
         {
-          motorCfg.front_right += (joy->axes[1] * -25); //- move backwards (also adding this to the x motor values)
-          motorCfg.front_left  += (joy->axes[1] * -25); //-
-          motorCfg.back_right  += (joy->axes[1] * 25);  //+
-          motorCfg.back_left   += (joy->axes[1] * 25);  //+
+          motorCfg.front_right += (joy->axes[1] * 25); //- move backwards (also adding this to the x motor values)
+          motorCfg.front_left  += (joy->axes[1] * 25); //- orientation is reversed because joy->axes[1] is negative
+          motorCfg.back_right  += (joy->axes[1] * -25);  //+
+          motorCfg.back_left   += (joy->axes[1] * -25);  //+
         }
 
        motorCfg.front_right = constrain(motorCfg.front_right, -100, 100); //constrain front right motor, min = -100, max = +100
