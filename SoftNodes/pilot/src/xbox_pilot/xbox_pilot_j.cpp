@@ -82,8 +82,14 @@
 	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
     ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
 
-	ros::spin();
-     
+	ros::Rate r(50);
+
+	while(ros::ok())
+	 {	
+	   ros::spin();
+	   r.sleep(); //Sleep
+     }
+		
     return 0;
   }
 
