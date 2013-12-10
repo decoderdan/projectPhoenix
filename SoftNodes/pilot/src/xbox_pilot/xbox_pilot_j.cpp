@@ -196,14 +196,14 @@
         {
 		  std::cout << "Rise"  << std::endl;
   	      rise = (1 * ((joy->axes[5] + 1.0)/2.0)); //sets the right trigger to control rise
-          depthChange = (rise * 10); //sets the maximum velocity to 0.1 m/s
+          depthChange = (rise * 1); //sets the maximum velocity to 0.1 m/s
         }
 
        else if((joy->axes[5] == 1) && (joy->axes[2] < 1)) //if right trigger is up and left trigger is down
         { 	
 		  std::cout << "Dive"  << std::endl;
 	      dive = (-1 * ((joy->axes[2] + 1.0)/2.0)); //sets the left trigger to control dive
-          depthChange = (dive * 10); //sets maximum velocity to 0.1 m/s		
+          depthChange = (dive * 1); //sets maximum velocity to 0.1 m/s		
         }
 
        else //if none or both of the trigers are held down do not change the depth.
@@ -227,8 +227,8 @@
 	   depth_previous_error = depth_error;
 	   depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
 
-       motorCfg.front = (int8_t)(constrain((depth_output), -100, 100));
-	   motorCfg.back = (int8_t)(constrain((depth_output), -100, 100));	
+       motorCfg.front = (int8_t)(constrain((depth_output), -25, 25));
+	   motorCfg.back = (int8_t)(constrain((depth_output), -25, 25));	
 	
 if(depth_output > 0)
 {
