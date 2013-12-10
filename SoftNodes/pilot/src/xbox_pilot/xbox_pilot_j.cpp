@@ -243,7 +243,7 @@ if(depth_output < 0)
 std::cout << "reverse"  << std::endl;
 }
 
-	   motorMsg.publish(motorCfg); //publish motor values.
+	   //motorMsg.publish(motorCfg); //publish motor values.
 	   
 /* ****************************************************************************************************** */
 
