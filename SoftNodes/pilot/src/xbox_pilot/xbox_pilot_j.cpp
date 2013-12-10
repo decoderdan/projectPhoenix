@@ -188,14 +188,25 @@
 	      depthChange = 0;
         }   
 
-	   depth_target_raw = (depth_target_raw + depthChange); //depth target vector = the input target value + change in depth
+	   depth_target += depthChange; //depth target vector = the input target value + change in depth
 	   
 /* ************************************ new PID calculations and setup ********************************** */
+/*
+       if(depth_target_raw >= (depth_target + (depth_rate*dt)))
+		{
+	      depth_target += (depth_rate*dt);
+		} // if the raw target depth value is greater than the depth target, add the target with the rate.
 
-       if(depth_target_raw >= (depth_target + (depth_rate*dt))){depth_target += (depth_rate*dt);} // if the raw target depth value is 																				greater than the depth target, add the target with the rate.
-	   else if(depth_target_raw <= (depth_target - (depth_rate*dt))){depth_target -= (depth_rate*dt);} // if the raw target depth value is 																				less than the depth target, take the rate away from the target.
-	   else{depth_target =depth_target_raw;}
+	   else if(depth_target_raw <= (depth_target - (depth_rate*dt)))
+		{
+		  depth_target -= (depth_rate*dt);
+		} // if the raw target depth value is less than the depth target, take the rate away from the target.
 
+	   else
+		{
+		  depth_target =depth_target_raw;
+		}
+*/
 //depth PID calculations
 	   depth_error = depth_target - depth_input;
 	   depth_integral = depth_integral + (depth_error*dt);
