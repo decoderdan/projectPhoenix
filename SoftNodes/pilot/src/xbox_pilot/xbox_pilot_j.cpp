@@ -166,7 +166,7 @@
      {
 	   // 0 = Left X Axis 
        // 1 = Left Y Axis
-	
+	/*
 	   float rads = atan2(joy->axes[1], -joy->axes[0]); // converts x & y values from left joystick
 	   float distance = constrain(sqrt(pow(-joy->axes[0],2)+pow(joy->axes[1],2)),0,1); //Get distance 
 	   distance = (distance < 0.12 ? 0 : distance); //Bit of a dead zone
@@ -188,23 +188,26 @@
 	   motorCfg.front_left = constrain(motorCfg.front_left, -100, 100);
 	   motorCfg.back_right = constrain(motorCfg.back_right, -100, 100);
 	   motorCfg.back_left = constrain(motorCfg.back_left, -100, 100);
-
+*/
 	   //Depth control, reads from the right ([5]) and left ([2]) triggers and outputs target vector values.
 
        if((joy->axes[5] < 1) && (joy->axes[2] == 1)) //if right trigger is down and left trigger is up.
         {
-	      rise = (1 * ((joy->axes[5] + 1.0)/2.0)); //sets the right trigger to control rise
+		  std::cout << "Rise"  << std::endl;
+  	      rise = (1 * ((joy->axes[5] + 1.0)/2.0)); //sets the right trigger to control rise
           depthChange = (rise / 10); //sets the maximum velocity to 0.1 m/s
         }
 
        else if((joy->axes[5] == 1) && (joy->axes[2] < 1)) //if right trigger is up and left trigger is down
         { 	
+		  std::cout << "Dive"  << std::endl;
 	      dive = (-1 * ((joy->axes[2] + 1.0)/2.0)); //sets the left trigger to control dive
           depthChange = (dive / 10); //sets maximum velocity to 0.1 m/s		
         }
 
        else //if none or both of the trigers are held down do not change the depth.
         {
+		  std::cout << "no trigger"  << std::endl;
 	      depthChange = 0;
         }   
 
@@ -225,8 +228,9 @@
 
        motorCfg.front = int(constrain((depth_output), -100, 100));
 	   motorCfg.back = int(constrain((depth_output), -100, 100));	
+	
 	   motorMsg.publish(motorCfg); //publish motor values.
-
+	   delay(100);
 /* ****************************************************************************************************** */
 
 
