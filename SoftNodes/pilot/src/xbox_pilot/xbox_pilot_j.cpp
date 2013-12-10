@@ -167,7 +167,7 @@
      {
 	   // 0 = Left X Axis 
        // 1 = Left Y Axis
-	/*
+	
 	   float rads = atan2(joy->axes[1], -joy->axes[0]); // converts x & y values from left joystick
 	   float distance = constrain(sqrt(pow(-joy->axes[0],2)+pow(joy->axes[1],2)),0,1); //Get distance 
 	   distance = (distance < 0.12 ? 0 : distance); //Bit of a dead zone
@@ -189,7 +189,7 @@
 	   motorCfg.front_left = constrain(motorCfg.front_left, -100, 100);
 	   motorCfg.back_right = constrain(motorCfg.back_right, -100, 100);
 	   motorCfg.back_left = constrain(motorCfg.back_left, -100, 100);
-*/
+
 	   //Depth control, reads from the right ([5]) and left ([2]) triggers and outputs target vector values.
 
        if((joy->axes[5] < 1) && (joy->axes[2] == 1)) //if right trigger is down and left trigger is up.
@@ -216,7 +216,7 @@
 	   
 /* ************************************ new PID calculations and setup ********************************** */
 
-     /*  if(depth_target_raw >= (depth_target + (depth_rate*dt))){depth_target += (depth_rate*dt);} // if the raw target depth value is 																				greater than the depth target, add the target with the rate.
+       if(depth_target_raw >= (depth_target + (depth_rate*dt))){depth_target += (depth_rate*dt);} // if the raw target depth value is 																				greater than the depth target, add the target with the rate.
 	   else if(depth_target_raw <= (depth_target - (depth_rate*dt))){depth_target -= (depth_rate*dt);} // if the raw target depth value is 																				less than the depth target, take the rate away from the target.
 	   else{depth_target =depth_target_raw;}
 
@@ -229,7 +229,7 @@
 
        motorCfg.front = (int8_t)(constrain((depth_output), -100, 100));
 	   motorCfg.back = (int8_t)(constrain((depth_output), -100, 100));	
-	*/
+	
 if(depth_output > 0)
 {
 std::cout << "move"  << std::endl;
@@ -243,7 +243,7 @@ if(depth_output < 0)
 std::cout << "reverse"  << std::endl;
 }
 
-	   //motorMsg.publish(motorCfg); //publish motor values.
+	   motorMsg.publish(motorCfg); //publish motor values.
 	   
 /* ****************************************************************************************************** */
 
