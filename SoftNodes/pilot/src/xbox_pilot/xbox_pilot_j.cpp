@@ -203,8 +203,8 @@
 	   depth_previous_error = depth_error;
 	   depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
 
-   //    motorCfg.front = (int8_t)(constrain((depth_output), -25, 25));
-   //    motorCfg.back = (int8_t)(constrain((depth_output), -25, 25));	
+       motorCfg.front = (int8_t)(constrain((depth_output), -25, 25));
+       motorCfg.back = (int8_t)(constrain((depth_output), -25, 25));	
 	
 	   motorMsg.publish(motorCfg); //publish motor values.
 	   
