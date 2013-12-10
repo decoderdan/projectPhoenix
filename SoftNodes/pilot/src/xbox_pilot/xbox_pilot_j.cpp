@@ -228,8 +228,19 @@
 
        motorCfg.front = (int8_t)(constrain((depth_output), -100, 100));
 	   motorCfg.back = (int8_t)(constrain((depth_output), -100, 100));	
-	
-	   motorMsg.publish(motorCfg); //publish motor values.
+	if(depth_output > 0)
+{
+std::cout << "move"  << std::endl;
+}
+if(depth_output == 0)
+{
+std::cout << "no signal"  << std::endl;
+}
+if(depth_output < 0)
+{
+std::cout << "reverse"  << std::endl;
+}
+	  // motorMsg.publish(motorCfg); //publish motor values.
 	   
 /* ****************************************************************************************************** */
 
