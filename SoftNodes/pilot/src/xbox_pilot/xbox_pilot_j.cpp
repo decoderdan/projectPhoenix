@@ -42,9 +42,9 @@
 	float dt = 0.02;
 
  float depth_rate = 0.05; 		//m per second
- float depth_Kp = 0;			//3 variables for depth PID
- float depth_Ki = 0;
- float depth_Kd = 0;
+ float depth_Kp = 10;			//3 variables for depth PID
+ float depth_Ki = 5;
+ float depth_Kd = 1;
  float depth_input = 0;			//depth value recieved from the SVP
  float depth_target_raw = 0;	
  float depth_target = 0;		//desired depth value
