@@ -42,9 +42,9 @@
  float dt = 0.02;
 
  float depth_rate = 0.05; 		//m per second
- float depth_Kp = 400;			//3 variables for depth PID
- float depth_Ki = 1;
- float depth_Kd = 0;
+ float depth_Kp = 400;	//400	//3 variables for depth PID
+ float depth_Ki = 0.01; //1 
+ float depth_Kd = 1;    //0
  float depth_input = 0;			//depth value recieved from the SVP
  float depth_target_raw = 0;	
  float depth_target = 0;		//desired depth value
@@ -82,7 +82,7 @@
 	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
     ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
 
-	ros::Rate r(50);
+	ros::Rate r(10); //50
 
 	while(ros::ok())
 	 {	
@@ -178,14 +178,14 @@
         {
 		  std::cout << "Rise"  << std::endl;
   	      rise = (1 * ((joy->axes[5] + 1.0)/2.0)); //sets the right trigger to control rise
-          depthChange = (rise / 100); //sets the maximum velocity to 0.1 m/s
+          depthChange = (rise / 1000); //sets the rate of change
         }
 
        else if((joy->axes[5] == 1) && (joy->axes[2] < 1)) //if right trigger is up and left trigger is down
         { 	
 		  std::cout << "Dive"  << std::endl;
 	      dive = (-1 * ((joy->axes[2] + 1.0)/2.0)); //sets the left trigger to control dive
-          depthChange = (dive / 100); //sets maximum velocity to 0.1 m/s		
+          depthChange = (dive / 1000); //sets the rate of change		
         }
 
        else //if none or both of the trigers are held down do not change the depth.
@@ -197,23 +197,7 @@
 	   depth_target += depthChange; //depth target vector = the input target value + change in depth
 	   
 /* ************************************ new PID calculations and setup ********************************** */
-/*
-       if(depth_target_raw >= (depth_target + (depth_rate*dt)))
-		{
-	      depth_target += (depth_rate*dt);
-		} // if the raw target depth value is greater than the depth target, add the target with the rate.
 
-	   else if(depth_target_raw <= (depth_target - (depth_rate*dt)))
-		{
-		  depth_target -= (depth_rate*dt);
-		} // if the raw target depth value is less than the depth target, take the rate away from the target.
-
-	   else
-		{
-		  depth_target =depth_target_raw;
-		}
-*/
-//depth PID calculations
 	   depth_error = depth_target - depth_input;
 	   depth_integral = depth_integral + (depth_error*dt);
 	   depth_derivative = (depth_error - depth_previous_error)/dt;
@@ -225,9 +209,11 @@
 	
 	   motorMsg.publish(motorCfg); //publish motor values.
 	   std::cout << "depth_target: " << depth_target  << std::endl;
+
 /* ****************************************************************************************************** */
 
      }
+
 
 /* *********************************************************************************************************************** */
 /* *********************************************************************************************************************** */
