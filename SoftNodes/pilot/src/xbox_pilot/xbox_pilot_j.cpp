@@ -109,24 +109,12 @@
 	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
     ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
 
-	//ros::Rate r(50); 
-	while(1)
-	 {
+	ros::Rate r(50); 
+
+	while(ros::ok())
+	 {	
 	   ros::spin();
-	  // r.sleep(); //Sleep
-
-	   depth_error = depth_target - depth_input;
-	   depth_integral = depth_integral + (depth_error*dt);
-	   depth_derivative = (depth_error - depth_previous_error)/dt;
-	   depth_previous_error = depth_error;
-	   depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
-
-       motorCfg.front = (int8_t)(constrain((depth_output), -25, 25));
-       motorCfg.back = (int8_t)(constrain((depth_output), -25, 25));	
-	   std::cout << "depth_target: " << depth_target  << std::endl;
-       std::cout << "In main loop"<< std::endl;
-
-	   motorMsg.publish(motorCfg); //publish motor values.   
+	   r.sleep(); //Sleep	   
      }
 		
     return 0;
@@ -211,11 +199,8 @@
 		  depth_target = -5;
 		}
 	   
-	   //std::cout << "depth_target: " << depth_target  << std::endl;
-
-/* ************************************ new PID calculations and setup ********************************** */
-
-	/* depth_error = depth_target - depth_input;
+	   //PID calculations
+	   depth_error = depth_target - depth_input;
 	   depth_integral = depth_integral + (depth_error*dt);
 	   depth_derivative = (depth_error - depth_previous_error)/dt;
 	   depth_previous_error = depth_error;
@@ -225,10 +210,8 @@
        motorCfg.back = (int8_t)(constrain((depth_output), -25, 25));	
 	
 	   motorMsg.publish(motorCfg); //publish motor values.
-	   std::cout << "depth_target: " << depth_target  << std::endl;
-	*/
-/* ****************************************************************************************************** */
 
+	   std::cout << "depth_target: " << depth_target  << std::endl;
      }
 
 
