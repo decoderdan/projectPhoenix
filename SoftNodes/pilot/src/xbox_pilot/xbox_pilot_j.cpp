@@ -110,9 +110,8 @@
     ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
 
 	ros::Rate r(50); 
-
-	while(ros::ok())
-	 {	
+	while(1)
+	 {
 	   ros::spin();
 	   r.sleep(); //Sleep
 
