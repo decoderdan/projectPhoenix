@@ -177,14 +177,14 @@
         {
 		  std::cout << "Rise"  << std::endl;
   	      rise = (1 * ((joy->axes[5] + 1.0)/2.0)); //sets the right trigger to control rise
-          depthChange = (rise / 100); //sets the rate of change
+          depthChange = (rise / 200); //sets the rate of change
         }
 
        else if((joy->axes[5] == 1) && (joy->axes[2] < 1)) //if right trigger is up and left trigger is down
         { 	
 		  std::cout << "Dive"  << std::endl;
 	      dive = (-1 * ((joy->axes[2] + 1.0)/2.0)); //sets the left trigger to control dive
-          depthChange = (dive / 100); //sets the rate of change		
+          depthChange = (dive / 200); //sets the rate of change		
         }
 
        else //if none or both of the trigers are held down do not change the depth.
