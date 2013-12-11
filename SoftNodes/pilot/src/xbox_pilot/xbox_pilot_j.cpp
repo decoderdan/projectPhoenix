@@ -9,7 +9,8 @@
  /** Author: Unknown, edited by James Killick        **/
  /**                                                 **/
  /** Last Date Modified: 02/12/2013                  **/
- /**  *********************************************** **/
+ /** /// @bug serial node loses packets				 **/
+ /**  ********************************************** **/
 
  #include <stdio.h>
  #include "ros/ros.h"
@@ -82,12 +83,30 @@
 	ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
     ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
 
-	ros::Rate r(10); //50
+	ros::Rate r(50); 
 
 	while(ros::ok())
 	 {	
 	   ros::spin();
 	   r.sleep(); //Sleep
+
+	   if(target_depth <= -5)
+		{
+		  target_depth = -5;
+		}
+
+	   depth_error = depth_target - depth_input;
+	   depth_integral = depth_integral + (depth_error*dt);
+	   depth_derivative = (depth_error - depth_previous_error)/dt;
+	   depth_previous_error = depth_error;
+	   depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
+
+       motorCfg.front = (int8_t)(constrain((depth_output), -25, 25));
+       motorCfg.back = (int8_t)(constrain((depth_output), -25, 25));	
+	
+	   motorMsg.publish(motorCfg); //publish motor values.
+	   std::cout << "depth_target: " << depth_target  << std::endl;
+
      }
 		
     return 0;
@@ -178,14 +197,14 @@
         {
 		  std::cout << "Rise"  << std::endl;
   	      rise = (1 * ((joy->axes[5] + 1.0)/2.0)); //sets the right trigger to control rise
-          depthChange = (rise / 1000); //sets the rate of change
+          depthChange = (rise / 500); //sets the rate of change
         }
 
        else if((joy->axes[5] == 1) && (joy->axes[2] < 1)) //if right trigger is up and left trigger is down
         { 	
 		  std::cout << "Dive"  << std::endl;
 	      dive = (-1 * ((joy->axes[2] + 1.0)/2.0)); //sets the left trigger to control dive
-          depthChange = (dive / 1000); //sets the rate of change		
+          depthChange = (dive / 500); //sets the rate of change		
         }
 
        else //if none or both of the trigers are held down do not change the depth.
@@ -198,7 +217,7 @@
 	   
 /* ************************************ new PID calculations and setup ********************************** */
 
-	   depth_error = depth_target - depth_input;
+	/* depth_error = depth_target - depth_input;
 	   depth_integral = depth_integral + (depth_error*dt);
 	   depth_derivative = (depth_error - depth_previous_error)/dt;
 	   depth_previous_error = depth_error;
@@ -209,7 +228,7 @@
 	
 	   motorMsg.publish(motorCfg); //publish motor values.
 	   std::cout << "depth_target: " << depth_target  << std::endl;
-
+	*/
 /* ****************************************************************************************************** */
 
      }
