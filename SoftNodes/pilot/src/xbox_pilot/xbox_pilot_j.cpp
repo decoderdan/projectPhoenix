@@ -116,11 +116,6 @@
 	   ros::spin();
 	   r.sleep(); //Sleep
 
-	   if(depth_target <= -5)
-		{
-		  depth_target = -5;
-		}
-
 	   depth_error = depth_target - depth_input;
 	   depth_integral = depth_integral + (depth_error*dt);
 	   depth_derivative = (depth_error - depth_previous_error)/dt;
@@ -131,8 +126,7 @@
        motorCfg.back = (int8_t)(constrain((depth_output), -25, 25));	
 	
 	   motorMsg.publish(motorCfg); //publish motor values.
-	   std::cout << "depth_target: " << depth_target  << std::endl;
-
+	   
      }
 		
     return 0;
@@ -212,7 +206,13 @@
         }   
 
 	   depth_target += depthChange; //depth target vector = the input target value + change in depth
+	   if(depth_target <= -5)
+		{
+		  depth_target = -5;
+		}
 	   
+	   std::cout << "depth_target: " << depth_target  << std::endl;
+
 /* ************************************ new PID calculations and setup ********************************** */
 
 	/* depth_error = depth_target - depth_input;
