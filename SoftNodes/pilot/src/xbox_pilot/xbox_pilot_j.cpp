@@ -67,6 +67,32 @@
   }
 
  /** *********************************************** **/
+ /** Name: constrain                                 **/
+ /**                                                 **/
+ /** Function: To limit motor values to prevent      **/
+ /** them from going over the maximum value.         **/
+ /** *********************************************** **/
+
+ float constrain(float x, float min, float max) 
+  {
+	if (x < min) return min; //limits the minimum value to -100
+	if (x > max) return max; //limits the maximum value to 100
+	return x;
+  }
+
+ /** *********************************************** **/
+ /** Name: map                                       **/
+ /**                                                 **/
+ /** Function: Takes value X and known input range   **/
+ /** and maps it to a known output range.            **/
+ /** *********************************************** **/
+
+ float map(float x, float in_min, float in_max, float out_min, float out_max)
+  {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+  }
+
+ /** *********************************************** **/
  /** Name: main                                      **/
  /**                                                 **/
  /** Function: Runs the main logic for the code to   **/
@@ -90,9 +116,9 @@
 	   ros::spin();
 	   r.sleep(); //Sleep
 
-	   if(target_depth <= -5)
+	   if(depth_target <= -5)
 		{
-		  target_depth = -5;
+		  depth_target = -5;
 		}
 
 	   depth_error = depth_target - depth_input;
@@ -111,34 +137,6 @@
 		
     return 0;
   }
-
- /** *********************************************** **/
- /** Name: constrain                                 **/
- /**                                                 **/
- /** Function: To limit motor values to prevent      **/
- /** them from going over the maximum value.         **/
- /** *********************************************** **/
-
- float constrain(float x, float min, float max) 
-  {
-	if (x < min) return min; //limits the minimum value to -100
-	if (x > max) return max; //limits the maximum value to 100
-	return x;
-  }
-
-
- /** *********************************************** **/
- /** Name: map                                       **/
- /**                                                 **/
- /** Function: Takes value X and known input range   **/
- /** and maps it to a known output range.            **/
- /** *********************************************** **/
-
- float map(float x, float in_min, float in_max, float out_min, float out_max)
-  {
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-  }
-
  
  /** *********************************************** **/
  /** Name: joyCallback                               **/
