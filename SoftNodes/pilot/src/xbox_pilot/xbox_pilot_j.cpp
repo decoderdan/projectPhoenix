@@ -198,6 +198,11 @@
 		{
 		  depth_target = -5;
 		}
+
+	   if(depth_target >= 5)
+		{
+		  depth_target = 5;
+		}
 	   
 	   //PID calculations
 	   depth_error = depth_target - depth_input;
