@@ -132,6 +132,11 @@ int main( int argc, char **argv )
       depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
       
       std::cout << "depth_target: " << depth_target  << std::endl;
+      motorCfg.front = (int8_t)(constrain((depth_output), -25, 25)); //constrain the motor values for depth to 25%
+      motorCfg.back = (int8_t)(constrain((depth_output), -25, 25)); 
+  
+      motorMsg.publish(motorCfg); //publish motor values.
+      
       ros::spinOnce();
       loop_rate.sleep(); //Sleep to make the main function run at the desired rate.	   
     }
@@ -211,11 +216,6 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 		      std::cout << "no trigger"  << std::endl;
 	        depthChange = 0;
         }   
-      
-      motorCfg.front = (int8_t)(constrain((depth_output), -25, 25)); //constrain the motor values for depth to 25%
-      motorCfg.back = (int8_t)(constrain((depth_output), -25, 25));	
-	
-	    motorMsg.publish(motorCfg); //publish motor values.
       
       }
 
