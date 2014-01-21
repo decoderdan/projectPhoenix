@@ -114,7 +114,7 @@ int main( int argc, char **argv )
 	    ros::spin();
 
      ////********************* depth pid calculations in the main loop to try and smooth trigger action ******************////
-     /* depth_target += depthChange; //depth target vector = the input target value + change in depth
+      depth_target += depthChange; //depth target vector = the input target value + change in depth
       if(depth_target <= -5)
         {
           depth_target = -5;
@@ -131,7 +131,7 @@ int main( int argc, char **argv )
       depth_derivative = (depth_error - depth_previous_error)/dt;
       depth_previous_error = depth_error;
       depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
-    */
+      std::cout << "depth_target: " << depth_target  << std::endl;
     ///******************************************************************************************************************//// 
 	    r.sleep(); //Sleep	   
     }
@@ -211,7 +211,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 		      std::cout << "no trigger"  << std::endl;
 	        depthChange = 0;
         }   
-
+        /*
 	    depth_target += depthChange; //depth target vector = the input target value + change in depth
 	    if(depth_target <= -5)
 		    {
@@ -229,13 +229,13 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 	    depth_derivative = (depth_error - depth_previous_error)/dt;
 	    depth_previous_error = depth_error;
 	    depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
-      
+      */
       motorCfg.front = (int8_t)(constrain((depth_output), -25, 25));
       motorCfg.back = (int8_t)(constrain((depth_output), -25, 25));	
 	
 	    motorMsg.publish(motorCfg); //publish motor values.
 
-	    std::cout << "depth_target: " << depth_target  << std::endl;
+	    //std::cout << "depth_target: " << depth_target  << std::endl;
       
       }
 
