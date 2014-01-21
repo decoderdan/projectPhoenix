@@ -3,13 +3,13 @@
  /** Name: xbox_pilot.cpp                            **/
  /**                                                 **/
  /** Function: To recieve values from the xbox       **/
- /** 		   controller and convert it into motor  **/
+ /** 		   controller and convert it into motor      **/
  /**           values and target vector values.      **/
  /**                                                 **/
  /** Author: Unknown, edited by James Killick        **/
  /**                                                 **/
- /** Last Date Modified: 02/12/2013                  **/
- /** /// @bug serial node loses packets				 **/
+ /** Last Date Modified: 21/01/2014                  **/
+ /** /// @bug serial node loses packets     				 **/
  /**  ********************************************** **/
 
 #include <stdio.h>
@@ -56,7 +56,7 @@ float depthChange = 0.0;
  /** Name: depthCallBack                             **/
  /**                                                 **/
  /** Function: To recieve depth data and set the     **/
- /** value of "depth_input" to this value.            **/
+ /** value of "depth_input" to this value.           **/
  /** *********************************************** **/
 
 void depthCallBack(const std_msgs::Float32& depth) 
@@ -93,8 +93,9 @@ float map(float x, float in_min, float in_max, float out_min, float out_max)
  /** *********************************************** **/
  /** Name: main                                      **/
  /**                                                 **/
- /** Function: Runs the main logic for the code to   **/
- /** publish the values to the pid_pilot program.    **/
+ /** Function: Runs the main logic for the code,     **/
+ /** does the PID calculations and limits the        **/
+ /** maximum depth.                                  **/
  /** *********************************************** **/
 
 int main( int argc, char **argv )
@@ -108,23 +109,20 @@ int main( int argc, char **argv )
     ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
 
 	  ros::Rate loop_rate(50); 
-    std::cout << "start"  << std::endl;
+
 	while(ros::ok())
 	  {	
 
-     ////********************* depth pid calculations in the main loop to try and smooth trigger action ******************////
       depth_target += depthChange; //depth target vector = the input target value + change in depth
-      if(depth_target <= -5)
+      if(depth_target <= -5) //checks to see if the depth target is less than 5m down.
         {
-          depth_target = -5;
+          depth_target = -5; //limits the maximum depth to 5m
         }
 
-      if(depth_target >= 5)
+      if(depth_target >= 5) //checks to see if the submarine is trying to fly
         {
-          depth_target = 5;
+          depth_target = 5; // limits this hight to 5m
         }
-      
-      std::cout << "PID"  << std::endl;
       
       //PID calculations
       depth_error = depth_target - depth_input;
@@ -134,9 +132,8 @@ int main( int argc, char **argv )
       depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
       
       std::cout << "depth_target: " << depth_target  << std::endl;
-      ///******************************************************************************************************************//// 
-	    ros::spinOnce();
-      loop_rate.sleep(); //Sleep	   
+      ros::spinOnce();
+      loop_rate.sleep(); //Sleep to make the main function run at the desired rate.	   
     }
 		
   return 0;
@@ -199,14 +196,14 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
         {
           rise = (-1 * ((joy->axes[5] - 1.0)/2.0));//sets the right trigger to control rise
           depthChange = (rise / 200); //sets the rate of change
-          std::cout << "Rise: " << rise  << std::endl;
+          std::cout << "Rise: "  << std::endl;
         }
 
       else if((joy->axes[5] == 1) && (joy->axes[2] < 1)) //if right trigger is up and left trigger is down
         { 	
 	        dive = (1 * ((joy->axes[2] - 1.0)/2.0)); //sets the left trigger to control dive
           depthChange = (dive / 200); //sets the rate of change		
-          std::cout << "Dive: " << dive  << std::endl;
+          std::cout << "Dive: " << std::endl;
         }
 
       else //if none or both of the trigers are held down do not change the depth.
@@ -214,31 +211,11 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 		      std::cout << "no trigger"  << std::endl;
 	        depthChange = 0;
         }   
-        /*
-	    depth_target += depthChange; //depth target vector = the input target value + change in depth
-	    if(depth_target <= -5)
-		    {
-		      depth_target = -5;
-		    }
-
-	    if(depth_target >= 5)
-		    {
-		      depth_target = 5;
-		    }
-	   
-	    //PID calculations
-	    depth_error = depth_target - depth_input;
-	    depth_integral = depth_integral + (depth_error*dt);
-	    depth_derivative = (depth_error - depth_previous_error)/dt;
-	    depth_previous_error = depth_error;
-	    depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
-      */
-      motorCfg.front = (int8_t)(constrain((depth_output), -25, 25));
+      
+      motorCfg.front = (int8_t)(constrain((depth_output), -25, 25)); //constrain the motor values for depth to 25%
       motorCfg.back = (int8_t)(constrain((depth_output), -25, 25));	
 	
 	    motorMsg.publish(motorCfg); //publish motor values.
-
-	    //std::cout << "depth_target: " << depth_target  << std::endl;
       
       }
 
