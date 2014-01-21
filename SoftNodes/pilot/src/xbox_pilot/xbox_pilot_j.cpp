@@ -195,8 +195,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
       if((joy->axes[5] < 1) && (joy->axes[2] == 1)) //if right trigger is down and left trigger is up.
         {
 		      std::cout << "Rise"  << std::endl;
-  	      //rise = (1 * ((joy->axes[5] + 1.0)/2.0)); //sets the right trigger to control rise
-          rise = (1 * ((joy->axes[5] - 1.0)/2.0));
+          rise = (1 * ((joy->axes[5] - 1.0)/2.0));//sets the right trigger to control rise
           depthChange = (rise / 200); //sets the rate of change
         }
 
