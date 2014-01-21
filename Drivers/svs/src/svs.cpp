@@ -205,7 +205,7 @@ int main(int argc, char **argv)
 	std_msgs::Float32 svs_depth;
 	std_msgs::Float32 svs_sos;
 
-	ros::Rate r(1);
+	ros::Rate r(32);
 
 	while(ros::ok())
 		{
@@ -252,6 +252,8 @@ int main(int argc, char **argv)
 
 					svs_depth_msg.publish(svs_depth);
 					svs_sos_msg.publish(svs_sos);
+
+
 				
 				} else {
 					std::stringstream ss;		// print the reply
@@ -263,6 +265,8 @@ int main(int argc, char **argv)
 				ROS_ERROR("SVS packet timed out!");
 				no_data = true;
 			}
+
+			ros::spinOnce();
 		}
 		
 	return 0;
