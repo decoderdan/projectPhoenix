@@ -135,7 +135,7 @@ int main( int argc, char **argv )
       
       std::cout << "depth_target: " << depth_target  << std::endl;
       ///******************************************************************************************************************//// 
-	    ros::spin();
+	    ros::spinOnce();
       loop_rate.sleep(); //Sleep	   
     }
 		
