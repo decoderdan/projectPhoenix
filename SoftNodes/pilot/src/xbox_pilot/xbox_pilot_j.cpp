@@ -196,19 +196,19 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
         {
           rise = (-1 * ((joy->axes[5] - 1.0)/2.0));//sets the right trigger to control rise
           depthChange = (rise / 200); //sets the rate of change
-         // std::cout << "Rise: " << rise  << std::endl;
+          std::cout << "Rise: " << rise  << std::endl;
         }
 
       else if((joy->axes[5] == 1) && (joy->axes[2] < 1)) //if right trigger is up and left trigger is down
         { 	
 	        dive = (1 * ((joy->axes[2] - 1.0)/2.0)); //sets the left trigger to control dive
           depthChange = (dive / 200); //sets the rate of change		
-         // std::cout << "Dive: " << dive  << std::endl;
+          std::cout << "Dive: " << dive  << std::endl;
         }
 
       else //if none or both of the trigers are held down do not change the depth.
         {
-		     // std::cout << "no trigger"  << std::endl;
+		      std::cout << "no trigger"  << std::endl;
 	        depthChange = 0;
         }   
         /*
