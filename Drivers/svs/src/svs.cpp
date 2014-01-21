@@ -11,7 +11,7 @@
 #include <boost/lexical_cast.hpp> // for converting strings to ...
 
 
-#define svsDeviceID "/dev/ttyUSB2" // cannot do by-dev-id at the moment ... needs a solution
+#define svsDeviceID "//dev//serial//by-id//usb-Prolific_Technology_Inc._USB-Serial_Controller_D-if00-port0" // cannot do by-dev-id at the moment ... needs a solution
 
 #define TIMEOUT_PACKET 500
 #define TIMEOUT_REPLY 500
