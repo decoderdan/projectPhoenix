@@ -108,7 +108,7 @@ int main( int argc, char **argv )
     ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
 
 	  ros::Rate r(50); 
-
+    std::cout << "start"  << std::endl;
 	while(ros::ok())
 	  {	
 	    ros::spin();
@@ -124,7 +124,7 @@ int main( int argc, char **argv )
         {
           depth_target = 5;
         }
-     
+      std::cout << "PID"  << std::endl;
       //PID calculations
       depth_error = depth_target - depth_input;
       depth_integral = depth_integral + (depth_error*dt);
