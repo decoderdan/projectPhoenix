@@ -107,11 +107,11 @@ int main( int argc, char **argv )
 	  ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
     ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
 
-	  ros::Rate r(50); 
+	  //ros::Rate r(50); 
     std::cout << "start"  << std::endl;
-	while(ros::ok())
+	while(1)
 	  {	
-	    ros::spin();
+	    //ros::spin();
 
      ////********************* depth pid calculations in the main loop to try and smooth trigger action ******************////
       depth_target += depthChange; //depth target vector = the input target value + change in depth
@@ -124,16 +124,17 @@ int main( int argc, char **argv )
         {
           depth_target = 5;
         }
-      std::cout << "PID"  << std::endl;
+       
       //PID calculations
       depth_error = depth_target - depth_input;
       depth_integral = depth_integral + (depth_error*dt);
       depth_derivative = (depth_error - depth_previous_error)/dt;
       depth_previous_error = depth_error;
       depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
+      
       std::cout << "depth_target: " << depth_target  << std::endl;
-    ///******************************************************************************************************************//// 
-	    r.sleep(); //Sleep	   
+      ///******************************************************************************************************************//// 
+	    //r.sleep(); //Sleep	   
     }
 		
   return 0;
