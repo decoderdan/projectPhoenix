@@ -50,7 +50,9 @@ float depth_derivative = 0;
 
 float rise = 0.0; //initialise variables for depth.
 float dive = 0.0;
-float depthChange = 0.0; 
+float depthChange = 0.0;
+float x_axis = 0.0;
+float y_axis = 0.0; 
 
  /** *********************************************** **/
  /** Name: depthCallBack                             **/
@@ -221,7 +223,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 
 /* *********************************************************************************************************************** */
 /* *********************************************************************************************************************** */
-/* 													NEW STRAFING CODE													   */
+/* 													NEW STRAFING CODE	                                                  												   */
 /* *********************************************************************************************************************** */
 /* *********************************************************************************************************************** */
 
@@ -230,6 +232,14 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 
        //x = joy->axes[0]
        //y = joy->axes[1]
+        x_axis = joy->axes[0];
+        y_axis = joy->axes[1];
+
+        x_axis = constrain(x_axis, -0.8, 0.8);
+        y_axis = constrain(y_axis, -0.8, 0.8);
+
+        std::cout << "x_axis: " << x_axis  << std::endl;
+        std::cout << "y_axis: " << y_axis  << std::endl;
 
         if((joy->axes[0] == 0)&&(joy->axes[1] == 0)) //if no direction is indicated.
           {
@@ -239,36 +249,36 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
             motorCfg.back_right  = 0;
           }
 
-        if(joy->axes[0] > 0) //if the x axis is posative (right)
+        if(joy->axes[0] >= 0) //if the x axis is posative (right)
           {
-            motorCfg.front_right = (joy->axes[0] * -50);	//-  strafe right
-            motorCfg.front_left  = (joy->axes[0] * 50);  //+  multiplied by 2x y value cos of thruster orientation not being 45 degrees
-            motorCfg.back_right  = (joy->axes[0] * -50); //-
-            motorCfg.back_left   = (joy->axes[0] * 50);  //+
+            motorCfg.front_right = (x_axis * -50);  //-  strafe right
+            motorCfg.front_left  = (x_axis * 50);  //+  multiplied by 2x y value cos of thruster orientation not being 45 degrees
+            motorCfg.back_right  = (x_axis * -50); //-
+            motorCfg.back_left   = (x_axis * 50);  //+
           }
 
         if(joy->axes[0] < 0) //if the x axis is negative (left)
           {
-            motorCfg.front_right = (joy->axes[0] * -50);	//+ strafe left
-            motorCfg.front_left  = (joy->axes[0] * 50); //- orientation is reversed because joy->axes[0] is negative
-            motorCfg.back_right  = (joy->axes[0] * -50);  //+
-            motorCfg.back_left   = (joy->axes[0] * 50); //-
+            motorCfg.front_right = (x_axis * -50);  //+ strafe left
+            motorCfg.front_left  = (x_axis * 50); //- orientation is reversed because joy->axes[0] is negative
+            motorCfg.back_right  = (x_axis * -50);  //+
+            motorCfg.back_left   = (x_axis * 50); //-
           }
 
         if(joy->axes[1] > 0) //if the y axis is posative (up)
           {
-            motorCfg.front_right += (joy->axes[1] * 25);	 //+ move forward (also adding this to the x motor values)
-            motorCfg.front_left  += (joy->axes[1] * 25);  //+
-            motorCfg.back_right  += (joy->axes[1] * -25); //-
-            motorCfg.back_left   += (joy->axes[1] * -25); //-
+            motorCfg.front_right += (y_axis * 50);   //+ move forward (also adding this to the x motor values)
+            motorCfg.front_left  += (y_axis * 50);  //+
+            motorCfg.back_right  += (y_axis * -50); //-
+            motorCfg.back_left   += (y_axis * -50); //-
           }
 
-        if(joy->axes[1] < 0) //if the y axis is negative (down)
+        if(joy->axes[1] <= 0) //if the y axis is negative (down)
           {
-            motorCfg.front_right += (joy->axes[1] * 25); //- move backwards (also adding this to the x motor values)
-            motorCfg.front_left  += (joy->axes[1] * 25); //- orientation is reversed because joy->axes[1] is negative
-            motorCfg.back_right  += (joy->axes[1] * -25);  //+
-            motorCfg.back_left   += (joy->axes[1] * -25);  //+
+            motorCfg.front_right += (y_axis * 50); //- move backwards (also adding this to the x motor values)
+            motorCfg.front_left  += (y_axis * 50); //- orientation is reversed because joy->axes[1] is negative
+            motorCfg.back_right  += (y_axis * -50);  //+
+            motorCfg.back_left   += (y_axis * -50);  //+
           }
 
         motorCfg.front_right = constrain(motorCfg.front_right, -100, 100); //constrain front right motor, min = -100, max = +100
