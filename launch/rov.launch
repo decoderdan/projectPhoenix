@@ -1,5 +1,5 @@
 <launch>
-  <node name="serial_node" 	pkg="rosserial_python" 	type="listener" />
-  <node name="svs" 			pkg="svs" 				type="listener" />
-  <node name="xbox_pilot" 	pkg="pilot" 			type="listener" />
+  <node name="serial_node" 	pkg="rosserial_python" 	type="serial_node.py" />
+  <node name="svs" 			pkg="svs" 				type="svs" />
+  <node name="xbox_pilot" 	pkg="pilot" 			type="xbox_pilot" />
 </launch>
