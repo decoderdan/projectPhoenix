@@ -20,6 +20,7 @@
 #include <std_msgs/Float32.h>
 #include <custom_msg/PIDValues.h>
 #include <custom_msg/IMUData.h>
+
 void joyCallback(const sensor_msgs::Joy::ConstPtr&); //declaration of call back functions
 float map(float, float, float, float, float);
 
@@ -48,11 +49,38 @@ float depth_previous_error = 0;
 float depth_integral = 0;
 float depth_derivative = 0;
 
+float pitch_rate = 3;      //degrees per second
+float pitch_Kp = 0;      //3 variables for pitch PID
+float pitch_Ki = 0;
+float pitch_Kd = 0;
+float pitch_input = 0;     //values recieved from IMU
+float pitch_target_raw = 0;
+float pitch_target = 0;    //desired pitch value
+float pitch_error = 0;     //difference between desired and actual pitch value.
+float pitch_previous_error = 0;
+float pitch_integral = 0;
+float pitch_derivative = 0; 
+
 float rise = 0.0; //initialise variables for depth.
 float dive = 0.0;
 float depthChange = 0.0;
 float x_axis = 0.0;
 float y_axis = 0.0; 
+
+void pidGuiCallBack(const custom_msg::PIDValues& data) 
+  {
+    pitch_Kp = data.pitch_Kp;  //recieves values for PID from the GUI and sets it to the values for pitch.
+    pitch_Ki = data.pitch_Ki;
+    pitch_Kd = data.pitch_Kd;
+  
+    std::cout << "PID values updated "  << std::endl;
+
+    pitch_error = 0;  //variables for pitch PID calculation are reset.
+    pitch_previous_error = 0;
+    pitch_integral = 0;
+    pitch_derivative = 0;
+  }
+
 
  /** *********************************************** **/
  /** Name: depthCallBack                             **/
@@ -109,8 +137,11 @@ int main( int argc, char **argv )
 	  motorMsg = n.advertise<custom_msg::MotorConfig>("motor_config", 100); //Publisher for the motor configuration
 	  ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
     ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
+    ros::Subscriber pidGuiSub = n.subscribe("pidGui", 100, pidGuiCallBack); //subscriber for the GUI.
 
 	  ros::Rate loop_rate(50); 
+
+    float pitch_output = 0;
 
 	while(ros::ok())
 	  {	
@@ -133,16 +164,30 @@ int main( int argc, char **argv )
       depth_previous_error = depth_error;
       depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
       
+      //pitch PID calculations
+      pitch_error = pitch_target - pitch_input;
+      pitch_integral = pitch_integral + (pitch_error*dt);
+      pitch_derivative = (pitch_error - pitch_previous_error)/dt;
+      pitch_previous_error = pitch_error;
+      pitch_output = (pitch_Kp*pitch_error) + (pitch_Ki*pitch_integral) + (pitch_Kd*pitch_derivative);
+
       std::cout << "depth_target: " << depth_target  << std::endl;
-      motorCfg.front = (int8_t)(constrain((depth_output), -25, 25)); //constrain the motor values for depth to 25%
-      motorCfg.back = (int8_t)(constrain((depth_output), -25, 25)); 
-  
+
+      motorCfg.front =(int8_t)(constrain((-depth_output+pitch_output), -25, 25)); //constrain the motor values for depth and pitch to 25%
+      motorCfg.back = (int8_t)(constrain((-depth_output-pitch_output), -25, 25));  
+
       motorMsg.publish(motorCfg); //publish motor values.
       
       ros::spinOnce();
       loop_rate.sleep(); //Sleep to make the main function run at the desired rate.	   
     }
-		
+		motorCfg.front_right = 0;
+    motorCfg.front_left = 0;
+    motorCfg.back_right = 0;
+    motorCfg.back_left = 0;
+    motorCfg.front = 0;
+    motorCfg.back = 0;
+
   return 0;
   }
  
@@ -175,17 +220,54 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 	     // 0 = Left X Axis 
        // 1 = Left Y Axis
 	
-	     float rads = atan2(joy->axes[1], -joy->axes[0]); // converts x & y values from left joystick
-	     float distance = constrain(sqrt(pow(-joy->axes[0],2)+pow(joy->axes[1],2)),0,1); //Get distance 
-	     distance = (distance < 0.12 ? 0 : distance); //Bit of a dead zone
-	     distance = constrain(map(distance, 0.12, 1, 0, 1), 0, 1); //Re-map so it's smooth from deadzone outwards
+	      x_axis = joy->axes[0];
+        y_axis = joy->axes[1];
 
-  	   //Direction Control, uses radian values to produce motor values butconstrains them from -100 to 100.	
-	     motorCfg.front_right = -(int8_t)(constrain(140 * cos(rads+M_PI/4), -100, 100) * distance); 
-	     motorCfg.front_left = -(int8_t)(constrain(-140 * cos(M_PI/4-rads), -100, 100) * distance);
-	     motorCfg.back_left = -(int8_t)(constrain(-140 * cos(rads+M_PI/4), -100, 100) * distance);
-	     motorCfg.back_right = -(int8_t)(constrain(140 * cos(M_PI/4-rads), -100, 100) * distance);
+        x_axis = constrain(x_axis, -0.8, 0.8);
+        y_axis = constrain(y_axis, -0.8, 0.8);
 
+        std::cout << "x_axis: " << x_axis  << std::endl;
+        std::cout << "y_axis: " << y_axis  << std::endl;
+
+        if((joy->axes[0] == 0)&&(joy->axes[1] == 0)) //if no direction is indicated.
+          {
+            motorCfg.front_right = 0;   //turn off motors
+            motorCfg.front_left  = 0;
+            motorCfg.back_left   = 0;
+            motorCfg.back_right  = 0;
+          }
+
+        if(joy->axes[0] >= 0) //if the x axis is posative (right)
+          {
+            motorCfg.front_right = (x_axis * 50);  //-  strafe right
+            motorCfg.front_left  = (x_axis * -50);  //+  multiplied by 2x y value cos of thruster orientation not being 45 degrees
+            motorCfg.back_right  = (x_axis * 50); //-
+            motorCfg.back_left   = (x_axis * -50);  //+
+          }
+
+        if(joy->axes[0] < 0) //if the x axis is negative (left)
+          {
+            motorCfg.front_right = (x_axis * 50);  //+ strafe left
+            motorCfg.front_left  = (x_axis * -50); //- orientation is reversed because joy->axes[0] is negative
+            motorCfg.back_right  = (x_axis * 50);  //+
+            motorCfg.back_left   = (x_axis * -50); //-
+          }
+
+        if(joy->axes[1] > 0) //if the y axis is posative (up)
+          {
+            motorCfg.front_right += (y_axis * 50);   //+ move forward (also adding this to the x motor values)
+            motorCfg.front_left  += (y_axis * 50);  //+
+            motorCfg.back_right  += (y_axis * -50); //-
+            motorCfg.back_left   += (y_axis * -50); //-
+          }
+
+        if(joy->axes[1] <= 0) //if the y axis is negative (down)
+          {
+            motorCfg.front_right += (y_axis * 50); //- move backwards (also adding this to the x motor values)
+            motorCfg.front_left  += (y_axis * 50); //- orientation is reversed because joy->axes[1] is negative
+            motorCfg.back_right  += (y_axis * -50);  //+
+            motorCfg.back_left   += (y_axis * -50);  //+
+          }
 	     //Yaw control, converts right joy stick x values into motor values.
 	     motorCfg.front_right += (20 * joy->axes[3]);
 	     motorCfg.front_left += (-20 * joy->axes[3]);
@@ -226,7 +308,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 /* 													NEW STRAFING CODE	                                                  												   */
 /* *********************************************************************************************************************** */
 /* *********************************************************************************************************************** */
-
+/*
     if(strafe_test == 1) //if the button has been pressed run experimental strafe section
       {
 
