@@ -171,7 +171,8 @@ int main( int argc, char **argv )
       pitch_previous_error = pitch_error;
       pitch_output = (pitch_Kp*pitch_error) + (pitch_Ki*pitch_integral) + (pitch_Kd*pitch_derivative);
 
-      std::cout << "depth_target: " << depth_target  << std::endl;
+      //std::cout << "depth_target: " << depth_target  << std::endl;
+      std::cout << "pitch_output: " << pitch_output  << std::endl;
 
       motorCfg.front =(int8_t)(constrain((-depth_output+pitch_output), -25, 25)); //constrain the motor values for depth and pitch to 25%
       motorCfg.back = (int8_t)(constrain((-depth_output-pitch_output), -25, 25));  
