@@ -337,7 +337,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
       }   
 
     // Pitch control, right trigger y axis controls pitch
-    if((joy->axes[3] > 0.8) || (joy->axes[3]) < -0.8))
+    if((joy->axes[3] > 0.8) || (joy->axes[3] < -0.8))
       {
         std::cout << "joystick: " << std::endl;
         pitch_target = (1 * joy->axes[3]);
