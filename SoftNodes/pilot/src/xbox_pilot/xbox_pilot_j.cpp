@@ -49,6 +49,7 @@ float depth_previous_error = 0;
 float depth_integral = 0;
 float depth_derivative = 0;
 
+float pitch_change = 0.0;
 float pitch_rate = 3;      //degrees per second
 float pitch_Kp = 0;      //3 variables for pitch PID
 float pitch_Ki = 0;
@@ -203,6 +204,18 @@ int main( int argc, char **argv )
       
       //pitch PID calculations
       //pitch_error= 0;
+      pitch_target += pitch_change;
+      
+      if(pitch_target > 45)
+        {
+          pitch_target = 45;
+        }
+      
+      if(pitch_target < -45)
+        {
+          pitch_target = -45;
+        }
+      
       std::cout << "target: " << pitch_target  << std::endl;
       
       pitch_error = pitch_target - pitch_input;
@@ -329,23 +342,27 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 
     else //if none or both of the trigers are held down do not change the depth.
       {
-		    std::cout << "no trigger"  << std::endl;
-	      depthChange = 0;
+		    depthChange = 0;
       }   
 
     // Pitch control, right trigger y axis controls pitch
-    if(joy->axes[3] > 0.8) 
+    if(joy->axes[4] > 0.8) 
       {
         std::cout << "dive: " << std::endl;
-        pitch_target = (-1 * joy->axes[3]);
+        pitch_change = (-0.2 * joy->axes[4]);
       }  
 
-    if(joy->axes[3] < -0.8)
+    if(joy->axes[4] < -0.8)
       {
         std::cout << "rise: " << std::endl;
-        pitch_target = (-1 * joy->axes[3]);
+        pitch_change = (-0.2 * joy->axes[4]);
       }  
       
+    if((joy->axes[4] > -0.79) && (joy->axes[4] < 0.79))
+      {
+        pitch_change = 0;
+      }
+
     //if right joystick button is pressed level out the sub  
     if(joy->buttons[10] == 1)
       {
