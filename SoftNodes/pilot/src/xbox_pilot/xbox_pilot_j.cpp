@@ -67,6 +67,13 @@ float depthChange = 0.0;
 float x_axis = 0.0;
 float y_axis = 0.0; 
 
+/** *********************************************** **/
+/** Name: pidGuiCallBack                            **/
+/**                                                 **/
+/** Function: To recieve PID values from the GUI.   **/
+/**                                                 **/
+/** *********************************************** **/
+
 void pidGuiCallBack(const custom_msg::PIDValues& data) 
   {
     pitch_Kp = data.pitch_Kp;  //recieves values for PID from the GUI and sets it to the values for pitch.
@@ -79,6 +86,34 @@ void pidGuiCallBack(const custom_msg::PIDValues& data)
     pitch_previous_error = 0;
     pitch_integral = 0;
     pitch_derivative = 0;
+  }
+
+ /** *********************************************** **/
+ /** Name: vectorCallBack                            **/
+ /**                                                 **/
+ /** Function: To recieve yaw, pitch and depth data  **/
+ /** when the valut of the target vector changes.    **/
+ /** *********************************************** **/
+
+ void vectorCallBack(const custom_msg::TargetVector& data) 
+  {
+    if (data.set_pitch == true) 
+      {
+        pitch_target = data.vector_pitch;
+        std::cout << "Pitch target updated "  << std::endl;
+      }  ////if the pitch has changed, read in the new value.
+  }
+
+  /** *********************************************** **/
+  /** Name: imuCallBack                               **/
+  /**                                                 **/
+  /** Function: To recieve yaw and pitch data and     **/
+  /** set two variables to these values.              **/
+  /** *********************************************** **/
+
+ void imuCallBack(const custom_msg::IMUData& data) 
+  {
+  pitch_input = data.pitch;
   }
 
 
@@ -138,6 +173,8 @@ int main( int argc, char **argv )
 	  ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
     ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
     ros::Subscriber pidGuiSub = n.subscribe("pidGui", 100, pidGuiCallBack); //subscriber for the GUI.
+    ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack); //subscriber for the target vectors.
+    ros::Subscriber imuSub = n.subscribe("imu", 100, imuCallBack);      //subscriber for the IMU.
 
 	  ros::Rate loop_rate(50); 
 
@@ -165,17 +202,35 @@ int main( int argc, char **argv )
       depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
       
       //pitch PID calculations
+      //pitch_error= 0;
+      std::cout << "error: " << pitch_error  << std::endl;
+      std::cout << "integral: " << pitch_integral  << std::endl;
+      std::cout << "derivative: " << pitch_derivative  << std::endl;
+      std::cout << "previous_error: " << pitch_error  << std::endl;
+      std::cout << "output: " << pitch_output  << std::endl;
+
       pitch_error = pitch_target - pitch_input;
       pitch_integral = pitch_integral + (pitch_error*dt);
+      
+      if(pitch_integral >= 30)
+        {
+          pitch_integral = 30;
+        }
+      
       pitch_derivative = (pitch_error - pitch_previous_error)/dt;
       pitch_previous_error = pitch_error;
       pitch_output = (pitch_Kp*pitch_error) + (pitch_Ki*pitch_integral) + (pitch_Kd*pitch_derivative);
 
       //std::cout << "depth_target: " << depth_target  << std::endl;
-      std::cout << "pitch_output: " << pitch_output  << std::endl;
+      //std::cout << "pitch_output: " << pitch_output  << std::endl;
+      
+      if(pitch_output > 50)
+        {
+          pitch_output = 50;
+        }
 
-      motorCfg.front =(int8_t)(constrain((-depth_output+pitch_output), -25, 25)); //constrain the motor values for depth and pitch to 25%
-      motorCfg.back = (int8_t)(constrain((-depth_output-pitch_output), -25, 25));  
+      motorCfg.front =(int8_t)(constrain((-depth_output+pitch_output), -50, 50)); //constrain the motor values for depth and pitch to 25%
+      motorCfg.back = (int8_t)(constrain((-depth_output-pitch_output), -50, 50));  
 
       motorMsg.publish(motorCfg); //publish motor values.
       
@@ -303,78 +358,5 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
         }   
       
       }
-
-/* *********************************************************************************************************************** */
-/* *********************************************************************************************************************** */
-/* 													NEW STRAFING CODE	                                                  												   */
-/* *********************************************************************************************************************** */
-/* *********************************************************************************************************************** */
-/*
-    if(strafe_test == 1) //if the button has been pressed run experimental strafe section
-      {
-
-       //x = joy->axes[0]
-       //y = joy->axes[1]
-        x_axis = joy->axes[0];
-        y_axis = joy->axes[1];
-
-        x_axis = constrain(x_axis, -0.8, 0.8);
-        y_axis = constrain(y_axis, -0.8, 0.8);
-
-        std::cout << "x_axis: " << x_axis  << std::endl;
-        std::cout << "y_axis: " << y_axis  << std::endl;
-
-        if((joy->axes[0] == 0)&&(joy->axes[1] == 0)) //if no direction is indicated.
-          {
-            motorCfg.front_right = 0; 	//turn off motors
-            motorCfg.front_left  = 0;
-            motorCfg.back_left   = 0;
-            motorCfg.back_right  = 0;
-          }
-
-        if(joy->axes[0] >= 0) //if the x axis is posative (right)
-          {
-            motorCfg.front_right = (x_axis * -50);  //-  strafe right
-            motorCfg.front_left  = (x_axis * 50);  //+  multiplied by 2x y value cos of thruster orientation not being 45 degrees
-            motorCfg.back_right  = (x_axis * -50); //-
-            motorCfg.back_left   = (x_axis * 50);  //+
-          }
-
-        if(joy->axes[0] < 0) //if the x axis is negative (left)
-          {
-            motorCfg.front_right = (x_axis * -50);  //+ strafe left
-            motorCfg.front_left  = (x_axis * 50); //- orientation is reversed because joy->axes[0] is negative
-            motorCfg.back_right  = (x_axis * -50);  //+
-            motorCfg.back_left   = (x_axis * 50); //-
-          }
-
-        if(joy->axes[1] > 0) //if the y axis is posative (up)
-          {
-            motorCfg.front_right += (y_axis * 50);   //+ move forward (also adding this to the x motor values)
-            motorCfg.front_left  += (y_axis * 50);  //+
-            motorCfg.back_right  += (y_axis * -50); //-
-            motorCfg.back_left   += (y_axis * -50); //-
-          }
-
-        if(joy->axes[1] <= 0) //if the y axis is negative (down)
-          {
-            motorCfg.front_right += (y_axis * 50); //- move backwards (also adding this to the x motor values)
-            motorCfg.front_left  += (y_axis * 50); //- orientation is reversed because joy->axes[1] is negative
-            motorCfg.back_right  += (y_axis * -50);  //+
-            motorCfg.back_left   += (y_axis * -50);  //+
-          }
-
-        motorCfg.front_right = constrain(motorCfg.front_right, -100, 100); //constrain front right motor, min = -100, max = +100
-        motorCfg.front_left = constrain(motorCfg.front_left, -100, 100);
-        motorCfg.back_right = constrain(motorCfg.back_right, -100, 100);
-        motorCfg.back_left = constrain(motorCfg.back_left, -100, 100);  
-
-        motorMsg.publish(motorCfg); //publish the motor values.
-
-      }
-/* *********************************************************************************************************************** */
-/* *********************************************************************************************************************** */
-/* *********************************************************************************************************************** */
-/* *********************************************************************************************************************** */
 
   }

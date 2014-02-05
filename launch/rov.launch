@@ -1,5 +1,7 @@
 <launch>
-  <node name="serial_node" 	pkg="rosserial_python" 	type="serial_node.py" />
+  <arg name="a" 			value="/tty/USB2" />
+  <node name="serial_node" 	pkg="rosserial_python" 	type="serial_node.py" 	args="$(arg a)"/>
   <node name="svs" 			pkg="svs" 				type="svs" />
   <node name="xbox_pilot" 	pkg="pilot" 			type="xbox_pilot" />
+  <node name="imu" 			pkg="imu"				type="imu" />
 </launch>
