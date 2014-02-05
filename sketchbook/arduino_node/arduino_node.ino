@@ -23,6 +23,7 @@ std_msgs::Float32 batteryStatusSystem;
  
 int emergencyKill = 0;		//kills motors
 int i = 0;
+int a = 0;
 int mapped_front_left = 90;		//Mapped motors set to off position.
 int mapped_front_right = 90;
 int mapped_back_left = 90;
@@ -154,14 +155,20 @@ void setup()
 /** ************************************************************************ **/
 
 void loop() 
-  { 
+  {
+  a = 0; 
+  for(a=0;a<100,a++)
+   {
+    i = 0;
     for(i=0;i<100;i++)
       {
         if(emergencyKill == true) //if the emergency kill command has been called.
 	        {
             motors_off();
   	      }
+      	nh.spinOnce();
       }
+   }
     
     float batVoltage = averageAnalog(5);   //reads motor battery value from pin 5
     batVoltage = (batVoltage/1024)*26;     //converts that value into a voltage
