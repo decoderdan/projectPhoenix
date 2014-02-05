@@ -1,0 +1,17 @@
+<package>
+  <description brief="heart_beat">
+
+     heart_beat
+
+  </description>
+  <author>Jamie</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/heart_beat</url>
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+
+</package>
+
+
