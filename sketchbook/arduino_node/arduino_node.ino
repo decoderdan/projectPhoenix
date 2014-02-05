@@ -157,7 +157,7 @@ void setup()
 void loop() 
   {
   a = 0; 
-  for(a=0;a<100,a++)
+  for(a=0;a<100;a++)
    {
     i = 0;
     for(i=0;i<100;i++)
