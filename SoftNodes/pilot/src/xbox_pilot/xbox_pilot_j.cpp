@@ -261,9 +261,6 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
     x_axis = constrain(x_axis, -0.8, 0.8);
     y_axis = constrain(y_axis, -0.8, 0.8);
 
-    std::cout << "x_axis: " << x_axis  << std::endl;
-    std::cout << "y_axis: " << y_axis  << std::endl;
-
     if((joy->axes[0] == 0)&&(joy->axes[1] == 0)) //if no direction is indicated.
       {
         motorCfg.front_right = 0;   //turn off motors
@@ -337,10 +334,16 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
       }   
 
     // Pitch control, right trigger y axis controls pitch
-    if((joy->axes[3] > 0.8) || (joy->axes[3] < -0.8))
+    if(joy->axes[3] > 0.8) 
       {
-        std::cout << "joystick: " << std::endl;
-        pitch_target = (1 * joy->axes[3]);
+        std::cout << "dive: " << std::endl;
+        pitch_target = (-1 * joy->axes[3]);
+      }  
+
+    if(joy->axes[3] < -0.8)
+      {
+        std::cout << "rise: " << std::endl;
+        pitch_target = (-1 * joy->axes[3]);
       }  
       
     //if right joystick button is pressed level out the sub  
