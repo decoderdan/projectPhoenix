@@ -80,7 +80,7 @@ void pidGuiCallBack(const custom_msg::PIDValues& data)
     pitch_Ki = data.pitch_Ki;
     pitch_Kd = data.pitch_Kd;
   
-    std::cout << "PID values updated "  << std::endl;
+    //std::cout << "PID values updated "  << std::endl;
 
     pitch_error = 0;  //variables for pitch PID calculation are reset.
     pitch_previous_error = 0;
@@ -203,12 +203,8 @@ int main( int argc, char **argv )
       
       //pitch PID calculations
       //pitch_error= 0;
-      std::cout << "error: " << pitch_error  << std::endl;
-      std::cout << "integral: " << pitch_integral  << std::endl;
-      std::cout << "derivative: " << pitch_derivative  << std::endl;
-      std::cout << "previous_error: " << pitch_error  << std::endl;
-      std::cout << "output: " << pitch_output  << std::endl;
-
+      std::cout << "target: " << pitch_target  << std::endl;
+      
       pitch_error = pitch_target - pitch_input;
       pitch_integral = pitch_integral + (pitch_error*dt);
       
@@ -343,12 +339,14 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
     // Pitch control, right trigger y axis controls pitch
     if((joy->axes[3] > 0.8) || (joy->axes[3]) < -0.8))
       {
+        std::cout << "joystick: " << std::endl;
         pitch_target = (1 * joy->axes[3]);
       }  
       
     //if right joystick button is pressed level out the sub  
     if(joy->buttons[10] == 1)
       {
+        std::cout << "reset: " << std::endl;
         pitch_target = 0;
       }  
 
