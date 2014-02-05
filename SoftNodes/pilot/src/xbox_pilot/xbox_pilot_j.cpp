@@ -256,107 +256,100 @@ int main( int argc, char **argv )
 
 void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) 
   {
- 	 /* float rise = 0.0;	//initialise variables for depth.
-	  float dive = 0.0;
-	  float depthChange = 0.0; 
-    */
-    if((joy->buttons[0] == 1)&&(button_a == 0)) //if button A has been pressed and released.
-      {
-        strafe_test = ~strafe_test;  //toggle strafe test
-        button_a = 1;				 //prevent the program from toggling strafe_test until the button is released
-      }
- 
-    if((joy->buttons[0] == 0)&&(button_a == 1)) //if the button is released and has been pressed before
-      {
-        button_a = 0;	//reset the button
-      }
-   
-    if(strafe_test == 0) //if the button has not been pressed, run the normal program
-      {
-	     // 0 = Left X Axis 
+ 	     // 0 = Left X Axis 
        // 1 = Left Y Axis
 	
-	      x_axis = joy->axes[0];
-        y_axis = joy->axes[1];
+	  x_axis = joy->axes[0];
+    y_axis = joy->axes[1];
 
-        x_axis = constrain(x_axis, -0.8, 0.8);
-        y_axis = constrain(y_axis, -0.8, 0.8);
+    x_axis = constrain(x_axis, -0.8, 0.8);
+    y_axis = constrain(y_axis, -0.8, 0.8);
 
-        std::cout << "x_axis: " << x_axis  << std::endl;
-        std::cout << "y_axis: " << y_axis  << std::endl;
+    std::cout << "x_axis: " << x_axis  << std::endl;
+    std::cout << "y_axis: " << y_axis  << std::endl;
 
-        if((joy->axes[0] == 0)&&(joy->axes[1] == 0)) //if no direction is indicated.
-          {
-            motorCfg.front_right = 0;   //turn off motors
-            motorCfg.front_left  = 0;
-            motorCfg.back_left   = 0;
-            motorCfg.back_right  = 0;
-          }
-
-        if(joy->axes[0] >= 0) //if the x axis is posative (right)
-          {
-            motorCfg.front_right = (x_axis * 50);  //-  strafe right
-            motorCfg.front_left  = (x_axis * -50);  //+  multiplied by 2x y value cos of thruster orientation not being 45 degrees
-            motorCfg.back_right  = (x_axis * 50); //-
-            motorCfg.back_left   = (x_axis * -50);  //+
-          }
-
-        if(joy->axes[0] < 0) //if the x axis is negative (left)
-          {
-            motorCfg.front_right = (x_axis * 50);  //+ strafe left
-            motorCfg.front_left  = (x_axis * -50); //- orientation is reversed because joy->axes[0] is negative
-            motorCfg.back_right  = (x_axis * 50);  //+
-            motorCfg.back_left   = (x_axis * -50); //-
-          }
-
-        if(joy->axes[1] > 0) //if the y axis is posative (up)
-          {
-            motorCfg.front_right += (y_axis * 50);   //+ move forward (also adding this to the x motor values)
-            motorCfg.front_left  += (y_axis * 50);  //+
-            motorCfg.back_right  += (y_axis * -50); //-
-            motorCfg.back_left   += (y_axis * -50); //-
-          }
-
-        if(joy->axes[1] <= 0) //if the y axis is negative (down)
-          {
-            motorCfg.front_right += (y_axis * 50); //- move backwards (also adding this to the x motor values)
-            motorCfg.front_left  += (y_axis * 50); //- orientation is reversed because joy->axes[1] is negative
-            motorCfg.back_right  += (y_axis * -50);  //+
-            motorCfg.back_left   += (y_axis * -50);  //+
-          }
-	     //Yaw control, converts right joy stick x values into motor values.
-	     motorCfg.front_right += (20 * joy->axes[3]);
-	     motorCfg.front_left += (-20 * joy->axes[3]);
-	     motorCfg.back_left += (20 * joy->axes[3]);
-	     motorCfg.back_right += (-20 * joy->axes[3]);
-
-	     motorCfg.front_right = constrain(motorCfg.front_right, -100, 100); //constrain front right motor, min = -100, max = +100
-	     motorCfg.front_left = constrain(motorCfg.front_left, -100, 100);
-	     motorCfg.back_right = constrain(motorCfg.back_right, -100, 100);
-	     motorCfg.back_left = constrain(motorCfg.back_left, -100, 100);
-
-	     //Depth control, reads from the right ([5]) and left ([2]) triggers and outputs target vector values.
-
-      if((joy->axes[5] < 1) && (joy->axes[2] == 1)) //if right trigger is down and left trigger is up.
-        {
-          rise = (-1 * ((joy->axes[5] - 1.0)/2.0));//sets the right trigger to control rise
-          depthChange = (rise / 200); //sets the rate of change
-          std::cout << "Rise: "  << std::endl;
-        }
-
-      else if((joy->axes[5] == 1) && (joy->axes[2] < 1)) //if right trigger is up and left trigger is down
-        { 	
-	        dive = (1 * ((joy->axes[2] - 1.0)/2.0)); //sets the left trigger to control dive
-          depthChange = (dive / 200); //sets the rate of change		
-          std::cout << "Dive: " << std::endl;
-        }
-
-      else //if none or both of the trigers are held down do not change the depth.
-        {
-		      std::cout << "no trigger"  << std::endl;
-	        depthChange = 0;
-        }   
-      
+    if((joy->axes[0] == 0)&&(joy->axes[1] == 0)) //if no direction is indicated.
+      {
+        motorCfg.front_right = 0;   //turn off motors
+        motorCfg.front_left  = 0;
+        motorCfg.back_left   = 0;
+        motorCfg.back_right  = 0;
       }
+
+    if(joy->axes[0] >= 0) //if the x axis is posative (right)
+      {
+        motorCfg.front_right = (x_axis * 50);  //-  strafe right
+        motorCfg.front_left  = (x_axis * -50);  //+  multiplied by 2x y value cos of thruster orientation not being 45 degrees
+        motorCfg.back_right  = (x_axis * 50); //-
+        motorCfg.back_left   = (x_axis * -50);  //+
+      }
+
+    if(joy->axes[0] < 0) //if the x axis is negative (left)
+      {
+        motorCfg.front_right = (x_axis * 50);  //+ strafe left
+        motorCfg.front_left  = (x_axis * -50); //- orientation is reversed because joy->axes[0] is negative
+        motorCfg.back_right  = (x_axis * 50);  //+
+        motorCfg.back_left   = (x_axis * -50); //-
+      }
+
+    if(joy->axes[1] > 0) //if the y axis is posative (up)
+      {
+        motorCfg.front_right += (y_axis * 50);   //+ move forward (also adding this to the x motor values)
+        motorCfg.front_left  += (y_axis * 50);  //+
+        motorCfg.back_right  += (y_axis * -50); //-
+        motorCfg.back_left   += (y_axis * -50); //-
+      }
+
+    if(joy->axes[1] <= 0) //if the y axis is negative (down)
+      {
+        motorCfg.front_right += (y_axis * 50); //- move backwards (also adding this to the x motor values)
+        motorCfg.front_left  += (y_axis * 50); //- orientation is reversed because joy->axes[1] is negative
+        motorCfg.back_right  += (y_axis * -50);  //+
+        motorCfg.back_left   += (y_axis * -50);  //+
+      }
+	  //Yaw control, converts right joy stick x values into motor values.
+	  motorCfg.front_right += (20 * joy->axes[3]);
+	  motorCfg.front_left += (-20 * joy->axes[3]);
+	  motorCfg.back_left += (20 * joy->axes[3]);
+	  motorCfg.back_right += (-20 * joy->axes[3]);
+
+	  motorCfg.front_right = constrain(motorCfg.front_right, -100, 100); //constrain front right motor, min = -100, max = +100
+	  motorCfg.front_left = constrain(motorCfg.front_left, -100, 100);
+	  motorCfg.back_right = constrain(motorCfg.back_right, -100, 100);
+	  motorCfg.back_left = constrain(motorCfg.back_left, -100, 100);
+
+	  //Depth control, reads from the right ([5]) and left ([2]) triggers and outputs target vector values.
+
+    if((joy->axes[5] < 1) && (joy->axes[2] == 1)) //if right trigger is down and left trigger is up.
+      {
+        rise = (-1 * ((joy->axes[5] - 1.0)/2.0));//sets the right trigger to control rise
+        depthChange = (rise / 200); //sets the rate of change
+        std::cout << "Rise: "  << std::endl;
+      }
+
+    else if((joy->axes[5] == 1) && (joy->axes[2] < 1)) //if right trigger is up and left trigger is down
+      { 	
+	      dive = (1 * ((joy->axes[2] - 1.0)/2.0)); //sets the left trigger to control dive
+        depthChange = (dive / 200); //sets the rate of change		
+        std::cout << "Dive: " << std::endl;
+      }
+
+    else //if none or both of the trigers are held down do not change the depth.
+      {
+		    std::cout << "no trigger"  << std::endl;
+	      depthChange = 0;
+      }   
+
+    // Pitch control, right trigger y axis controls pitch
+    if((joy->axes[3] > 0.8) || (joy->axes[3]) < -0.8))
+      {
+        pitch_target = (1 * joy->axes[3]);
+      }  
+      
+    //if right joystick button is pressed level out the sub  
+    if(joy->buttons[10] == 1)
+      {
+        pitch_target = 0;
+      }  
 
   }
