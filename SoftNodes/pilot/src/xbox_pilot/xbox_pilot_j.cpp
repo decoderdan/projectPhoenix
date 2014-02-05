@@ -51,8 +51,8 @@ float depth_derivative = 0;
 
 float pitch_change = 0.0;
 float pitch_rate = 3;      //degrees per second
-float pitch_Kp = 0;      //3 variables for pitch PID
-float pitch_Ki = 0;
+float pitch_Kp = 2;      //3 variables for pitch PID
+float pitch_Ki = 1;
 float pitch_Kd = 0;
 float pitch_input = 0;     //values recieved from IMU
 float pitch_target_raw = 0;
@@ -114,7 +114,7 @@ void pidGuiCallBack(const custom_msg::PIDValues& data)
 
  void imuCallBack(const custom_msg::IMUData& data) 
   {
-  pitch_input = data.pitch;
+    pitch_input = data.pitch;
   }
 
 
@@ -219,7 +219,7 @@ int main( int argc, char **argv )
       std::cout << "target: " << pitch_target  << std::endl;
       
       pitch_error = pitch_target - pitch_input;
-      pitch_integral = pitch_integral + (pitch_error*dt);
+      pitch_integral = pitch_integral + (pitch_error*dt);          
       
       if(pitch_integral >= 30)
         {
@@ -230,8 +230,7 @@ int main( int argc, char **argv )
       pitch_previous_error = pitch_error;
       pitch_output = (pitch_Kp*pitch_error) + (pitch_Ki*pitch_integral) + (pitch_Kd*pitch_derivative);
 
-      //std::cout << "depth_target: " << depth_target  << std::endl;
-      //std::cout << "pitch_output: " << pitch_output  << std::endl;
+      std::cout << "pitch_output: " << pitch_output  << std::endl;
       
       if(pitch_output > 50)
         {
@@ -348,13 +347,11 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
     // Pitch control, right trigger y axis controls pitch
     if(joy->axes[4] > 0.8) 
       {
-        std::cout << "dive: " << std::endl;
         pitch_change = (-0.2 * joy->axes[4]);
       }  
 
     if(joy->axes[4] < -0.8)
       {
-        std::cout << "rise: " << std::endl;
         pitch_change = (-0.2 * joy->axes[4]);
       }  
       
