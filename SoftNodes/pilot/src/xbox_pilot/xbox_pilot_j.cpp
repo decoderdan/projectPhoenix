@@ -348,12 +348,12 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
     // Pitch control, right joystick y axis controls pitch
     if(joy->axes[4] > 0.8) //means the pitch is only effected when the joystick it tilted completely up.
       {
-        pitch_change = (-0.2 * joy->axes[4]);
+        pitch_change = (0.2 * joy->axes[4]);
       }  
 
     if(joy->axes[4] < -0.8) // or completely down
       {
-        pitch_change = (-0.2 * joy->axes[4]);
+        pitch_change = (0.2 * joy->axes[4]);
       }  
       
     if((joy->axes[4] > -0.79) && (joy->axes[4] < 0.79)) //sets the change in pitch to 0 if the joystick is in the middle area.
