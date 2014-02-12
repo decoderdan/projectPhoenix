@@ -4,4 +4,5 @@
   <node name="svs" 			pkg="svs" 				type="svs" />
   <node name="xbox_pilot" 	pkg="pilot" 			type="xbox_pilot" />
   <node name="imu" 			pkg="imu"				type="imu_interface" />
+  <node name="heart_beat" 	pkg="heart_beat"		type="subscriber" />
 </launch>

@@ -3,13 +3,13 @@
  /** Name: xbox_pilot.cpp                            **/
  /**                                                 **/
  /** Function: To recieve values from the xbox       **/
- /** 		   controller and convert it into motor      **/
+ /** 		       controller and convert it into motor  **/
  /**           values and target vector values.      **/
  /**                                                 **/
  /** Author: Unknown, edited by James Killick        **/
  /**                                                 **/
- /** Last Date Modified: 21/01/2014                  **/
- /** /// @bug serial node loses packets     				 **/
+ /** Last Date Modified: 11/02/2014                  **/
+ /**                                         				 **/
  /**  ********************************************** **/
 
 #include <stdio.h>
@@ -30,20 +30,20 @@ custom_msg::MotorConfig motorCfg;
 ros::Publisher targetMsg;
 custom_msg::TargetVector TargetVector;
 static std_msgs::Float32 z; 
-bool strafe_test = false; // used to activate experimental code
-int button_a = 0; //used to toggle the button
-float yaw_output = 0; //initialise values for yaw, pitch, depth.
+bool strafe_test = false;   // used to activate experimental code
+int button_a = 0;           //used to toggle the button
+float yaw_output = 0;       //initialise values for yaw, pitch, depth.
 float pitch_output = 0;
 float depth_output = 0;
 float dt = 0.02;
 
 float depth_rate = 0.05; 		//m per second
 float depth_Kp = 400;	//400	//3 variables for depth PID
-float depth_Ki = 0.01; //1 
-float depth_Kd = 1;    //0
+float depth_Ki = 0.01;      //1 
+float depth_Kd = 1;         //0
 float depth_input = 0;			//depth value recieved from the SVP
 float depth_target_raw = 0;	
-float depth_target = 0;		//desired depth value
+float depth_target = 0;		  //desired depth value
 float depth_error = 0;			//difference between desired and actual values.
 float depth_previous_error = 0;
 float depth_integral = 0;
@@ -51,7 +51,7 @@ float depth_derivative = 0;
 
 float pitch_change = 0.0;
 float pitch_rate = 3;      //degrees per second
-float pitch_Kp = 2;      //3 variables for pitch PID
+float pitch_Kp = 2;        //3 variables for pitch PID
 float pitch_Ki = 1;
 float pitch_Kd = 0;
 float pitch_input = 0;     //values recieved from IMU
@@ -62,7 +62,7 @@ float pitch_previous_error = 0;
 float pitch_integral = 0;
 float pitch_derivative = 0; 
 
-float rise = 0.0; //initialise variables for depth.
+float rise = 0.0;         //initialise variables for depth.
 float dive = 0.0;
 float depthChange = 0.0;
 float x_axis = 0.0;
@@ -83,7 +83,7 @@ void pidGuiCallBack(const custom_msg::PIDValues& data)
   
     //std::cout << "PID values updated "  << std::endl;
 
-    pitch_error = 0;  //variables for pitch PID calculation are reset.
+    pitch_error = 0;    //variables for pitch PID calculation are reset.
     pitch_previous_error = 0;
     pitch_integral = 0;
     pitch_derivative = 0;
@@ -102,7 +102,7 @@ void pidGuiCallBack(const custom_msg::PIDValues& data)
       {
         pitch_target = data.vector_pitch;
         std::cout << "Pitch target updated "  << std::endl;
-      }  ////if the pitch has changed, read in the new value.
+      }  //if the pitch has changed, read in the new value.
   }
 
   /** *********************************************** **/
@@ -177,7 +177,7 @@ int main( int argc, char **argv )
     ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack); //subscriber for the target vectors.
     ros::Subscriber imuSub = n.subscribe("imu", 100, imuCallBack);      //subscriber for the IMU.
 
-	  ros::Rate loop_rate(50); 
+	  ros::Rate loop_rate(50); //sets the rate to 50Hz
 
     float pitch_output = 0;
 
@@ -203,25 +203,25 @@ int main( int argc, char **argv )
       depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
       
       //pitch PID calculations
-      //pitch_error= 0;
       pitch_target += pitch_change;
       
-      if(pitch_target > 45)
+      if(pitch_target > 45) //limits the pitch to 45 degrees
         {
           pitch_target = 45;
         }
       
-      if(pitch_target < -45)
+      if(pitch_target < -45) //limits the pitch to -45 degrees
         {
           pitch_target = -45;
         }
       
       std::cout << "target: " << pitch_target  << std::endl;
       
+      //Pitch PID calculations
       pitch_error = pitch_target - pitch_input;
       pitch_integral = pitch_integral + (pitch_error*dt);          
       
-      if(pitch_integral >= 30)
+      if(pitch_integral >= 30) //limits the intergral to prevent integral wind-up
         {
           pitch_integral = 30;
         }
@@ -232,7 +232,7 @@ int main( int argc, char **argv )
 
       std::cout << "pitch_output: " << pitch_output  << std::endl;
       
-      if(pitch_output > 50)
+      if(pitch_output > 50) //prevents the pitch from going above the maximum set motor value.
         {
           pitch_output = 50;
         }
@@ -245,7 +245,8 @@ int main( int argc, char **argv )
       ros::spinOnce();
       loop_rate.sleep(); //Sleep to make the main function run at the desired rate.	   
     }
-		motorCfg.front_right = 0;
+		
+    motorCfg.front_right = 0; //stops all of the motors if the program fails
     motorCfg.front_left = 0;
     motorCfg.back_right = 0;
     motorCfg.back_left = 0;
@@ -344,18 +345,18 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 		    depthChange = 0;
       }   
 
-    // Pitch control, right trigger y axis controls pitch
-    if(joy->axes[4] > 0.8) 
+    // Pitch control, right joystick y axis controls pitch
+    if(joy->axes[4] > 0.8) //means the pitch is only effected when the joystick it tilted completely up.
       {
         pitch_change = (-0.2 * joy->axes[4]);
       }  
 
-    if(joy->axes[4] < -0.8)
+    if(joy->axes[4] < -0.8) // or completely down
       {
         pitch_change = (-0.2 * joy->axes[4]);
       }  
       
-    if((joy->axes[4] > -0.79) && (joy->axes[4] < 0.79))
+    if((joy->axes[4] > -0.79) && (joy->axes[4] < 0.79)) //sets the change in pitch to 0 if the joystick is in the middle area.
       {
         pitch_change = 0;
       }
