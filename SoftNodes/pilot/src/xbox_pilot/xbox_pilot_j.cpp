@@ -20,6 +20,8 @@
 #include <std_msgs/Float32.h>
 #include <custom_msg/PIDValues.h>
 #include <custom_msg/IMUData.h>
+#include "std_msgs/Bool.h"
+
 
 void joyCallback(const sensor_msgs::Joy::ConstPtr&); //declaration of call back functions
 float map(float, float, float, float, float);
@@ -30,8 +32,6 @@ custom_msg::MotorConfig motorCfg;
 ros::Publisher targetMsg;
 custom_msg::TargetVector TargetVector;
 static std_msgs::Float32 z; 
-bool strafe_test = false;   // used to activate experimental code
-int button_a = 0;           //used to toggle the button
 float yaw_output = 0;       //initialise values for yaw, pitch, depth.
 float pitch_output = 0;
 float depth_output = 0;
@@ -66,7 +66,8 @@ float rise = 0.0;         //initialise variables for depth.
 float dive = 0.0;
 float depthChange = 0.0;
 float x_axis = 0.0;
-float y_axis = 0.0; 
+float y_axis = 0.0;
+bool crisis = false; 
 
 /** *********************************************** **/
 /** Name: pidGuiCallBack                            **/
@@ -116,7 +117,6 @@ void pidGuiCallBack(const custom_msg::PIDValues& data)
   {
     pitch_input = data.pitch;
   }
-
 
  /** *********************************************** **/
  /** Name: depthCallBack                             **/
@@ -171,39 +171,67 @@ int main( int argc, char **argv )
     ros::NodeHandle n;
 
 	  motorMsg = n.advertise<custom_msg::MotorConfig>("motor_config", 100); //Publisher for the motor configuration
-	  ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
+	  ros::Publisher emergency = n.advertise<std_msgs::Bool>("emergency", 1000);  //Sets up publisher for emergency signal.
+
+    ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback); // Subscribe to joystick
     ros::Subscriber depthSub = n.subscribe("depth", 100, depthCallBack);	//subscriber for the depth.
     ros::Subscriber pidGuiSub = n.subscribe("pidGui", 100, pidGuiCallBack); //subscriber for the GUI.
     ros::Subscriber vectorSub = n.subscribe("vector", 100, vectorCallBack); //subscriber for the target vectors.
     ros::Subscriber imuSub = n.subscribe("imu", 100, imuCallBack);      //subscriber for the IMU.
-
+    
 	  ros::Rate loop_rate(50); //sets the rate to 50Hz
 
     float pitch_output = 0;
 
 	while(ros::ok())
 	  {	
-
+      std_msgs::Bool crisis; //Sets the message type to Boolean
       depth_target += depthChange; //depth target vector = the input target value + change in depth
+      
+      if(depth_target > (depth_input + 0.5))
+        {
+          depth_target = (depth_input + 0.5);
+        }
+
+      if(depth_target < (depth_input - 0.5))
+        {
+          depth_target = (depth_input - 0.5);
+        }
+
       if(depth_target <= -5) //checks to see if the depth target is less than 5m down.
         {
           depth_target = -5; //limits the maximum depth to 5m
         }
 
-      if(depth_target >= 5) //checks to see if the submarine is trying to fly
+      if(depth_target >= 0.1) //checks to see if the submarine is trying to fly
         {
-          depth_target = 5; // limits this hight to 5m
+          depth_target = 0.1; // limits this hight to 5m
         }
       
-      //PID calculations
+      //PID calculations      
       depth_error = depth_target - depth_input;
       depth_integral = depth_integral + (depth_error*dt);
       depth_derivative = (depth_error - depth_previous_error)/dt;
       depth_previous_error = depth_error;
       depth_output = (depth_Kp*depth_error) + (depth_Ki*depth_integral) + (depth_Kd*depth_derivative);
       
+      if(depth_output > 25) //prevents the pitch from going above the maximum set motor value.
+        {
+          depth_output = 25;
+        }
+
       //pitch PID calculations
       pitch_target += pitch_change;
+
+      if(pitch_target > (pitch_input + 10))
+        {
+          pitch_target = (pitch_input + 10);
+        }
+
+      if(pitch_target < (pitch_input - 10))
+        {
+          pitch_target = (pitch_input - 10);
+        }
       
       if(pitch_target > 45) //limits the pitch to 45 degrees
         {
@@ -215,33 +243,42 @@ int main( int argc, char **argv )
           pitch_target = -45;
         }
       
-      std::cout << "target: " << pitch_target  << std::endl;
+      std::cout << "pitch: " << pitch_target  << std::endl;
+      std::cout << "depth: " << depth_target  << std::endl;
       
       //Pitch PID calculations
       pitch_error = pitch_target - pitch_input;
       pitch_integral = pitch_integral + (pitch_error*dt);          
       
-      if(pitch_integral >= 30) //limits the intergral to prevent integral wind-up
+      if(pitch_integral >= 300) //limits the intergral to prevent integral wind-up
         {
-          pitch_integral = 30;
+          pitch_integral = 300;
         }
       
       pitch_derivative = (pitch_error - pitch_previous_error)/dt;
       pitch_previous_error = pitch_error;
       pitch_output = (pitch_Kp*pitch_error) + (pitch_Ki*pitch_integral) + (pitch_Kd*pitch_derivative);
 
-      std::cout << "pitch_output: " << pitch_output  << std::endl;
       
-      if(pitch_output > 50) //prevents the pitch from going above the maximum set motor value.
+      if(pitch_output > 25) //prevents the pitch from going above the maximum set motor value.
         {
-          pitch_output = 50;
+          pitch_output = 25;
         }
 
-      motorCfg.front =(int8_t)(constrain((-depth_output+pitch_output), -50, 50)); //constrain the motor values for depth and pitch to 25%
-      motorCfg.back = (int8_t)(constrain((-depth_output-pitch_output), -50, 50));  
+      std::cout << "pitch_output: " << pitch_output  << std::endl;
+      std::cout << "depth_output: " << depth_output  << std::endl;
+//////////////////////////////////////////////////////////////////////
+//// FIND OUT WHY BOTH MOTORS ARENT TURNING WHEN PITCH IT CHANGED.////
+//// PROBABLY SOMETHING TO DO WITH DEPTH AD PITCH CANCELING OUT.  ////
+//// RUN THE CODE AND SEE WHAT DEPTH_OUTPUT IS.                   ////
+//////////////////////////////////////////////////////////////////////
+
+      motorCfg.front =(int8_t)(constrain((depth_output-pitch_output), -100, 100)); 
+      motorCfg.back  =(int8_t)(constrain((depth_output+pitch_output), -100, 100));  
 
       motorMsg.publish(motorCfg); //publish motor values.
-      
+      emergency.publish(crisis); //publish emergency message
+
       ros::spinOnce();
       loop_rate.sleep(); //Sleep to make the main function run at the desired rate.	   
     }
@@ -265,8 +302,8 @@ int main( int argc, char **argv )
 
 void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) 
   {
- 	     // 0 = Left X Axis 
-       // 1 = Left Y Axis
+ 	  // 0 = Left X Axis 
+    // 1 = Left Y Axis
 	
 	  x_axis = joy->axes[0];
     y_axis = joy->axes[1];
@@ -313,7 +350,8 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
         motorCfg.back_right  += (y_axis * -50);  //+
         motorCfg.back_left   += (y_axis * -50);  //+
       }
-	  //Yaw control, converts right joy stick x values into motor values.
+	  
+    //Yaw control, converts right joy stick x values into motor values.
 	  motorCfg.front_right += (20 * joy->axes[3]);
 	  motorCfg.front_left += (-20 * joy->axes[3]);
 	  motorCfg.back_left += (20 * joy->axes[3]);
@@ -343,7 +381,19 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
     else //if none or both of the trigers are held down do not change the depth.
       {
 		    depthChange = 0;
-      }   
+      }
+
+    if(joy->buttons[4] == 1) //jumps the depth target down by 0.5m
+      {
+        std::cout << "skip down: " << std::endl;
+        depth_target = depth_target - 0.5;
+      }
+
+    if(joy->buttons[5] == 1) //raises the target depth by 0.5m
+      {
+        std::cout << "skip up: " << std::endl;
+        depth_target = depth_target + 0.5;
+      }        
 
     // Pitch control, right joystick y axis controls pitch
     if(joy->axes[4] > 0.8) //means the pitch is only effected when the joystick it tilted completely up.
@@ -364,8 +414,18 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
     //if right joystick button is pressed level out the sub  
     if(joy->buttons[10] == 1)
       {
-        std::cout << "reset: " << std::endl;
+        std::cout << "reset pitch: " << std::endl;
         pitch_target = 0;
       }  
 
+    if(joy->buttons[9] == 1)
+      {
+        std::cout << "reset depth: " << std::endl;
+        depth_target = 0;
+      }  
+    if ((joy->buttons[6] == 1) && (joy->buttons[7] == 1))
+      {
+        crisis = true;
+        std::cout << "abort ROV " << std::endl;
+      }
   }

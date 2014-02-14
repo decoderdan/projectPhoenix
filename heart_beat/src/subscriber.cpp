@@ -24,28 +24,13 @@ double difference = 0.0; //difference between current_time and previous_time.
 /** Name: pulseCallBack                             **/
 /**                                                 **/
 /** Function: To recieve the heart beat every       **/
-/**           second and determine if the delay     **/
-/**           between the beats is great enough     **/
-/**           to stop the submarine.                **/
+/**           half a second and set the previous    **/
+/**           time variable.                        **/
 /** *********************************************** **/
 
 void pulseCallback(const std_msgs::Bool& pulse)
 {
-
-  difference = (current_time - previous_time);  //calculates the time between signals.
-  std::cout << "Difference: " << difference  << std::endl;
-  
-  if((current_time > 0) && (previous_time > 0)) //Compensates for the first few cycles where time = 0;
-    {
-      if(difference >= 2.0) //Delay is greater than 3 seconds allow the emergency signal to be sent.
-        {  
-          no_signal = 1;
-          std::cout << "no signal " << std::endl;
-        }
-    }
-  
-  previous_time = current_time; //Make the previous time = the current time.
-  
+ previous_time = current_time; //Make the previous time = the current time.  
 }
 
 /** *********************************************** **/
@@ -72,6 +57,17 @@ int main(int argc, char **argv)
         std_msgs::Bool msg; //Sets the message type to Boolean
         
         current_time =ros::Time::now().toSec();//Gets the time in seconds and saves it into "current_time"
+
+        difference = (current_time - previous_time);  //calculates the time between signals.
+        std::cout << "Difference: " << difference  << std::endl;  
+  
+        if((current_time > 0) && (previous_time > 0)) //Compensates for the first few cycles where time = 0;
+          {
+            if(difference >= 2.0) //Delay is greater than 3 seconds allow the emergency signal to be sent.
+              {  
+                no_signal = 1;
+              }
+          }
 
         std::cout << "signal: " << no_signal  << std::endl;
   
